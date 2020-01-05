@@ -1,6 +1,6 @@
 import datetime
+import itertools
 import logging
-import random
 import sys
 import typing
 
@@ -8,10 +8,10 @@ from PySide2.QtCharts import QtCharts
 from PySide2.QtCore import QAbstractTableModel
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import Qt
+from PySide2.QtGui import QKeyEvent
 from PySide2.QtGui import QKeySequence
-from PySide2.QtWidgets import QAction
+from PySide2.QtWidgets import QAction, QVBoxLayout
 from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QHBoxLayout
 from PySide2.QtWidgets import QHeaderView
 from PySide2.QtWidgets import QMainWindow
 from PySide2.QtWidgets import QSizePolicy
@@ -26,10 +26,10 @@ class MainWindow(QMainWindow):
 
         # Menu
         self.menu = self.menuBar()
-        self.file_menu = self.menu.addMenu("File")
+        self.file_menu = self.menu.addMenu('File')
 
         # Exit QAction
-        exit_action = QAction("Exit", self)
+        exit_action = QAction('Exit', self)
         exit_action.setShortcut(QKeySequence.Quit)
         exit_action.triggered.connect(self.close)
 
@@ -37,18 +37,17 @@ class MainWindow(QMainWindow):
 
         # Status Bar
         self.status = self.statusBar()
-        self.status.showMessage("Data loaded and plotted")
+        self.status.showMessage('Data loaded and plotted')
 
 
 class CustomTableModel(QAbstractTableModel):
     def __init__(self,
-                 data: typing.Iterable[typing.Iterable[typing.Any]],
-                 t_headers: typing.Iterable[str],
-                 l_headers: typing.Iterable[str]):
+                 rows: typing.Iterable[typing.Sequence[typing.Any]],
+                 headers: typing.Iterable[str]):
         QAbstractTableModel.__init__(self)
-        self._data = data
-        self._t_headers = t_headers
-        self._l_headers = l_headers
+        self._data = [row[1:] for row in rows]  # should be eager
+        self._t_headers = headers
+        self._l_headers = [row[0] for row in rows]  # should be eager
 
     def rowCount(self, _parent=QModelIndex()):
         return len(self._l_headers)
@@ -64,12 +63,12 @@ class CustomTableModel(QAbstractTableModel):
             try:
                 return self._t_headers[section]
             except IndexError:
-                logging.exception("%r[%r]", self._t_headers, section)
+                logging.exception('%r[%r]', self._t_headers, section)
 
         try:
-            return self._l_headers[section]
+            return f'{self._l_headers[section]}'
         except IndexError:
-            logging.exception("%r[%r]", self._l_headers, section)
+            logging.exception('%r[%r]', self._l_headers, section)
 
     def data(self, index, role=Qt.DisplayRole):
         column = index.column()
@@ -77,29 +76,38 @@ class CustomTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             try:
-                return f"{self._data[row][column]}"
+                return f'{self._data[row][column]}'
             except IndexError:
-                logging.exception("%r[%r][%r]", self._data, row, column)
+                logging.exception('%r[%r][%r]', self._data, row, column)
 
         return None
 
 
-def build_series():
+def build_series(data: typing.Sequence[typing.Tuple[datetime.date, int]]):
     series = QtCharts.QLineSeries()
-    series.setName('name')
 
-    # Filling QLineSeries
-    def data():
-        for i in range(10):
-            x = (datetime.datetime.now() +
-                 datetime.timedelta(hours=i)).timestamp() * 1000
-            y = i * random.random()
-            yield x, y
+    # add start and today
+    moves = itertools.chain(
+        ((datetime.date(1990, 1, 1), 0),),
+        data,
+        ((datetime.date.today(), 0),)
+    )
 
-    # step the data
+    def sumy(a: typing.Iterable[typing.Any],
+             b: typing.Iterable[typing.Any]
+             ) -> typing.Tuple[datetime.date, int]:
+        _a0, a1, *_ = a
+        b0, b1, *_ = b
+        return b0, a1 + b1
 
+    summes = itertools.accumulate(moves, func=sumy)
+
+    floats = ((datetime.datetime.combine(x, datetime.time()).timestamp() * 1000, y)
+              for x, y in summes)
+
+    # step the movements
     last_y = None
-    for x, y in data():
+    for x, y in floats:
         if last_y is not None:
             series.append(x, last_y)
         series.append(x, y)
@@ -108,12 +116,29 @@ def build_series():
     return series
 
 
+class ChartView(QtCharts.QChartView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setRubberBand(QtCharts.QChartView.HorizontalRubberBand)
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.modifiers() & Qt.ControlModifier:
+            key = event.key()
+            if key == Qt.Key_0:
+                self.chart().zoomReset()
+            elif key == Qt.Key_Plus:
+                self.chart().zoomIn()
+            elif key == Qt.Key_Minus:
+                self.chart().zoomOut()
+        super().keyPressEvent(event)
+
+
 class Widget(QWidget):
-    def __init__(self, data, t_headers, l_headers):
+    def __init__(self, data, t_headers):
         QWidget.__init__(self)
 
         # Getting the Model
-        self.model = CustomTableModel(data, t_headers, l_headers)
+        self.model = CustomTableModel(data, t_headers)
 
         # Creating a QTableView
         self.table_view = QTableView()
@@ -127,10 +152,11 @@ class Widget(QWidget):
         self.vertical_header.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.horizontal_header.setStretchLastSection(True)
 
-        self.series = build_series()
+        self.series = build_series(data)
         self.chart = QtCharts.QChart()
         self.chart.addSeries(self.series)
-        self.chart_view = QtCharts.QChartView(self.chart)
+        self.chart.legend().setVisible(False)
+        self.chart_view = ChartView(self.chart)
 
         self.axis_x = QtCharts.QDateTimeAxis()
         self.chart.addAxis(self.axis_x, Qt.AlignBottom)
@@ -140,13 +166,13 @@ class Widget(QWidget):
         self.series.attachAxis(self.axis_y)
 
         # QWidget Layout
-        self.main_layout = QHBoxLayout()
+        self.main_layout = QVBoxLayout()
         size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         # Left layout
         size.setHorizontalStretch(1)
         self.table_view.setSizePolicy(size)
-#        self.main_layout.addWidget(self.table_view)
+        self.main_layout.addWidget(self.table_view)
         self.main_layout.addWidget(self.chart_view)
 
         # Set the layout to the QWidget
@@ -155,12 +181,19 @@ class Widget(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    window = MainWindow(Widget(((1, 2, 3), (4, 5, 6), (7, 8, 9), (10, 11, 12)),
-                               ("nomi", "cose", "città"),
-                               ("gen", "feb", "mar", "apr")))
+    window = MainWindow(Widget(
+        (
+            (datetime.date(2000, 1, 1), 5000),
+            (datetime.date(2000, 3, 1), -2000),
+            (datetime.date(2001, 1, 1), 1000),
+            (datetime.date(2001, 2, 1), -3000),
+            (datetime.date(2001, 3, 1), 10000),
+        ),
+        ('movimenti', )
+    ))
     window.show()
     sys.exit(app.exec_())
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
