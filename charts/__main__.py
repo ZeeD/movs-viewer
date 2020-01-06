@@ -1,4 +1,5 @@
 import datetime
+import decimal
 import itertools
 import logging
 import sys
@@ -42,60 +43,50 @@ class MainWindow(QMainWindow):
 
 class CustomTableModel(QAbstractTableModel):
     def __init__(self,
-                 rows: typing.Iterable[typing.Sequence[typing.Any]],
+                 data: typing.Iterable[typing.Sequence[typing.Any]],
                  headers: typing.Iterable[str]):
         QAbstractTableModel.__init__(self)
-        self._data = [row[1:] for row in rows]  # should be eager
-        self._t_headers = headers
-        self._l_headers = [row[0] for row in rows]  # should be eager
+        self._data = data
+        self._headers = headers
 
     def rowCount(self, _parent=QModelIndex()):
-        return len(self._l_headers)
+        return len(self._data)
 
     def columnCount(self, _parent=QModelIndex()):
-        return len(self._t_headers)
+        return len(self._headers)
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return None
 
-        if orientation == Qt.Horizontal:
-            try:
-                return self._t_headers[section]
-            except IndexError:
-                logging.exception('%r[%r]', self._t_headers, section)
+        if orientation != Qt.Horizontal:
+            return None
 
-        try:
-            return f'{self._l_headers[section]}'
-        except IndexError:
-            logging.exception('%r[%r]', self._l_headers, section)
+        return self._headers[section]
 
     def data(self, index, role=Qt.DisplayRole):
         column = index.column()
         row = index.row()
 
         if role == Qt.DisplayRole:
-            try:
-                return f'{self._data[row][column]}'
-            except IndexError:
-                logging.exception('%r[%r][%r]', self._data, row, column)
+            return f'{self._data[row][column]}'
 
         return None
 
 
-def build_series(data: typing.Sequence[typing.Tuple[datetime.date, int]]):
+def build_series(data: typing.Sequence[typing.Tuple[datetime.date, decimal.Decimal]]):
     series = QtCharts.QLineSeries()
 
     # add start and today
     moves = itertools.chain(
-        ((datetime.date(1990, 1, 1), 0),),
+        ((datetime.date(1990, 1, 1), decimal.Decimal(0)),),
         data,
-        ((datetime.date.today(), 0),)
+        ((datetime.date.today(), decimal.Decimal(0)),)
     )
 
     def sumy(a: typing.Iterable[typing.Any],
              b: typing.Iterable[typing.Any]
-             ) -> typing.Tuple[datetime.date, int]:
+             ) -> typing.Tuple[datetime.date, decimal.Decimal]:
         _a0, a1, *_ = a
         b0, b1, *_ = b
         return b0, a1 + b1
@@ -183,13 +174,13 @@ def main():
     app = QApplication(sys.argv)
     window = MainWindow(Widget(
         (
-            (datetime.date(2000, 1, 1), 5000),
-            (datetime.date(2000, 3, 1), -2000),
-            (datetime.date(2001, 1, 1), 1000),
-            (datetime.date(2001, 2, 1), -3000),
-            (datetime.date(2001, 3, 1), 10000),
+            (datetime.date(2000, 1, 1), decimal.Decimal(5000)),
+            (datetime.date(2000, 3, 1), decimal.Decimal(-2000)),
+            (datetime.date(2001, 1, 1), decimal.Decimal(1000)),
+            (datetime.date(2001, 2, 1), decimal.Decimal(-3000)),
+            (datetime.date(2001, 3, 1), decimal.Decimal(10000)),
         ),
-        ('movimenti', )
+        ('...', 'movimenti', )
     ))
     window.show()
     sys.exit(app.exec_())
