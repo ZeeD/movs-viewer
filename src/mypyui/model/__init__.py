@@ -1,3 +1,4 @@
+import dataclasses
 import datetime
 import decimal
 import itertools
@@ -14,20 +15,25 @@ from PySide2.QtWidgets import QTableView
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
+import movs
+
+
+FIELD_NAMES = [field.name for field in dataclasses.fields(movs.model.Row)]
+
 
 class CustomTableModel(QAbstractTableModel):
+
     def __init__(self,
-                 data: typing.Iterable[typing.Sequence[typing.Any]],
-                 headers: typing.Iterable[str]):
+                 data: typing.Iterable[movs.model.Row]):
         QAbstractTableModel.__init__(self)
-        self._data = data
-        self._headers = headers
+        self._data = [tuple(getattr(row, name) for name in FIELD_NAMES)
+                      for row in data]
 
     def rowCount(self, _parent=QModelIndex()):
         return len(self._data)
 
     def columnCount(self, _parent=QModelIndex()):
-        return len(self._headers)
+        return len(FIELD_NAMES)
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
@@ -36,7 +42,7 @@ class CustomTableModel(QAbstractTableModel):
         if orientation != Qt.Horizontal:
             return None
 
-        return self._headers[section]
+        return FIELD_NAMES[section]
 
     def data(self, index, role=Qt.DisplayRole):
         column = index.column()

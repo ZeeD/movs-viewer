@@ -4,17 +4,29 @@ import itertools
 import typing
 
 from PySide2.QtCharts import QtCharts
+import movs
+
+ZERO = decimal.Decimal(0)
 
 
-def build_series(data: typing.Sequence[typing.Tuple[datetime.date, decimal.Decimal]],
+def build_series(data: typing.Iterable[movs.model.Row],
                  epoch: datetime.date = datetime.date(1990, 1, 1)):
     series = QtCharts.QLineSeries()
 
+    def toTuple(row: movs.model.Row) -> typing.Tuple[datetime.date, decimal.Decimal]:
+        if row.accrediti is not None:
+            mov = row.accrediti
+        elif row.addebiti is not None:
+            mov = - row.addebiti
+        else:
+            mov = ZERO
+        return (row.data_contabile, mov)
+
     # add start and today
     moves = itertools.chain(
-        ((epoch, decimal.Decimal(0)),),
-        data,
-        ((datetime.date.today(), decimal.Decimal(0)),)
+        ((epoch, ZERO),),
+        map(toTuple, data),
+        ((datetime.date.today(), ZERO),)
     )
 
     def sumy(a: typing.Iterable[typing.Any],

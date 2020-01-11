@@ -14,8 +14,10 @@ from PySide2.QtWidgets import QTableView
 from PySide2.QtWidgets import QVBoxLayout
 from PySide2.QtWidgets import QWidget
 
-import charts
-import model
+import movs
+import mypyui
+
+from .. import model
 
 
 class ChartView(QtCharts.QChartView):
@@ -36,11 +38,11 @@ class ChartView(QtCharts.QChartView):
 
 
 class Widget(QWidget):
-    def __init__(self, data, t_headers):
+    def __init__(self, data: typing.Iterable[movs.model.Row], t_headers):
         QWidget.__init__(self)
 
         # Getting the Model
-        self.model = model.CustomTableModel(data, t_headers)
+        self.model = model.CustomTableModel(data)
 
         # Creating a QTableView
         self.table_view = QTableView()
@@ -54,7 +56,7 @@ class Widget(QWidget):
         self.vertical_header.setSectionResizeMode(QHeaderView.ResizeToContents)
         self.horizontal_header.setStretchLastSection(True)
 
-        self.series = charts.build_series(data)
+        self.series = mypyui.build_series(data)
         self.chart = QtCharts.QChart()
         self.chart.addSeries(self.series)
         self.chart.legend().setVisible(False)
