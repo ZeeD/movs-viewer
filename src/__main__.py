@@ -6,10 +6,11 @@ from PySide2.QtWidgets import QApplication
 from movs import model
 from mypyui import window, view
 import movs
+import pathlib
 
 
 def main() -> None:
-    fn = r'C:\Users\DeTullioVito\Desktop\workspace_oxygen\movs\resources\BPOL_Lista_Movimenti.txt'
+    fn = pathlib.Path(movs.__file__).parent.parent.parent / 'resources' / 'BPOL_Lista_Movimenti.txt'
     _, csv = movs.read_txt(fn)
 
     data = csv
