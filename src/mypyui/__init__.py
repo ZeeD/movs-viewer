@@ -13,7 +13,8 @@ def build_series(data: typing.Iterable[movs.model.Row],
                  epoch: datetime.date = datetime.date(1990, 1, 1)):
     series = QtCharts.QLineSeries()
 
-    def toTuple(row: movs.model.Row) -> typing.Tuple[datetime.date, decimal.Decimal]:
+    def toTuple(
+            row: movs.model.Row) -> typing.Tuple[datetime.date, decimal.Decimal]:
         if row.accrediti is not None:
             mov = row.accrediti
         elif row.addebiti is not None:
@@ -38,8 +39,13 @@ def build_series(data: typing.Iterable[movs.model.Row],
 
     summes = itertools.accumulate(moves, func=sumy)
 
-    floats = ((datetime.datetime.combine(x, datetime.time()).timestamp() * 1000, y)
-              for x, y in summes)
+    floats = (
+        (datetime.datetime.combine(
+            x,
+            datetime.time()).timestamp() *
+            1000,
+            y) for x,
+        y in summes)
 
     # step the movements
     last_y = None

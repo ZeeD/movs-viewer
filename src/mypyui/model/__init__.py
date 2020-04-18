@@ -1,3 +1,6 @@
+from PySide2.QtCore import QAbstractTableModel
+from PySide2.QtCore import QModelIndex
+from PySide2.QtCore import Qt
 import dataclasses
 import datetime
 import decimal
@@ -5,9 +8,6 @@ import itertools
 import typing
 
 from PySide2.QtCharts import QtCharts
-from PySide2.QtCore import QAbstractTableModel
-from PySide2.QtCore import QModelIndex
-from PySide2.QtCore import Qt
 from PySide2.QtGui import QKeyEvent
 from PySide2.QtWidgets import QHeaderView
 from PySide2.QtWidgets import QSizePolicy

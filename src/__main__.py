@@ -1,4 +1,5 @@
 import dataclasses
+import pathlib
 import sys
 
 from PySide2.QtWidgets import QApplication
@@ -6,12 +7,12 @@ from PySide2.QtWidgets import QApplication
 from movs import model
 from mypyui import window, view
 import movs
-import pathlib
 
 
 def main() -> None:
-    fn = pathlib.Path(movs.__file__).parent.parent.parent / 'resources' / 'BPOL_Lista_Movimenti.txt'
-    _, csv = movs.read_txt(fn)
+    fn = pathlib.Path(movs.__file__).parent.parent.parent / \
+        'resources' / 'BPOL_Lista_Movimenti.txt'
+    _, csv = movs.read_txt(str(fn))
 
     data = csv
     headers = tuple(f.name for f in dataclasses.fields(model.Row))
