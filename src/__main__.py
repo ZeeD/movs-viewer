@@ -10,11 +10,14 @@ import movs
 
 
 def main() -> None:
-    fn = pathlib.Path(movs.__file__).parent.parent.parent / \
-        'resources' / 'BPOL_Lista_Movimenti.txt'
-    _, csv = movs.read_txt(str(fn))
+    'main'
 
-    data = csv
+    if not sys.argv[1:]:
+        raise SystemExit(f'uso: {sys.argv[0]} ACCUMULATOR')
+
+    _, csv = movs.read_txt(str(sys.argv[1]))
+
+    data = csv[::-1]
     headers = tuple(f.name for f in dataclasses.fields(model.Row))
 
     app = QApplication(sys.argv)
