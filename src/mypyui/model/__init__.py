@@ -5,6 +5,7 @@ import dataclasses
 import datetime
 import decimal
 import itertools
+import math
 import typing
 
 from PySide2.QtCharts import QtCharts
@@ -52,3 +53,17 @@ class CustomTableModel(QAbstractTableModel):
             return f'{self._data[row][column]}'
 
         return None
+
+    def sort(self, index, order):
+        def key(row):
+            e = row[index]
+            if e is None:
+                return math.inf
+            return e
+
+        self.layoutAboutToBeChanged.emit()
+        try:
+            self._data.sort(key=key,
+                            reverse=order == Qt.DescendingOrder)
+        finally:
+            self.layoutChanged.emit()

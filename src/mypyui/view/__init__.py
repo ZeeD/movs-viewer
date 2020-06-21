@@ -8,6 +8,7 @@ from PySide2.QtCore import QAbstractTableModel
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QKeyEvent
+from PySide2.QtWidgets import QAbstractItemView
 from PySide2.QtWidgets import QHeaderView
 from PySide2.QtWidgets import QSizePolicy
 from PySide2.QtWidgets import QTableView
@@ -46,6 +47,8 @@ class Widget(QWidget):
 
         # Creating a QTableView
         self.table_view = QTableView()
+        self.table_view.setSortingEnabled(True)
+        self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_view.setModel(self.model)
 
         # QTableView Headers
