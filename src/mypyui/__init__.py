@@ -10,11 +10,12 @@ ZERO = decimal.Decimal(0)
 
 
 def build_series(data: typing.Iterable[movs.model.Row],
-                 epoch: datetime.date = datetime.date(1990, 1, 1)):
+                 epoch: datetime.date = datetime.date(1990, 1, 1)
+                 ) -> QtCharts.QLineSeries:
     series = QtCharts.QLineSeries()
 
-    def toTuple(
-            row: movs.model.Row) -> typing.Tuple[datetime.date, decimal.Decimal]:
+    def toTuple(row: movs.model.Row
+                ) -> typing.Tuple[datetime.date, decimal.Decimal]:
         if row.accrediti is not None:
             mov = row.accrediti
         elif row.addebiti is not None:
@@ -30,25 +31,20 @@ def build_series(data: typing.Iterable[movs.model.Row],
         ((datetime.date.today(), ZERO),)
     )
 
-    def sumy(a: typing.Iterable[typing.Any],
-             b: typing.Iterable[typing.Any]
+    def sumy(a: typing.Tuple[datetime.date, decimal.Decimal],
+             b: typing.Tuple[datetime.date, decimal.Decimal]
              ) -> typing.Tuple[datetime.date, decimal.Decimal]:
-        _a0, a1, *_ = a
-        b0, b1, *_ = b
+        _a0, a1 = a
+        b0, b1 = b
         return b0, a1 + b1
 
     summes = itertools.accumulate(moves, func=sumy)
 
-    floats = (
-        (datetime.datetime.combine(
-            x,
-            datetime.time()).timestamp() *
-            1000,
-            y) for x,
-        y in summes)
+    floats = ((datetime.datetime.combine(x, datetime.time()).timestamp() * 1000, y)
+              for x, y in summes)
 
     # step the movements
-    last_y = None
+    last_y: typing.Optional[decimal.Decimal] = None
     for x, y in floats:
         if last_y is not None:
             series.append(x, last_y)

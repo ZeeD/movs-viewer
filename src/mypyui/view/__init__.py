@@ -22,8 +22,8 @@ from .. import model
 
 
 class ChartView(QtCharts.QChartView):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, chart: QtCharts.QChart) -> None:
+        super().__init__(chart)
         self.setRubberBand(QtCharts.QChartView.HorizontalRubberBand)
 
     def keyPressEvent(self, event: QKeyEvent) -> None:
@@ -39,7 +39,10 @@ class ChartView(QtCharts.QChartView):
 
 
 class Widget(QWidget):
-    def __init__(self, data: typing.Iterable[movs.model.Row], t_headers):
+    def __init__(self,
+                 data: typing.Iterable[movs.model.Row],
+                 t_headers: typing.Tuple[str, ...]
+                 ) -> None:
         QWidget.__init__(self)
 
         # Getting the Model

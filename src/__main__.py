@@ -1,5 +1,4 @@
 import dataclasses
-import pathlib
 import sys
 
 from PySide2.QtWidgets import QApplication
