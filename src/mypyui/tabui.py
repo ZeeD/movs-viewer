@@ -1,33 +1,35 @@
-import contextlib
-import typing
+from contextlib import contextmanager
+from typing import List
+from typing import Iterator
 
-from PySide2 import QtUiTools, QtWidgets
+from movs.model import Row
+from PySide2.QtUiTools import QUiLoader
+from PySide2.QtWidgets import QApplication
+from PySide2.QtWidgets import QGridLayout
+from PySide2.QtWidgets import QMainWindow
 
-from movs import model
-
-from . import chartview
-from . import viewmodel
-
+from .chartview import ChartView
+from .viewmodel import SortFilterViewModel
 
 TABUI_UI_PATH = f'{__file__}/../../../resources/tabui.ui'
 
 
-@contextlib.contextmanager
-def main_window(data: typing.Iterable[model.Row]
-                ) -> typing.Iterator[QtWidgets.QMainWindow]:
-    app = QtWidgets.QApplication([__file__])
+@contextmanager
+def main_window(data: List[Row]) -> Iterator[QMainWindow]:
+    app = QApplication([__file__])
+
+    main_window = QUiLoader().load(TABUI_UI_PATH)
+
+    view_model = SortFilterViewModel(main_window, data)
+    main_window.tableView.setModel(view_model)
+    main_window.lineEdit.textChanged.connect(view_model.filter_changed)
+
+    # chart_view = ChartView(main_window, data)
+    # grid = QGridLayout()
+    # grid.addWidget(chart_view)
+    # main_window.tab_2.setLayout(grid)
+
     try:
-        main_window = QtUiTools.QUiLoader().load(TABUI_UI_PATH)
-
-        view_model = viewmodel.SortFilterViewModel(main_window, data)
-        main_window.tableView.setModel(view_model)
-        main_window.lineEdit.textChanged.connect(view_model.filter_changed)
-
-        chart_view = chartview.ChartView(main_window, data)
-        grid = QtWidgets.QGridLayout()
-        grid.addWidget(chart_view)
-        main_window.tab2.setLayout(grid)
-
         yield main_window
     finally:
         app.exec_()

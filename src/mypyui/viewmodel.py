@@ -1,90 +1,108 @@
-import dataclasses
-import datetime
-import decimal
-import math
-import typing
+from dataclasses import fields
+from datetime import date
+from decimal import Decimal
+from typing import List
+from typing import Optional
+from typing import Union
 
-from PySide2 import QtCore
+from movs.model import Row
+from PySide2.QtCore import QAbstractTableModel
+from PySide2.QtCore import QModelIndex
+from PySide2.QtCore import QObject
+from PySide2.QtCore import QRegExp
+from PySide2.QtCore import QSortFilterProxyModel
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QBrush, QColor
+from openpyxl.styles.builtins import percent
 
-from movs import model
-import movs
+FIELD_NAMES = [field.name for field in fields(Row)]
+
+T_FIELDS = Union[date, Optional[Decimal], str]
+
+ZERO = Decimal(0)
 
 
-FIELD_NAMES = [field.name for field in dataclasses.fields(movs.model.Row)]
+def _abs(row: Row) -> Decimal:
+    if row.addebiti is not None:
+        return -row.addebiti
+    if row.accrediti is not None:
+        return row.accrediti
+    return ZERO
 
-T_FIELDS = typing.Union[datetime.date, decimal.Decimal, str]
 
-
-class ViewModel(QtCore.QAbstractTableModel):
-    def __init__(self,
-                 parent: QtCore.QObject,
-                 data: typing.Iterable[movs.model.Row]):
+class ViewModel(QAbstractTableModel):
+    def __init__(self, parent: QObject, data: List[Row]):
         super().__init__(parent)
-        self._data = [tuple(getattr(row, name) for name in FIELD_NAMES)
-                      for row in data]
+        self._data = data
+        abs_data = [_abs(row) for row in data]
+        abs_data.sort()
+        self._min = abs_data[0]
+        self._max = abs_data[-1]
 
-    def rowCount(self, _parent: QtCore.QModelIndex=QtCore.QModelIndex()) -> int:
+    def rowCount(self, _parent: QModelIndex = QModelIndex()) -> int:
         return len(self._data)
 
-    def columnCount(self, _parent: QtCore.QModelIndex=QtCore.QModelIndex()) -> int:
+    def columnCount(self, _parent: QModelIndex = QModelIndex()) -> int:
         return len(FIELD_NAMES)
 
-    def headerData(self,
-                   section: int,
-                   orientation: QtCore.Qt.Orientation,
-                   role: int=QtCore.Qt.DisplayRole
-                   ) -> typing.Optional[str]:
-        if role != QtCore.Qt.DisplayRole:
+    def headerData(
+            self,
+            section: int,
+            orientation: Qt.Orientation,
+            role: int = Qt.DisplayRole) -> Optional[str]:
+        if role != Qt.DisplayRole:
             return None
 
-        if orientation != QtCore.Qt.Horizontal:
+        if orientation != Qt.Horizontal:
             return None
 
         return FIELD_NAMES[section]
 
     def data(self,
-             index: QtCore.QModelIndex,
-             role: int= QtCore.Qt.DisplayRole
-             ) -> typing.Optional[str]:
+             index: QModelIndex,
+             role: int = Qt.DisplayRole) -> Optional[T_FIELDS]:
         column = index.column()
         row = index.row()
 
-        if role == QtCore.Qt.DisplayRole:
-            return f'{self._data[row][column]}'
+        if role == Qt.DisplayRole:
+            return str(getattr(self._data[row], FIELD_NAMES[column]))
+
+        if role == Qt.BackgroundRole:
+            abs_value = _abs(self._data[row])
+            percent = (abs_value - self._min) / (self._max - self._min)
+            red = int((1 - percent) * 255)
+            green = int(percent * 255)
+
+            return QBrush(QColor(red, green, 127))
 
         return None
 
-    def sort(self, index: int, order: QtCore.Qt.SortOrder=QtCore.Qt.AscendingOrder)->None:
-        def key(row: typing.Tuple[typing.Union[T_FIELDS, None], ...]
-                ) -> typing.Union[T_FIELDS, float]:
-            e = row[index]
+    def sort(self, index: int, order: Qt.SortOrder = Qt.AscendingOrder) -> None:
+        def key(row: Row) -> Union[date, Decimal, str]:  # T_FIELDS - None
+            e: T_FIELDS = getattr(row, FIELD_NAMES[index])
             if e is None:
-                return math.inf
+                return ZERO
             return e
 
         self.layoutAboutToBeChanged.emit()
         try:
-            self._data.sort(key=key,
-                            reverse=order == QtCore.Qt.DescendingOrder)
+            self._data.sort(key=key, reverse=order == Qt.DescendingOrder)
         finally:
             self.layoutChanged.emit()
 
 
-class SortFilterViewModel(QtCore.QSortFilterProxyModel):
-    def __init__(self,
-                 parent: QtCore.QObject,
-                 data: typing.Iterable[model.Row]
-                 ) -> None:
+class SortFilterViewModel(QSortFilterProxyModel):
+    def __init__(self, parent: QObject, data: List[Row]) -> None:
         super().__init__(parent)
         self.setSourceModel(ViewModel(self, data))
-        self.setFilterCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        self.setSortCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.setDynamicSortFilter(True)
 
-    def filterAcceptsRow(self,
-                         source_row: int,
-                         source_parent: QtCore.QModelIndex
-                         ) -> bool:
+    def filterAcceptsRow(
+            self,
+            source_row: int,
+            source_parent: QModelIndex) -> bool:
         regex = self.filterRegExp()
         source_model = self.sourceModel()
         column_count = source_model.columnCount(source_parent)
@@ -93,6 +111,11 @@ class SortFilterViewModel(QtCore.QSortFilterProxyModel):
                                  for i in range(column_count)))
 
     def filter_changed(self, text: str) -> None:
-        self.setFilterRegExp(QtCore.QRegExp(text,
-                                            QtCore.Qt.CaseInsensitive,
-                                            QtCore.QRegExp.FixedString))
+        self.setFilterRegExp(
+            QRegExp(
+                text,
+                Qt.CaseInsensitive,
+                QRegExp.FixedString))
+
+    def sort(self, column: int, order: Qt.SortOrder = Qt.AscendingOrder) -> None:
+        self.sourceModel().sort(column, order)

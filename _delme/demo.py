@@ -2,46 +2,48 @@
 
 #############################################################################
 ##
-## Copyright (C) 2013 Riverbank Computing Limited.
-## Copyright (C) 2016 The Qt Company Ltd.
-## Contact: http://www.qt.io/licensing/
+# Copyright (C) 2013 Riverbank Computing Limited.
+# Copyright (C) 2016 The Qt Company Ltd.
+# Contact: http://www.qt.io/licensing/
 ##
-## This file is part of the PySide examples of the Qt Toolkit.
+# This file is part of the PySide examples of the Qt Toolkit.
 ##
-## $QT_BEGIN_LICENSE:BSD$
-## You may use this file under the terms of the BSD license as follows:
-##g
-## "Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions are
-## met:
-##   * Redistributions of source code must retain the above copyright
-##     notice, this list of conditions and the following disclaimer.
-##   * Redistributions in binary form must reproduce the above copyright
-##     notice, this list of conditions and the following disclaimer in
-##     the documentation and/or other materials provided with the
-##     distribution.
-##   * Neither the name of The Qt Company Ltd nor the names of its
-##     contributors may be used to endorse or promote products derived
-##     from this software without specific prior written permission.
+# $QT_BEGIN_LICENSE:BSD$
+# You may use this file under the terms of the BSD license as follows:
+# g
+# "Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+# * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in
+# the documentation and/or other materials provided with the
+# distribution.
+# * Neither the name of The Qt Company Ltd nor the names of its
+# contributors may be used to endorse or promote products derived
+# from this software without specific prior written permission.
 ##
 ##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-## "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-## LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-## A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-## OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-## SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-## LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-## DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-## THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
 ##
-## $QT_END_LICENSE$
+# $QT_END_LICENSE$
 ##
 #############################################################################
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore
+from PySide2 import QtGui
+from PySide2 import QtWidgets
 
 
 class Window(QtWidgets.QWidget):
@@ -64,8 +66,10 @@ class Window(QtWidgets.QWidget):
         self.proxyView.setModel(self.proxyModel)
         self.proxyView.setSortingEnabled(True)
 
-        self.sortCaseSensitivityCheckBox = QtWidgets.QCheckBox("Case sensitive sorting")
-        self.filterCaseSensitivityCheckBox = QtWidgets.QCheckBox("Case sensitive filter")
+        self.sortCaseSensitivityCheckBox = QtWidgets.QCheckBox(
+            "Case sensitive sorting")
+        self.filterCaseSensitivityCheckBox = QtWidgets.QCheckBox(
+            "Case sensitive filter")
 
         self.filterPatternLineEdit = QtWidgets.QLineEdit()
         self.filterPatternLabel = QtWidgets.QLabel("&Filter pattern:")
@@ -73,11 +77,11 @@ class Window(QtWidgets.QWidget):
 
         self.filterSyntaxComboBox = QtWidgets.QComboBox()
         self.filterSyntaxComboBox.addItem("Regular expression",
-                QtCore.QRegExp.RegExp)
+                                          QtCore.QRegExp.RegExp)
         self.filterSyntaxComboBox.addItem("Wildcard",
-                QtCore.QRegExp.Wildcard)
+                                          QtCore.QRegExp.Wildcard)
         self.filterSyntaxComboBox.addItem("Fixed string",
-                QtCore.QRegExp.FixedString)
+                                          QtCore.QRegExp.FixedString)
         self.filterSyntaxLabel = QtWidgets.QLabel("Filter &syntax:")
         self.filterSyntaxLabel.setBuddy(self.filterSyntaxComboBox)
 
@@ -88,10 +92,14 @@ class Window(QtWidgets.QWidget):
         self.filterColumnLabel = QtWidgets.QLabel("Filter &column:")
         self.filterColumnLabel.setBuddy(self.filterColumnComboBox)
 
-        self.filterPatternLineEdit.textChanged.connect(self.filterRegExpChanged)
-        self.filterSyntaxComboBox.currentIndexChanged.connect(self.filterRegExpChanged)
-        self.filterColumnComboBox.currentIndexChanged.connect(self.filterColumnChanged)
-        self.filterCaseSensitivityCheckBox.toggled.connect(self.filterRegExpChanged)
+        self.filterPatternLineEdit.textChanged.connect(
+            self.filterRegExpChanged)
+        self.filterSyntaxComboBox.currentIndexChanged.connect(
+            self.filterRegExpChanged)
+        self.filterColumnComboBox.currentIndexChanged.connect(
+            self.filterColumnChanged)
+        self.filterCaseSensitivityCheckBox.toggled.connect(
+            self.filterRegExpChanged)
         self.sortCaseSensitivityCheckBox.toggled.connect(self.sortChanged)
 
         sourceLayout = QtWidgets.QHBoxLayout()
@@ -130,7 +138,8 @@ class Window(QtWidgets.QWidget):
         self.sourceView.setModel(model)
 
     def filterRegExpChanged(self):
-        syntax_nr = self.filterSyntaxComboBox.itemData(self.filterSyntaxComboBox.currentIndex())
+        syntax_nr = self.filterSyntaxComboBox.itemData(
+            self.filterSyntaxComboBox.currentIndex())
         syntax = QtCore.QRegExp.PatternSyntax(syntax_nr)
 
         if self.filterCaseSensitivityCheckBox.isChecked():
@@ -139,11 +148,12 @@ class Window(QtWidgets.QWidget):
             caseSensitivity = QtCore.Qt.CaseInsensitive
 
         regExp = QtCore.QRegExp(self.filterPatternLineEdit.text(),
-                caseSensitivity, syntax)
+                                caseSensitivity, syntax)
         self.proxyModel.setFilterRegExp(regExp)
 
     def filterColumnChanged(self):
-        self.proxyModel.setFilterKeyColumn(self.filterColumnComboBox.currentIndex())
+        self.proxyModel.setFilterKeyColumn(
+            self.filterColumnComboBox.currentIndex())
 
     def sortChanged(self):
         if self.sortCaseSensitivityCheckBox.isChecked():
@@ -170,8 +180,18 @@ def createMailModel(parent):
 
     addMail(model, "Happy New Year!", "Grace K. <grace@software-inc.com>",
             QtCore.QDateTime(QtCore.QDate(2006, 12, 31), QtCore.QTime(17, 3)))
-    addMail(model, "Radically new concept", "Grace K. <grace@software-inc.com>",
-            QtCore.QDateTime(QtCore.QDate(2006, 12, 22), QtCore.QTime(9, 44)))
+    addMail(
+        model,
+        "Radically new concept",
+        "Grace K. <grace@software-inc.com>",
+        QtCore.QDateTime(
+            QtCore.QDate(
+                2006,
+                12,
+                22),
+            QtCore.QTime(
+                9,
+                44)))
     addMail(model, "Accounts", "pascale@nospam.com",
             QtCore.QDateTime(QtCore.QDate(2006, 12, 31), QtCore.QTime(12, 50)))
     addMail(model, "Expenses", "Joe Bloggs <joe@bloggs.com>",

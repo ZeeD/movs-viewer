@@ -1,18 +1,17 @@
-import sys
+from sys import argv
 
-from PySide2 import QtWidgets
+from movs import read_txt
 
-import movs
-from mypyui import tabui
+from .tabui import main_window
 
 
 def main() -> None:
     try:
-        _, accumulator = sys.argv
-    except:
-        raise SystemExit(f'uso: {sys.argv[0]} ACCUMULATOR')
+        _, accumulator = argv
+    except ValueError:
+        raise SystemExit(f'uso: {argv[0]} ACCUMULATOR')
 
-    _, data = movs.read_txt(accumulator)
+    _, data = read_txt(accumulator)
 
-    with tabui.main_window(data) as main_window:
-        main_window.show()
+    with main_window(data) as window:
+        window.show()
