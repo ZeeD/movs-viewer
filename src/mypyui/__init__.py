@@ -13,5 +13,5 @@ def main() -> None:
 
     _, data = read_txt(accumulator)
 
-    with main_window(data) as window:
+    with main_window(list(data)) as window:
         window.show()

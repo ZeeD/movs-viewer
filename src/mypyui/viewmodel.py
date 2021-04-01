@@ -13,7 +13,6 @@ from PySide2.QtCore import QRegExp
 from PySide2.QtCore import QSortFilterProxyModel
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QBrush, QColor
-from openpyxl.styles.builtins import percent
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
@@ -69,11 +68,13 @@ class ViewModel(QAbstractTableModel):
 
         if role == Qt.BackgroundRole:
             abs_value = _abs(self._data[row])
-            percent = (abs_value - self._min) / (self._max - self._min)
-            red = int((1 - percent) * 255)
-            green = int(percent * 255)
+            perc = float((abs_value - self._min) / (self._max - self._min))
 
-            return QBrush(QColor(red, green, 127))
+            red = int((1 - perc) * 255)  # 0..1 ->  255..0
+            green = int(perc * 255)  # 0..1 -> 0..255
+            blue = int((.5 - abs(perc - .5)) * 511)  # 0..0.5..1 -> 0..255..0
+
+            return QBrush(QColor(red, green, blue, 127))
 
         return None
 
