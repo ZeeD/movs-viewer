@@ -1,6 +1,10 @@
-from datetime import date, timedelta
-from movs.model import Row
+from datetime import date
+from datetime import timedelta
 from decimal import Decimal
+from pprint import pprint
+
+from movs.model import Row
+
 from mypyui.tabui import main_window
 
 
@@ -19,11 +23,11 @@ DATA = [row(1, 123),
         row(5, -112),
         row(6, 13)]
 
-DATA = [row(day, euro)
-        for day, euro in enumerate(range(11), start=1)]
+# DATA = [row(day, euro) for day, euro in enumerate(range(11))]
 
 
 def main() -> None:
+    pprint(DATA)
     with main_window(DATA) as window:
         window.show()
 

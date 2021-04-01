@@ -12,7 +12,8 @@ from PySide2.QtCore import QObject
 from PySide2.QtCore import QRegExp
 from PySide2.QtCore import QSortFilterProxyModel
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QBrush, QColor
+from PySide2.QtGui import QBrush
+from PySide2.QtGui import QColor
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
@@ -33,8 +34,7 @@ class ViewModel(QAbstractTableModel):
     def __init__(self, parent: QObject, data: List[Row]):
         super().__init__(parent)
         self._data = data
-        abs_data = [_abs(row) for row in data]
-        abs_data.sort()
+        abs_data = sorted([_abs(row) for row in data])
         self._min = abs_data[0]
         self._max = abs_data[-1]
 
@@ -78,7 +78,10 @@ class ViewModel(QAbstractTableModel):
 
         return None
 
-    def sort(self, index: int, order: Qt.SortOrder = Qt.AscendingOrder) -> None:
+    def sort(
+            self,
+            index: int,
+            order: Qt.SortOrder = Qt.AscendingOrder) -> None:
         def key(row: Row) -> Union[date, Decimal, str]:  # T_FIELDS - None
             e: T_FIELDS = getattr(row, FIELD_NAMES[index])
             if e is None:
@@ -118,5 +121,8 @@ class SortFilterViewModel(QSortFilterProxyModel):
                 Qt.CaseInsensitive,
                 QRegExp.FixedString))
 
-    def sort(self, column: int, order: Qt.SortOrder = Qt.AscendingOrder) -> None:
+    def sort(
+            self,
+            column: int,
+            order: Qt.SortOrder = Qt.AscendingOrder) -> None:
         self.sourceModel().sort(column, order)
