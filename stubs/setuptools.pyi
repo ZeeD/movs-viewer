@@ -2,11 +2,12 @@ from distutils.core import Command
 from distutils.core import Distribution
 from distutils.core import Extension
 from sys import argv
-from typing import Dict, Optional, Literal
+from typing import Dict
 from typing import List
+from typing import Literal
+from typing import Optional
 from typing import Type
 from typing import Union
-
 
 def setup(*,
           name: str = '',

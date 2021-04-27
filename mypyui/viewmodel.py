@@ -1,12 +1,16 @@
 from dataclasses import fields
 from datetime import date
 from decimal import Decimal
+from operator import iadd
+from operator import isub
+from typing import cast
 from typing import List
 from typing import Optional
 from typing import Union
 
 from movs.model import Row
 from PySide2.QtCore import QAbstractTableModel
+from PySide2.QtCore import QItemSelectionModel
 from PySide2.QtCore import QModelIndex
 from PySide2.QtCore import QObject
 from PySide2.QtCore import QRegExp
@@ -14,6 +18,7 @@ from PySide2.QtCore import QSortFilterProxyModel
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QBrush
 from PySide2.QtGui import QColor
+from PySide2.QtWidgets import QStatusBar
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
@@ -76,6 +81,13 @@ class ViewModel(QAbstractTableModel):
 
             return QBrush(QColor(red, green, blue, 127))
 
+        if role == Qt.UserRole:
+            return cast(
+                T_FIELDS,
+                getattr(
+                    self._data[row],
+                    FIELD_NAMES[column]))
+
         return None
 
     def sort(
@@ -126,3 +138,19 @@ class SortFilterViewModel(QSortFilterProxyModel):
             column: int,
             order: Qt.SortOrder = Qt.AscendingOrder) -> None:
         self.sourceModel().sort(column, order)
+
+    def selection_changed(self,
+                          selection_model: QItemSelectionModel,
+                          statusbar: QStatusBar) -> None:
+
+        addebiti_index = FIELD_NAMES.index('addebiti')
+        accrediti_index = FIELD_NAMES.index('accrediti')
+
+        bigsum = 0
+        for column, iop in ((addebiti_index, isub), (accrediti_index, iadd)):
+            for index in selection_model.selectedRows(column):
+                data = index.data(Qt.UserRole)
+                if data is not None:
+                    bigsum = iop(bigsum, data)
+
+        statusbar.showMessage(f'⅀ = {bigsum}')

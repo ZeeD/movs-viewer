@@ -4,6 +4,7 @@ from decimal import Decimal
 from pprint import pprint
 
 from movs.model import Row
+
 from mypyui.tabui import main_window
 
 
