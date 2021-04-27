@@ -1,5 +1,3 @@
-from glob import glob
-
 from setuptools import find_packages
 from setuptools import setup
 
@@ -11,7 +9,6 @@ setup(name='mypyui',
       url='https://github.com/ZeeD/mypyui',
       packages=find_packages(),
       python_requires='>=3.8',
-      package_dir={'': 'src'},
       entry_points={
           'console_scripts': [
               'mypyui = mypyui:main'
@@ -22,5 +19,5 @@ setup(name='mypyui',
           'movs'
       ],
       package_data={
-          'resources': ['py.typed'] + glob('resources/**', recursive=True)
+          '': ['tabui.ui']
       })
