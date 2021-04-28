@@ -75,6 +75,10 @@ class Chart(QtCharts.QChart):
         series.attachAxis(axis_x)
 
         axis_y = QtCharts.QValueAxis()
+        axis_y.setTickType(QtCharts.QValueAxis.TicksDynamic)
+        axis_y.setTickAnchor(0.)
+        axis_y.setTickInterval(10000.)
+        axis_y.setMinorTickCount(9)
         self.addAxis(axis_y, Qt.AlignLeft)
         series.attachAxis(axis_y)
 
