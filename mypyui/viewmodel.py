@@ -38,10 +38,13 @@ def _abs(row: Row) -> Decimal:
 class ViewModel(QAbstractTableModel):
     def __init__(self, parent: QObject, data: List[Row]):
         super().__init__(parent)
+        self._set_data(data)
+
+    def _set_data(self, data: List[Row]) -> None:
         self._data = data
         abs_data = sorted([_abs(row) for row in data])
-        self._min = abs_data[0]
-        self._max = abs_data[-1]
+        self._min = abs_data[0] if abs_data else ZERO
+        self._max = abs_data[-1] if abs_data else ZERO
 
     def rowCount(self, _parent: QModelIndex = QModelIndex()) -> int:
         return len(self._data)
@@ -106,6 +109,13 @@ class ViewModel(QAbstractTableModel):
         finally:
             self.layoutChanged.emit()
 
+    def load(self, data: List[Row]) -> None:
+        self.beginResetModel()
+        try:
+            self._set_data(data)
+        finally:
+            self.endResetModel()
+
 
 class SortFilterViewModel(QSortFilterProxyModel):
     def __init__(self, parent: QObject, data: List[Row]) -> None:
@@ -154,3 +164,6 @@ class SortFilterViewModel(QSortFilterProxyModel):
                     bigsum = iop(bigsum, data)
 
         statusbar.showMessage(f'⅀ = {bigsum}')
+
+    def load(self, data: List[Row]) -> None:
+        self.sourceModel().load(data)

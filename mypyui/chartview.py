@@ -103,3 +103,6 @@ class ChartView(QtCharts.QChartView):
         elif y > 0:
             self.chart().zoomIn()
         super().wheelEvent(event)
+
+    def load(self, data: List[Row]) -> None:
+        self.setChart(Chart(data))
