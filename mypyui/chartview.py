@@ -10,9 +10,10 @@ from typing import Tuple
 
 from movs.model import Row
 from PySide2.QtCharts import QtCharts
+from PySide2.QtCore import QPointF
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QKeyEvent
-from PySide2.QtGui import QWheelEvent
+from PySide2.QtWidgets import QGraphicsSceneMouseEvent
+from PySide2.QtWidgets import QGraphicsSceneWheelEvent
 from PySide2.QtWidgets import QWidget
 
 ZERO = Decimal(0)
@@ -65,12 +66,29 @@ def build_series(
 class Chart(QtCharts.QChart):
     def __init__(self, data: List[Row]):
         super().__init__()
+
+        def years(data: List[Row]) -> List[date]:
+            if not data:
+                return []
+            data = sorted(data, key=lambda row: row.data_valuta)
+            start = data[0].data_contabile.year - 1
+            end = data[-1].data_contabile.year + 1
+            return [date(year, 1, 1) for year in range(start, end + 1)]
+
+        def ts(d: date) -> float:
+            return datetime(d.year, d.month, d.day).timestamp() * 1000
+
         self.legend().setVisible(False)
 
         series = build_series(data)
         self.addSeries(series)
 
-        axis_x = QtCharts.QDateTimeAxis()
+        axis_x = QtCharts.QCategoryAxis()
+        axis_x.setLabelsPosition(
+            QtCharts.QCategoryAxis.AxisLabelsPositionOnValue)
+        for dt in years(data):
+            axis_x.append(f'{dt}', ts(dt))
+
         self.addAxis(axis_x, Qt.AlignBottom)
         series.attachAxis(axis_x)
 
@@ -82,31 +100,33 @@ class Chart(QtCharts.QChart):
         self.addAxis(axis_y, Qt.AlignLeft)
         series.attachAxis(axis_y)
 
+    def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+        super().wheelEvent(event)
+        y = event.delta()
+        if y < 0:
+            self.zoomOut()
+        elif y > 0:
+            self.zoomIn()
+
+    def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        super().mousePressEvent(event)
+        event.accept()
+
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        super().mouseMoveEvent(event)
+
+        def t(pos: QPointF) -> tuple[float, float]:
+            return pos.x(), pos.y()
+
+        x_curr, y_curr = t(event.pos())
+        x_prev, y_prev = t(event.lastPos())
+        self.scroll(x_prev - x_curr, y_curr - y_prev)
+
 
 class ChartView(QtCharts.QChartView):
     def __init__(self, parent: QWidget, data: List[Row]):
         super().__init__(Chart(data), parent)
-        self.setRubberBand(QtCharts.QChartView.HorizontalRubberBand)
         self.setCursor(Qt.CrossCursor)
-
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        if event.modifiers() & Qt.ControlModifier:
-            key = event.key()
-            if key == Qt.Key_0:
-                self.chart().zoomReset()
-            elif key == Qt.Key_Plus:
-                self.chart().zoomIn()
-            elif key == Qt.Key_Minus:
-                self.chart().zoomOut()
-        super().keyPressEvent(event)
-
-    def wheelEvent(self, event: QWheelEvent) -> None:
-        y = event.angleDelta().y()
-        if y < 0:
-            self.chart().zoomOut()
-        elif y > 0:
-            self.chart().zoomIn()
-        super().wheelEvent(event)
 
     def load(self, data: List[Row]) -> None:
         self.setChart(Chart(data))
