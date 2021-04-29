@@ -1,3 +1,4 @@
+from datetime import date
 from datetime import datetime
 from decimal import Decimal
 
@@ -11,16 +12,37 @@ from PySide2.QtWidgets import QGraphicsSceneWheelEvent
 app = QApplication([__file__])
 
 
+rows: list[tuple[date, Decimal]] = [
+    (date(2000, 1, 1), Decimal(0)),
+    (date(2001, 3, 13), Decimal(1000)),
+    (date(2002, 2, 2), Decimal(2000)),
+    (date(2005, 7, 4), Decimal(1500)),
+    (date(2005, 11, 9), Decimal(500)),
+    (date(2010, 4, 27), Decimal(2500))
+]
+
+
+def ts(d: date) -> float:
+    return datetime(d.year, d.month, d.day).timestamp() * 1000
+
+
 series = QtCharts.QLineSeries()
-series.append(datetime(2000, 1, 1).timestamp() * 1000, Decimal(0))
-series.append(datetime(2001, 1, 1).timestamp() * 1000, Decimal(100))
-series.append(datetime(2001, 2, 1).timestamp() * 1000, Decimal(200))
-series.append(datetime(2001, 2, 2).timestamp() * 1000, Decimal(150))
-series.append(datetime(2001, 3, 1).timestamp() * 1000, Decimal(50))
-series.append(datetime(2002, 1, 3).timestamp() * 1000, Decimal(250))
+for dt, d in rows:
+    series.append(ts(dt), d)
 
 
-axis_x = QtCharts.QDateTimeAxis()
+def years(rows: list[tuple[date, Decimal]]) -> list[date]:
+    start_year = rows[0][0].year - 1
+    end_year = rows[-1][0].year + 1
+    return [date(year, 1, 1)
+            for year in range(start_year, end_year + 1)]
+
+
+# axis_x = QtCharts.QDateTimeAxis()
+axis_x = QtCharts.QCategoryAxis()
+axis_x.setLabelsPosition(QtCharts.QCategoryAxis.AxisLabelsPositionOnValue)
+for dt in years(rows):
+    axis_x.append(f'{dt}', ts(dt))
 
 axis_y = QtCharts.QValueAxis()
 axis_y.setTickType(QtCharts.QValueAxis.TicksDynamic)
@@ -52,6 +74,7 @@ class Chart(QtCharts.QChart):
 
 chart = Chart()
 chart.legend().setVisible(False)
+
 chart.addSeries(series)
 chart.addAxis(axis_x, Qt.AlignBottom)
 series.attachAxis(axis_x)
