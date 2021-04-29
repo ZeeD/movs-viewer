@@ -1,16 +1,20 @@
 from contextlib import contextmanager
-from typing import Iterator, Callable, Optional
+from typing import Callable
+from typing import Iterator
 from typing import List
+from typing import Optional
 
 from movs.model import Row
 from pkg_resources import resource_filename
+from PySide2.QtCore import QItemSelection
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication, QFileDialog, QErrorMessage
+from PySide2.QtWidgets import QApplication
+from PySide2.QtWidgets import QErrorMessage
+from PySide2.QtWidgets import QFileDialog
 from PySide2.QtWidgets import QMainWindow
 
 from .chartview import ChartView
 from .viewmodel import SortFilterViewModel
-from PySide2.QtCore import QItemSelection
 
 TABUI_UI_PATH = resource_filename('mypyui', 'tabui.ui')
 
@@ -35,7 +39,6 @@ def main_window(loader: Callable[[str], List[Row]],
             chart_view.load(new_data)
         except Exception as e:
             QErrorMessage(window).showMessage('\n'.join(map(str, e.args)))
-
 
     app = QApplication([__file__])
 

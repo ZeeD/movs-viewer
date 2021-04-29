@@ -5,6 +5,7 @@ from pprint import pprint
 from typing import List
 
 from movs.model import Row
+
 from mypyui.tabui import main_window
 
 

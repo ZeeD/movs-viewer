@@ -1,10 +1,11 @@
 from sys import argv
+from typing import List
+from typing import Optional
 
 from movs import read_txt
+from movs.model import Row
 
 from .tabui import main_window
-from movs.model import Row
-from typing import List, Optional
 
 
 def loader(path: str) -> List[Row]:
