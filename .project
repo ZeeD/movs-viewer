@@ -3,7 +3,6 @@
 	<name>mypyui</name>
 	<comment></comment>
 	<projects>
-		<project>movs</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
