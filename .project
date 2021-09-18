@@ -4,6 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>movs</project>
+		<project>movs-data</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
