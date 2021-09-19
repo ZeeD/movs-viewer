@@ -75,6 +75,20 @@ class Chart(QtCharts.QChart):
             end = data[-1].data_contabile.year + 1
             return [date(year, 1, 1) for year in range(start, end + 1)]
 
+        def months(data: List[Row], step: int = 1) -> List[date]:
+            if not data:
+                return []
+            data = sorted(data, key=lambda row: row.data_valuta)
+            start = data[0].data_contabile.year - 1
+            end = data[-1].data_contabile.year + 1
+            return [date(year, month, 1)
+                    for year in range(start, end + 1)
+                    for month in range(1, 13, step)]
+
+        def reset_axis_x_labels() -> None:
+            if True:
+                pass
+
         def ts(d: date) -> float:
             return datetime(d.year, d.month, d.day).timestamp() * 1000
 
@@ -86,7 +100,7 @@ class Chart(QtCharts.QChart):
         axis_x = QtCharts.QCategoryAxis()
         axis_x.setLabelsPosition(
             QtCharts.QCategoryAxis.AxisLabelsPositionOnValue)
-        for dt in years(data):
+        for dt in months(data, 6):
             axis_x.append(f'{dt}', ts(dt))
 
         self.addAxis(axis_x, Qt.AlignBottom)
