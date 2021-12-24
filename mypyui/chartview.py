@@ -4,17 +4,18 @@ from datetime import time
 from decimal import Decimal
 from itertools import accumulate
 from itertools import chain
+from typing import cast
 from typing import List
 from typing import Optional
 from typing import Tuple
 
 from movs.model import Row
-from PySide2.QtCharts import QtCharts
-from PySide2.QtCore import QPointF
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGraphicsSceneMouseEvent
-from PySide2.QtWidgets import QGraphicsSceneWheelEvent
-from PySide2.QtWidgets import QWidget
+from PySide6 import QtCharts
+from PySide6.QtCore import QPointF
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGraphicsSceneMouseEvent
+from PySide6.QtWidgets import QGraphicsSceneWheelEvent
+from PySide6.QtWidgets import QWidget
 
 ZERO = Decimal(0)
 
@@ -56,8 +57,8 @@ def build_series(
     last_y: Optional[Decimal] = None
     for x, y in floats:
         if last_y is not None:
-            series.append(x, last_y)
-        series.append(x, y)
+            series.append(x, float(last_y))
+        series.append(x, float(y))
         last_y = y
 
     return series
@@ -103,7 +104,7 @@ class Chart(QtCharts.QChart):
         for dt in months(data, 6):
             axis_x.append(f'{dt}', ts(dt))
 
-        self.addAxis(axis_x, Qt.AlignBottom)
+        self.addAxis(axis_x, cast(Qt.Alignment, Qt.AlignBottom))
         series.attachAxis(axis_x)
 
         axis_y = QtCharts.QValueAxis()
@@ -111,7 +112,7 @@ class Chart(QtCharts.QChart):
         axis_y.setTickAnchor(0.)
         axis_y.setTickInterval(10000.)
         axis_y.setMinorTickCount(9)
-        self.addAxis(axis_y, Qt.AlignLeft)
+        self.addAxis(axis_y, cast(Qt.Alignment, Qt.AlignLeft))
         series.attachAxis(axis_y)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:

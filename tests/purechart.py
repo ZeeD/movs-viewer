@@ -1,13 +1,14 @@
 from datetime import date
 from datetime import datetime
 from decimal import Decimal
+from typing import cast
 
-from PySide2.QtCharts import QtCharts
-from PySide2.QtCore import QPointF
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QGraphicsSceneMouseEvent
-from PySide2.QtWidgets import QGraphicsSceneWheelEvent
+from PySide6 import QtCharts
+from PySide6.QtCore import QPointF
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QGraphicsSceneMouseEvent
+from PySide6.QtWidgets import QGraphicsSceneWheelEvent
 
 app = QApplication([__file__])
 
@@ -28,7 +29,7 @@ def ts(d: date) -> float:
 
 series = QtCharts.QLineSeries()
 for dt, d in rows:
-    series.append(ts(dt), d)
+    series.append(ts(dt), float(d))
 
 
 def years(rows: list[tuple[date, Decimal]]) -> list[date]:
@@ -76,9 +77,9 @@ chart = Chart()
 chart.legend().setVisible(False)
 
 chart.addSeries(series)
-chart.addAxis(axis_x, Qt.AlignBottom)
+chart.addAxis(axis_x, cast(Qt.Alignment, Qt.AlignBottom))
 series.attachAxis(axis_x)
-chart.addAxis(axis_y, Qt.AlignLeft)
+chart.addAxis(axis_y, cast(Qt.Alignment, Qt.AlignLeft))
 series.attachAxis(axis_y)
 
 

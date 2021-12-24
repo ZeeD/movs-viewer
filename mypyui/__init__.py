@@ -1,5 +1,5 @@
-from typing import List
 from pathlib import Path
+from typing import List
 
 from movs import read_txt
 from movs.model import Row

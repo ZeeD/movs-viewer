@@ -9,16 +9,16 @@ from typing import Optional
 from typing import Union
 
 from movs.model import Row
-from PySide2.QtCore import QAbstractTableModel
-from PySide2.QtCore import QItemSelectionModel
-from PySide2.QtCore import QModelIndex
-from PySide2.QtCore import QObject
-from PySide2.QtCore import QRegExp
-from PySide2.QtCore import QSortFilterProxyModel
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QBrush
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QStatusBar
+from PySide6.QtCore import QAbstractTableModel
+from PySide6.QtCore import QItemSelectionModel
+from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import QObject
+from PySide6.QtCore import QRegularExpression
+from PySide6.QtCore import QSortFilterProxyModel
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QBrush
+from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QStatusBar
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
@@ -56,8 +56,8 @@ class ViewModel(QAbstractTableModel):
             self,
             section: int,
             orientation: Qt.Orientation,
-            role: int = Qt.DisplayRole) -> Optional[str]:
-        if role != Qt.DisplayRole:
+            role: int = cast(int, Qt.DisplayRole)) -> Optional[str]:
+        if role != cast(int, Qt.DisplayRole):
             return None
 
         if orientation != Qt.Horizontal:
@@ -67,14 +67,14 @@ class ViewModel(QAbstractTableModel):
 
     def data(self,
              index: QModelIndex,
-             role: int = Qt.DisplayRole) -> Optional[T_FIELDS]:
+             role: int = cast(int, Qt.DisplayRole)) -> Optional[T_FIELDS]:
         column = index.column()
         row = index.row()
 
-        if role == Qt.DisplayRole:
+        if role == cast(int, Qt.DisplayRole):
             return str(getattr(self._data[row], FIELD_NAMES[column]))
 
-        if role == Qt.BackgroundRole:
+        if role == cast(int, Qt.BackgroundRole):
             abs_value = _abs(self._data[row])
             perc = float((abs_value - self._min) / (self._max - self._min))
 
@@ -84,12 +84,9 @@ class ViewModel(QAbstractTableModel):
 
             return QBrush(QColor(red, green, blue, 127))
 
-        if role == Qt.UserRole:
-            return cast(
-                T_FIELDS,
-                getattr(
-                    self._data[row],
-                    FIELD_NAMES[column]))
+        if role == cast(int, Qt.UserRole):
+            return cast(T_FIELDS, getattr(self._data[row],
+                                          FIELD_NAMES[column]))
 
         return None
 
@@ -129,19 +126,19 @@ class SortFilterViewModel(QSortFilterProxyModel):
             self,
             source_row: int,
             source_parent: QModelIndex) -> bool:
-        regex = self.filterRegExp()
+        regex = self.filterRegularExpression()
         source_model = self.sourceModel()
         column_count = source_model.columnCount(source_parent)
-        return any(regex.indexIn(source_model.data(index)) != -1
-                   for index in (source_model.index(source_row, i, source_parent)
+        return any(regex.match(source_model.data(index)).hasMatch()
+                   for index in (source_model.index(source_row, i,
+                                                    source_parent)
                                  for i in range(column_count)))
 
     def filter_changed(self, text: str) -> None:
-        self.setFilterRegExp(
-            QRegExp(
-                text,
-                Qt.CaseInsensitive,
-                QRegExp.FixedString))
+        text = QRegularExpression.escape(text)
+        options = cast(QRegularExpression.PatternOptions,
+                       QRegularExpression.CaseInsensitiveOption)
+        self.setFilterRegularExpression(QRegularExpression(text, options))
 
     def sort(
             self,
@@ -158,8 +155,9 @@ class SortFilterViewModel(QSortFilterProxyModel):
 
         bigsum = 0
         for column, iop in ((addebiti_index, isub), (accrediti_index, iadd)):
-            for index in selection_model.selectedRows(column):
-                data = index.data(Qt.UserRole)
+            for index in cast(List[QModelIndex],
+                              selection_model.selectedRows(column)):
+                data = index.data(cast(int, Qt.UserRole))
                 if data is not None:
                     bigsum = iop(bigsum, data)
 

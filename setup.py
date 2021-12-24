@@ -15,7 +15,7 @@ setup(name='mypyui',
           ]
       },
       install_requires=[
-          'PySide2',
+          'PySide6',
           'movs'
       ],
       package_data={

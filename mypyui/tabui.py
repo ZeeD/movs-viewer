@@ -6,12 +6,12 @@ from typing import Optional
 
 from movs.model import Row
 from pkg_resources import resource_filename
-from PySide2.QtCore import QItemSelection
-from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication
-from PySide2.QtWidgets import QErrorMessage
-from PySide2.QtWidgets import QFileDialog
-from PySide2.QtWidgets import QMainWindow
+from PySide6.QtCore import QItemSelection
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QErrorMessage
+from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QMainWindow
 
 from .chartview import ChartView
 from .viewmodel import SortFilterViewModel
