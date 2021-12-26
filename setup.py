@@ -19,5 +19,5 @@ setup(name='mypyui',
           'movs'
       ],
       package_data={
-          'mypyui': ['tabui.ui']
+          'mypyui': ['resources/*']
       })

@@ -6,6 +6,7 @@ from itertools import accumulate
 from itertools import chain
 from typing import cast
 from typing import Optional
+from typing import Sequence
 from typing import Tuple
 
 from PySide6.QtCharts import QCategoryAxis
@@ -17,16 +18,17 @@ from PySide6.QtCore import QPointF
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGraphicsSceneMouseEvent
 from PySide6.QtWidgets import QGraphicsSceneWheelEvent
-from PySide6.QtWidgets import QWidget
 
+from movs import read_txt
 from movs.model import Row
+
+from .settings import Settings
 
 ZERO = Decimal(0)
 
 
-def build_series(
-        data: list[Row],
-        epoch: date = date(2008, 1, 1)) -> QLineSeries:
+def build_series(data: Sequence[Row],
+                 epoch: date = date(2008, 1, 1)) -> QLineSeries:
     data = sorted(data, key=lambda row: row.data_valuta)
 
     series = QLineSeries()
@@ -46,8 +48,8 @@ def build_series(
         map(toTuple, data),
         ((date.today(), ZERO),))
 
-    def sumy(a: Tuple[date, Decimal], b: Tuple[date, Decimal]
-             ) -> Tuple[date, Decimal]:
+    def sumy(a: Tuple[date, Decimal],
+             b: Tuple[date, Decimal]) -> Tuple[date, Decimal]:
         _a0, a1 = a
         b0, b1 = b
         return b0, a1 + b1
@@ -69,7 +71,7 @@ def build_series(
 
 
 class Chart(QChart):
-    def __init__(self, data: list[Row]):
+    def __init__(self, data: Sequence[Row]):
         super().__init__()
 
         def years(data: list[Row]) -> list[date]:
@@ -80,7 +82,7 @@ class Chart(QChart):
             end = data[-1].data_contabile.year + 1
             return [date(year, 1, 1) for year in range(start, end + 1)]
 
-        def months(data: list[Row], step: int = 1) -> list[date]:
+        def months(data: Sequence[Row], step: int = 1) -> list[date]:
             if not data:
                 return []
             data = sorted(data, key=lambda row: row.data_valuta)
@@ -143,9 +145,15 @@ class Chart(QChart):
 
 
 class ChartView(QChartView):
-    def __init__(self, parent: QWidget, data: list[Row]):
-        super().__init__(Chart(data), parent)
+    def __init__(self, settings: Settings):
+        super().__init__()
+        self.settings = settings
         self.setCursor(Qt.CrossCursor)
+        self.reload()
 
-    def load(self, data: list[Row]) -> None:
+    def reload(self) -> None:
+        if self.settings.data_path:
+            _, data = read_txt(self.settings.data_path)
+        else:
+            data = []
         self.setChart(Chart(data))

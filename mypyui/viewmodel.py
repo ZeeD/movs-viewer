@@ -7,7 +7,6 @@ from typing import cast
 from typing import Optional
 from typing import Union
 
-from movs.model import Row
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtCore import QModelIndex
@@ -18,6 +17,11 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QStatusBar
+
+from movs import read_txt
+from movs.model import Row
+
+from .settings import Settings
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
@@ -114,40 +118,41 @@ class ViewModel(QAbstractTableModel):
 
 
 class SortFilterViewModel(QSortFilterProxyModel):
-    def __init__(self, parent: QObject, data: list[Row]) -> None:
-        super().__init__(parent)
-        self.setSourceModel(ViewModel(self, data))
+    def __init__(self, settings: Settings) -> None:
+        super().__init__()
+        self.settings = settings
+        self.setSourceModel(ViewModel(self, []))
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.setSortCaseSensitivity(Qt.CaseInsensitive)
         self.setDynamicSortFilter(True)
 
-    def filterAcceptsRow(
-            self,
-            source_row: int,
-            source_parent: QModelIndex) -> bool:
+    def filterAcceptsRow(self,
+                         source_row: int,
+                         source_parent: QModelIndex) -> bool:
         regex = self.filterRegularExpression()
         source_model = self.sourceModel()
         column_count = source_model.columnCount(source_parent)
+
         return any(regex.match(source_model.data(index)).hasMatch()
-                   for index in (source_model.index(source_row, i,
+                   for index in (source_model.index(source_row,
+                                                    i,
                                                     source_parent)
                                  for i in range(column_count)))
 
-    def filter_changed(self, text: str) -> None:
+    def filterChanged(self, text: str) -> None:
         text = QRegularExpression.escape(text)
         options = cast(QRegularExpression.PatternOptions,
                        QRegularExpression.CaseInsensitiveOption)
         self.setFilterRegularExpression(QRegularExpression(text, options))
 
-    def sort(
-            self,
-            column: int,
-            order: Qt.SortOrder = Qt.AscendingOrder) -> None:
+    def sort(self,
+             column: int,
+             order: Qt.SortOrder = Qt.AscendingOrder) -> None:
         self.sourceModel().sort(column, order)
 
-    def selection_changed(self,
-                          selection_model: QItemSelectionModel,
-                          statusbar: QStatusBar) -> None:
+    def selectionChanged(self,
+                         selection_model: QItemSelectionModel,
+                         statusbar: QStatusBar) -> None:
 
         addebiti_index = FIELD_NAMES.index('addebiti')
         accrediti_index = FIELD_NAMES.index('accrediti')
@@ -162,5 +167,9 @@ class SortFilterViewModel(QSortFilterProxyModel):
 
         statusbar.showMessage(f'⅀ = {bigsum}')
 
-    def load(self, data: list[Row]) -> None:
+    def reload(self) -> None:
+        if self.settings.data_path:
+            _, data = read_txt(self.settings.data_path)
+        else:
+            data = []
         self.sourceModel().load(data)
