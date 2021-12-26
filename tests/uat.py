@@ -2,7 +2,6 @@ from datetime import date
 from datetime import timedelta
 from decimal import Decimal
 from pprint import pprint
-from typing import List
 
 from movs.model import Row
 from mypyui.tabui import main_window
@@ -16,7 +15,7 @@ def row(day: int, euro: int) -> Row:
                '')
 
 
-DATAS: List[List[Row]] = [
+DATAS: list[list[Row]] = [
     [row(1, 123),
         row(2, 456),
         row(3, -789),
@@ -39,7 +38,7 @@ DATAS: List[List[Row]] = [
 def main() -> None:
     i = 0
 
-    def loader(path: str) -> List[Row]:
+    def loader(path: str) -> list[Row]:
         nonlocal i
 
         print(path)

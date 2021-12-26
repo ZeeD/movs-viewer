@@ -5,27 +5,31 @@ from decimal import Decimal
 from itertools import accumulate
 from itertools import chain
 from typing import cast
-from typing import List
 from typing import Optional
 from typing import Tuple
 
-from movs.model import Row
-from PySide6 import QtCharts
+from PySide6.QtCharts import QCategoryAxis
+from PySide6.QtCharts import QChart
+from PySide6.QtCharts import QChartView
+from PySide6.QtCharts import QLineSeries
+from PySide6.QtCharts import QValueAxis
 from PySide6.QtCore import QPointF
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGraphicsSceneMouseEvent
 from PySide6.QtWidgets import QGraphicsSceneWheelEvent
 from PySide6.QtWidgets import QWidget
 
+from movs.model import Row
+
 ZERO = Decimal(0)
 
 
 def build_series(
-        data: List[Row],
-        epoch: date = date(2008, 1, 1)) -> QtCharts.QLineSeries:
+        data: list[Row],
+        epoch: date = date(2008, 1, 1)) -> QLineSeries:
     data = sorted(data, key=lambda row: row.data_valuta)
 
-    series = QtCharts.QLineSeries()
+    series = QLineSeries()
 
     def toTuple(row: Row) -> Tuple[date, Decimal]:
         if row.accrediti is not None:
@@ -64,11 +68,11 @@ def build_series(
     return series
 
 
-class Chart(QtCharts.QChart):
-    def __init__(self, data: List[Row]):
+class Chart(QChart):
+    def __init__(self, data: list[Row]):
         super().__init__()
 
-        def years(data: List[Row]) -> List[date]:
+        def years(data: list[Row]) -> list[date]:
             if not data:
                 return []
             data = sorted(data, key=lambda row: row.data_valuta)
@@ -76,7 +80,7 @@ class Chart(QtCharts.QChart):
             end = data[-1].data_contabile.year + 1
             return [date(year, 1, 1) for year in range(start, end + 1)]
 
-        def months(data: List[Row], step: int = 1) -> List[date]:
+        def months(data: list[Row], step: int = 1) -> list[date]:
             if not data:
                 return []
             data = sorted(data, key=lambda row: row.data_valuta)
@@ -98,17 +102,17 @@ class Chart(QtCharts.QChart):
         series = build_series(data)
         self.addSeries(series)
 
-        axis_x = QtCharts.QCategoryAxis()
+        axis_x = QCategoryAxis()
         axis_x.setLabelsPosition(
-            QtCharts.QCategoryAxis.AxisLabelsPositionOnValue)
+            QCategoryAxis.AxisLabelsPositionOnValue)
         for dt in months(data, 6):
             axis_x.append(f'{dt}', ts(dt))
 
         self.addAxis(axis_x, cast(Qt.Alignment, Qt.AlignBottom))
         series.attachAxis(axis_x)
 
-        axis_y = QtCharts.QValueAxis()
-        axis_y.setTickType(QtCharts.QValueAxis.TicksDynamic)
+        axis_y = QValueAxis()
+        axis_y.setTickType(QValueAxis.TicksDynamic)
         axis_y.setTickAnchor(0.)
         axis_y.setTickInterval(10000.)
         axis_y.setMinorTickCount(9)
@@ -138,10 +142,10 @@ class Chart(QtCharts.QChart):
         self.scroll(x_prev - x_curr, y_curr - y_prev)
 
 
-class ChartView(QtCharts.QChartView):
-    def __init__(self, parent: QWidget, data: List[Row]):
+class ChartView(QChartView):
+    def __init__(self, parent: QWidget, data: list[Row]):
         super().__init__(Chart(data), parent)
         self.setCursor(Qt.CrossCursor)
 
-    def load(self, data: List[Row]) -> None:
+    def load(self, data: list[Row]) -> None:
         self.setChart(Chart(data))

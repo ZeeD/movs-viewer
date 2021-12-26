@@ -4,7 +4,6 @@ from decimal import Decimal
 from operator import iadd
 from operator import isub
 from typing import cast
-from typing import List
 from typing import Optional
 from typing import Union
 
@@ -36,11 +35,11 @@ def _abs(row: Row) -> Decimal:
 
 
 class ViewModel(QAbstractTableModel):
-    def __init__(self, parent: QObject, data: List[Row]):
+    def __init__(self, parent: QObject, data: list[Row]):
         super().__init__(parent)
         self._set_data(data)
 
-    def _set_data(self, data: List[Row]) -> None:
+    def _set_data(self, data: list[Row]) -> None:
         self._data = data
         abs_data = sorted([_abs(row) for row in data])
         self._min = abs_data[0] if abs_data else ZERO
@@ -106,7 +105,7 @@ class ViewModel(QAbstractTableModel):
         finally:
             self.layoutChanged.emit()
 
-    def load(self, data: List[Row]) -> None:
+    def load(self, data: list[Row]) -> None:
         self.beginResetModel()
         try:
             self._set_data(data)
@@ -115,7 +114,7 @@ class ViewModel(QAbstractTableModel):
 
 
 class SortFilterViewModel(QSortFilterProxyModel):
-    def __init__(self, parent: QObject, data: List[Row]) -> None:
+    def __init__(self, parent: QObject, data: list[Row]) -> None:
         super().__init__(parent)
         self.setSourceModel(ViewModel(self, data))
         self.setFilterCaseSensitivity(Qt.CaseInsensitive)
@@ -155,7 +154,7 @@ class SortFilterViewModel(QSortFilterProxyModel):
 
         bigsum = 0
         for column, iop in ((addebiti_index, isub), (accrediti_index, iadd)):
-            for index in cast(List[QModelIndex],
+            for index in cast(list[QModelIndex],
                               selection_model.selectedRows(column)):
                 data = index.data(cast(int, Qt.UserRole))
                 if data is not None:
@@ -163,5 +162,5 @@ class SortFilterViewModel(QSortFilterProxyModel):
 
         statusbar.showMessage(f'⅀ = {bigsum}')
 
-    def load(self, data: List[Row]) -> None:
+    def load(self, data: list[Row]) -> None:
         self.sourceModel().load(data)

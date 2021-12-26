@@ -1,7 +1,6 @@
 from contextlib import contextmanager
 from typing import Callable
 from typing import Iterator
-from typing import List
 from typing import Optional
 
 from movs.model import Row
@@ -20,7 +19,7 @@ TABUI_UI_PATH = resource_filename('mypyui', 'tabui.ui')
 
 
 @contextmanager
-def main_window(loader: Callable[[str], List[Row]],
+def main_window(loader: Callable[[str], list[Row]],
                 preload_path: Optional[str] = None) -> Iterator[QMainWindow]:
 
     def update_status_bar(_selected: QItemSelection,

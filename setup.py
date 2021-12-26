@@ -10,7 +10,7 @@ setup(name='mypyui',
       packages=find_packages(),
       python_requires='>=3.8',
       entry_points={
-          'console_scripts': [
+          'gui_scripts': [
               'mypyui = mypyui:main'
           ]
       },
@@ -19,5 +19,5 @@ setup(name='mypyui',
           'movs'
       ],
       package_data={
-          '': ['tabui.ui']
+          'mypyui': ['tabui.ui']
       })

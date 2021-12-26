@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List
 
 from movs import read_txt
 from movs.model import Row
@@ -9,7 +8,7 @@ from .tabui import main_window
 MOVS_DATA_ROOT = Path(__file__).parent.parent.parent / 'movs-data'
 
 
-def loader(path: str) -> List[Row]:
+def loader(path: str) -> list[Row]:
     _, data = read_txt(path)
     return list(data)
 
