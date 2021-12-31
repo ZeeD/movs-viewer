@@ -69,7 +69,7 @@ def new_mainui(settings: Settings,
     QShortcut(QKeySequence(mainui.tr('Ctrl+F')),
               mainui).activated.connect(mainui.lineEdit.setFocus)
     QShortcut(QKeySequence(mainui.tr('Esc')),
-              mainui).activated.connect(lambda: mainui.lineEdit.setText())
+              mainui).activated.connect(lambda: mainui.lineEdit.setText)
 
     # on startup load
     update_helper()
