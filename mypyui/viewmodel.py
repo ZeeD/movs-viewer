@@ -168,8 +168,8 @@ class SortFilterViewModel(QSortFilterProxyModel):
         statusbar.showMessage(f'⅀ = {bigsum}')
 
     def reload(self) -> None:
-        if self.settings.data_path:
-            _, data = read_txt(self.settings.data_path)
+        if self.settings.data_paths:
+            _, data = read_txt(self.settings.data_paths[0])
         else:
             data = []
         self.sourceModel().load(data)

@@ -2,7 +2,7 @@ from typing import cast
 
 from PySide6.QtCore import QSettings
 
-from .constants import SETTINGS_DATA_PATH
+from .constants import SETTINGS_DATA_PATHS
 
 
 class Settings:
@@ -10,9 +10,9 @@ class Settings:
         self.settings = QSettings('ZeeD', 'mypyui')
 
     @property
-    def data_path(self) -> str:
-        return cast(str, self.settings.value(SETTINGS_DATA_PATH))
+    def data_paths(self) -> list[str]:
+        return cast(list[str], self.settings.value(SETTINGS_DATA_PATHS))
 
-    @data_path.setter
-    def data_path(self, data_path: str) -> None:
-        self.settings.setValue(SETTINGS_DATA_PATH, data_path)
+    @data_paths.setter
+    def data_paths(self, data_paths: list[str]) -> None:
+        self.settings.setValue(SETTINGS_DATA_PATHS, data_paths)

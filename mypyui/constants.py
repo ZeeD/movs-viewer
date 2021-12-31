@@ -11,3 +11,4 @@ MAINUI_UI_PATH: Final = _resource('mainui.ui')
 SETTINGSUI_UI_PATH: Final = _resource('settingsui.ui')
 
 SETTINGS_DATA_PATH: Final = 'dataPath'
+SETTINGS_DATA_PATHS: Final = 'dataPaths'

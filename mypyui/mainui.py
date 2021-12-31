@@ -2,7 +2,7 @@ from PySide6.QtCore import QItemSelection
 from PySide6.QtGui import QKeySequence
 from PySide6.QtGui import QShortcut
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QPlainTextEdit
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QWidget
 
@@ -12,19 +12,30 @@ from .constants import SETTINGSUI_UI_PATH
 from .settings import Settings
 from .viewmodel import SortFilterViewModel
 
+_dataPathsSeparator = '; \n'
+
+
+def _setDataPaths(dataPaths: QPlainTextEdit, fileNames: list[str]) -> None:
+    dataPaths.setPlainText(_dataPathsSeparator.join(fileNames))
+
+
+def _getDataPaths(dataPaths: QPlainTextEdit) -> list[str]:
+    return dataPaths.toPlainText().split(_dataPathsSeparator)
+
 
 def new_settingsui(settings: Settings) -> QWidget:
     def save_settings() -> None:
-        settings.data_path = settingsui.dataPathLineEdit.text()
+        settings.data_paths = _getDataPaths(settingsui.dataPaths)
 
-    def open_folder() -> None:
-        settingsui.dataPathLineEdit.setText(QFileDialog.getExistingDirectory())
+    def open_data_paths() -> None:
+        fileNames, _ = QFileDialog.getOpenFileNames(settingsui)
+        _setDataPaths(settingsui.dataPaths, fileNames)
 
     settingsui = QUiLoader().load(SETTINGSUI_UI_PATH)
-    settingsui.dataPathLineEdit.setText(settings.data_path)
+    _setDataPaths(settingsui.dataPaths, settings.data_paths)
 
     settingsui.buttonBox.accepted.connect(save_settings)
-    settingsui.toolButton.clicked.connect(open_folder)
+    settingsui.openFileChooser.clicked.connect(open_data_paths)
 
     return settingsui
 
