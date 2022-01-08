@@ -19,7 +19,6 @@ from PySide6.QtCharts import QChart
 from PySide6.QtCharts import QChartView
 from PySide6.QtCharts import QLineSeries
 from PySide6.QtCharts import QValueAxis
-from PySide6.QtCore import QPointF
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGraphicsSceneMouseEvent
 from PySide6.QtWidgets import QGraphicsSceneWheelEvent
@@ -202,11 +201,8 @@ class Chart(QChart):
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         super().mouseMoveEvent(event)
 
-        def t(pos: QPointF) -> tuple[float, float]:
-            return pos.x(), pos.y()
-
-        x_curr, y_curr = t(event.pos())
-        x_prev, y_prev = t(event.lastPos())
+        x_curr, y_curr = cast(tuple[float, float], event.pos().toTuple())
+        x_prev, y_prev = cast(tuple[float, float], event.lastPos().toTuple())
         self.scroll(x_prev - x_curr, y_curr - y_prev)
 
 

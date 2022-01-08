@@ -14,9 +14,14 @@ from PySide6.QtCharts import QDateTimeAxis
 from PySide6.QtCharts import QLineSeries
 from PySide6.QtCharts import QStackedBarSeries
 from PySide6.QtCharts import QValueAxis
-from PySide6.QtCore import QPointF, QDateTime
+from PySide6.QtCore import QDateTime
+from PySide6.QtCore import QPointF
+from PySide6.QtCore import QRectF
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPen
 from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QGraphicsSceneMouseEvent
+from PySide6.QtWidgets import QGraphicsSceneWheelEvent
 from PySide6.QtWidgets import QMainWindow
 
 from movs import read_txt
@@ -118,7 +123,7 @@ def main() -> NoReturn:
         axis_y.setRange(-40_000, 120_000)
 
         axis_x_line = QDateTimeAxis()
-        axis_x_line.setFormat('MM/yyyy')
+        axis_x_line.setFormat('dd/MM/yyyy')
         axis_x_line.setRange(qdt(data_by_day[0]), qdt(data_by_day[-1]))
         axis_x_line.setTickCount(len(data_by_year) + 1)
 
@@ -126,23 +131,60 @@ def main() -> NoReturn:
         axis_x_bar.append(categories)
 
         # line
+        def series_day_hovered(_point: QPointF, state: bool) -> None:
+            pen = QPen(series_day.pen())
+            pen.setWidth(pen.width() * 2 if state else pen.width() // 2)
+            series_day.setPen(pen)
+
         series_day = QLineSeries()
         series_day.replace([QPointF(x, y) for x, y in data_by_day])
+        # series_day.setPointLabelsVisible(True)
+        series_day.hovered.connect(series_day_hovered)
 
         # bar series - by month
+        def series_month_hovered(status: bool,
+                                 _index: int,
+                                 _barset: QBarSet) -> None:
+            series_month.setLabelsVisible(status)
+
         series_month = QStackedBarSeries()
+        series_month.hovered.connect(series_month_hovered)
         for month, sums_years in data_by_month.items():
             set_ = QBarSet(month)
             set_.append(sums_years)
             series_month.append(set_)
 
         # bar series - by year
+        def series_year_hovered(status: bool,
+                                _index: int,
+                                _barset: QBarSet) -> None:
+            series_year.setLabelsVisible(status)
+
         series_year = QBarSeries()
+        series_year.hovered.connect(series_year_hovered)
         set_ = QBarSet('year')
         set_.append(data_by_year)
         series_year.append(set_)
 
-        chart = QChart()
+        class C(QChart):
+            def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
+                super().wheelEvent(event)
+
+                area = self.plotArea()
+                w = area.width() * (1.25 if event.delta() > 0 else (1 / 1.25))
+                x = area.x() - (w - area.width()) / 2
+                self.zoomIn(QRectF(x, area.y(), w, area.height()))
+
+            def mousePressEvent(self, _event: QGraphicsSceneMouseEvent) -> None:
+                'reimplemented to capture the mouse move'
+
+            def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+                super().mouseMoveEvent(event)
+
+                self.scroll(event.lastPos().x() - event.pos().x(), 0)
+
+        chart = C()
+        chart.setTheme(QChart.ChartThemeQt)
         chart.addSeries(series_year)
         chart.addSeries(series_month)
         chart.addSeries(series_day)
@@ -158,9 +200,12 @@ def main() -> NoReturn:
         series_day.attachAxis(axis_x_line)
         series_day.attachAxis(axis_y)
 
+        chart_view = QChartView(chart)
+        chart_view.setCursor(Qt.CrossCursor)
+
         # main
         main_window = QMainWindow()
-        main_window.setCentralWidget(QChartView(chart))
+        main_window.setCentralWidget(chart_view)
         main_window.resize(1920, 1080)
         main_window.show()
     finally:
