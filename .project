@@ -5,6 +5,7 @@
 	<projects>
 		<project>movs</project>
 		<project>movs-data</project>
+		<project>movs-merger</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -26,12 +26,16 @@ def _getDataPaths(dataPaths: QPlainTextEdit) -> list[str]:
 def new_settingsui(settings: Settings) -> QWidget:
     def save_settings() -> None:
         settings.data_paths = _getDataPaths(settingsui.dataPaths)
+        settings.username = settingsui.usernameLineEdit.text()
+        settings.password = settingsui.passwordLineEdit.text()
 
     def open_data_paths() -> None:
         fileNames, _ = QFileDialog.getOpenFileNames(settingsui)
         _setDataPaths(settingsui.dataPaths, fileNames)
 
     settingsui = QUiLoader().load(SETTINGSUI_UI_PATH)
+    settingsui.usernameLineEdit.setText(settings.username)
+    settingsui.passwordLineEdit.setText(settings.password)
     _setDataPaths(settingsui.dataPaths, settings.data_paths)
 
     settingsui.buttonBox.accepted.connect(save_settings)

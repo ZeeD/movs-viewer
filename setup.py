@@ -16,7 +16,8 @@ setup(name='mypyui',
       },
       install_requires=[
           'PySide6',
-          'movs'
+          'movs',
+          'movs-merger'
       ],
       package_data={
           'mypyui': ['resources/*']
