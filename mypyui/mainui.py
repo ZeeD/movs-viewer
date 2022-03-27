@@ -2,8 +2,9 @@ from PySide6.QtCore import QItemSelection
 from PySide6.QtGui import QKeySequence
 from PySide6.QtGui import QShortcut
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QApplication, QPlainTextEdit
+from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QPlainTextEdit
 from PySide6.QtWidgets import QWidget
 
 from .chartview import ChartView
