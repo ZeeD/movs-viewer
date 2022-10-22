@@ -13,7 +13,8 @@ class Settings:
 
     @property
     def username(self) -> str:
-        return cast(str, self.settings.value(SETTINGS_USERNAME))
+        value = self.settings.value(SETTINGS_USERNAME)
+        return cast(str, value) if value is not None else ''
 
     @username.setter
     def username(self, username: str) -> None:
@@ -21,7 +22,8 @@ class Settings:
 
     @property
     def password(self) -> str:
-        return cast(str, self.settings.value(SETTINGS_PASSWORD))
+        value = self.settings.value(SETTINGS_PASSWORD)
+        return cast(str, value) if value is not None else ''
 
     @password.setter
     def password(self, password: str) -> None:
@@ -29,7 +31,8 @@ class Settings:
 
     @property
     def data_paths(self) -> list[str]:
-        return cast(list[str], self.settings.value(SETTINGS_DATA_PATHS))
+        value = self.settings.value(SETTINGS_DATA_PATHS)
+        return cast(list[str], value) if value is not None else []
 
     @data_paths.setter
     def data_paths(self, data_paths: list[str]) -> None:
