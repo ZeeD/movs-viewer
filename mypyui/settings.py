@@ -32,7 +32,15 @@ class Settings:
     @property
     def data_paths(self) -> list[str]:
         value = self.settings.value(SETTINGS_DATA_PATHS)
-        return cast(list[str], value) if value is not None else []
+
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [value]
+        if isinstance(value, list):
+            return value
+
+        raise ValueError(value)
 
     @data_paths.setter
     def data_paths(self, data_paths: list[str]) -> None:

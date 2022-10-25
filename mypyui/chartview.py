@@ -158,17 +158,17 @@ class Chart(QChart):
         # self.legend().setVisible(False)
 
         axis_y = QValueAxis()
-        axis_y.setTickType(QValueAxis.TicksDynamic)
+        axis_y.setTickType(QValueAxis.TickType.TicksDynamic)
         axis_y.setTickAnchor(0.)
         axis_y.setTickInterval(10000.)
         axis_y.setMinorTickCount(9)
-        self.addAxis(axis_y, cast(Qt.Alignment, Qt.AlignLeft))
+        self.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
 
         axis_x = QCategoryAxis()
-        axis_x.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+        axis_x.setLabelsPosition(QCategoryAxis.AxisLabelsPosition.AxisLabelsPositionOnValue)
         for dt in months(data, 6):
             axis_x.append(f'{dt}', ts(dt))
-        self.addAxis(axis_x, cast(Qt.Alignment, Qt.AlignBottom))
+        self.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
 
         series = build_series(data)
         self.addSeries(series)
@@ -178,13 +178,13 @@ class Chart(QChart):
         group_by_year_series, axis_x_years = build_group_by_year_series(data)
         self.addSeries(group_by_year_series)
         group_by_year_series.attachAxis(axis_y)
-        self.addAxis(axis_x_years, cast(Qt.Alignment, Qt.AlignBottom))
+        self.addAxis(axis_x_years, Qt.AlignmentFlag.AlignBottom)
 
         group_by_month_series, axis_x_months = build_group_by_month_series(
             data)
         self.addSeries(group_by_month_series)
         group_by_month_series.attachAxis(axis_y)
-        self.addAxis(axis_x_months, cast(Qt.Alignment, Qt.AlignBottom))
+        self.addAxis(axis_x_months, Qt.AlignmentFlag.AlignBottom)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         super().wheelEvent(event)
@@ -210,7 +210,7 @@ class ChartView(QChartView):
     def __init__(self, settings: Settings):
         super().__init__()
         self.settings = settings
-        self.setCursor(Qt.CrossCursor)
+        self.setCursor(Qt.CursorShape.CrossCursor)
         self.reload()
 
     def reload(self) -> None:
