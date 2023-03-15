@@ -43,12 +43,12 @@ def toPoint(row: Row) -> Point:
         mov = -row.addebiti
     else:
         mov = ZERO
-    return Point(row.data_valuta, mov)
+    return Point(row.date, mov)
 
 
 def build_series(data: Sequence[Row],
                  epoch: date = date(2008, 1, 1)) -> QLineSeries:
-    data = sorted(data, key=lambda row: row.data_valuta)
+    data = sorted(data, key=lambda row: row.date)
 
     series = QLineSeries()
     series.setName('data')
@@ -79,7 +79,7 @@ def build_series(data: Sequence[Row],
 
 def build_group_by_year_series(data: Sequence[Row]) -> tuple[QBarSeries,
                                                              QBarCategoryAxis]:
-    data = sorted(data, key=lambda row: row.data_valuta)
+    data = sorted(data, key=lambda row: row.date)
 
     axis_x = QBarCategoryAxis()
 
@@ -103,7 +103,7 @@ def build_group_by_year_series(data: Sequence[Row]) -> tuple[QBarSeries,
 
 def build_group_by_month_series(data: Sequence[Row]) -> tuple[QBarSeries,
                                                               QBarCategoryAxis]:
-    data = sorted(data, key=lambda row: row.data_valuta)
+    data = sorted(data, key=lambda row: row.date)
 
     axis_x = QBarCategoryAxis()
 
@@ -133,17 +133,17 @@ class Chart(QChart):
         def years(data: Sequence[Row]) -> list[date]:
             if not data:
                 return []
-            data = sorted(data, key=lambda row: row.data_valuta)
-            start = data[0].data_contabile.year - 1
-            end = data[-1].data_contabile.year + 1
+            data = sorted(data, key=lambda row: row.date)
+            start = data[0].date.year - 1
+            end = data[-1].date.year + 1
             return [date(year, 1, 1) for year in range(start, end + 1)]
 
         def months(data: Sequence[Row], step: int = 1) -> list[date]:
             if not data:
                 return []
-            data = sorted(data, key=lambda row: row.data_valuta)
-            start = data[0].data_contabile.year - 1
-            end = data[-1].data_contabile.year + 1
+            data = sorted(data, key=lambda row: row.date)
+            start = data[0].date.year - 1
+            end = data[-1].date.year + 1
             return [date(year, month, 1)
                     for year in range(start, end + 1)
                     for month in range(1, 13, step)]
