@@ -2,6 +2,7 @@ from datetime import date
 from datetime import datetime
 from datetime import time
 from decimal import Decimal
+from typing import NamedTuple
 
 from PySide6.QtCharts import QChartView
 from PySide6.QtCharts import QDateTimeAxis
@@ -11,7 +12,17 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 
-def chartView(dates: list[date], *valuess: list[Decimal]) -> QChartView:
+class Point(NamedTuple):
+    when: date
+    howmuch: Decimal
+
+
+class Data(NamedTuple):
+    name: str
+    values: list[Point]
+
+
+def chartView(*datas: Data) -> QChartView:
     chart_view = QChartView()
     chart = chart_view.chart()
 
@@ -22,21 +33,22 @@ def chartView(dates: list[date], *valuess: list[Decimal]) -> QChartView:
     chart.addAxis(value_axis, Qt.AlignmentFlag.AlignLeft)
     chart.addAxis(date_axis, Qt.AlignmentFlag.AlignBottom)
 
-    for values in valuess:
+    for data in datas:
         series = QLineSeries(chart)
+        series.setName(data.name)
 
-        for date, value in zip(dates, values):
-            series.append(datetime.combine(date, time()).timestamp() * 1000,
-                          float(value))
+        for when, howmuch in data.values:
+            series.append(datetime.combine(when, time()).timestamp() * 1000,
+                          float(howmuch))
 
         chart.addSeries(series)
 
         series.attachAxis(value_axis)
         series.attachAxis(date_axis)
 
-    all_values = [value for values in valuess for value in values]
-    value_axis.setMin(float(min(all_values)))
-    value_axis.setMax(float(max(all_values)))
+    howmuchs = [howmuch for data in datas for (when, howmuch) in data.values]
+    value_axis.setMin(float(min(howmuchs)))
+    value_axis.setMax(float(max(howmuchs)))
 
     return chart_view
 
@@ -45,10 +57,12 @@ def main() -> None:
     qapplication = QApplication()
     try:
         dates = [date(2000, 1, 1), date(2020, 1, 1)]
-        valuesOrig = [Decimal(1), Decimal(0)]
-        valuesAct = [Decimal(2), Decimal(3)]
+        valuesOrig = Data('valuesOrig', [Point(*p)
+                          for p in zip(dates, [Decimal(1), Decimal(0)])])
+        valuesAct = Data('valuesAct', [Point(*p)
+                         for p in zip(dates, [Decimal(2), Decimal(3)])])
 
-        chart_view = chartView(dates, valuesOrig, valuesAct)
+        chart_view = chartView(valuesOrig, valuesAct)
         chart_view.resize(1000, 1000)
         chart_view.show()
     finally:
