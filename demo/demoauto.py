@@ -36,5 +36,5 @@ def main() -> None:
         merge_files(settings.data_paths[0], movimenti)
     raise SystemExit(app.exec())
 
-
-main()
+if __name__ == '__main__':
+    main()
