@@ -3,22 +3,22 @@ from datetime import datetime
 from datetime import time
 from datetime import timedelta
 from decimal import Decimal
+from itertools import accumulate
+from itertools import cycle
+from itertools import tee
+from operator import attrgetter
 from typing import Iterable
 from typing import NamedTuple
 
-from PySide6.QtCharts import QChartView
-from PySide6.QtCharts import QDateTimeAxis
-from PySide6.QtCharts import QLineSeries
-from PySide6.QtCharts import QValueAxis
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
-
 from qwt import QwtPlot
 from qwt import QwtPlotCurve
 from qwt import QwtPlotGrid
 from qwt.scale_div import QwtScaleDiv
 from qwt.scale_draw import QwtScaleDraw
-from itertools import cycle
+
+from movs import read_txt
 
 
 class Point(NamedTuple):
@@ -29,40 +29,6 @@ class Point(NamedTuple):
 class Data(NamedTuple):
     name: str
     values: list[Point]
-
-
-def pysidemain(*datas: Data) -> QChartView:
-    chart_view = QChartView()
-    chart = chart_view.chart()
-
-    value_axis = QValueAxis(chart)
-    date_axis = QDateTimeAxis(chart)
-    date_axis.setFormat('yyyy/MM')
-
-    chart.addAxis(value_axis, Qt.AlignmentFlag.AlignLeft)
-    chart.addAxis(date_axis, Qt.AlignmentFlag.AlignBottom)
-
-    for data in datas:
-        series = QLineSeries(chart)
-        series.setName(data.name)
-
-        for when, howmuch in data.values:
-            series.append(datetime.combine(when, time()).timestamp() * 1000,
-                          float(howmuch))
-
-        chart.addSeries(series)
-
-        series.attachAxis(value_axis)
-        series.attachAxis(date_axis)
-
-    howmuchs = [howmuch for data in datas for (
-        when, howmuch) in data.values]
-    value_axis.setMin(float(min(howmuchs)))
-    value_axis.setMax(float(max(howmuchs)))
-
-    chart_view.resize(1000, 1000)
-    return chart_view
-
 
 def linecolors(excluded: set[Qt.GlobalColor]=set([Qt.GlobalColor.color0,
                                                   Qt.GlobalColor.color1,
@@ -163,19 +129,24 @@ def qwtmain(*datas: Data) -> QwtPlot:
     return plot
 
 
+def acc(rows: Iterable[Point]) -> Iterable[Point]:
+    def func(a: Point, b: Point) -> Point:
+        return Point(b.when, a.howmuch + b.howmuch)
+
+    rows, tmp = tee(rows)
+    return accumulate(rows, func, initial=next(tmp))
+
+
 def main() -> None:
-    dates = [date(2000, 1, 1), date(2010, 1, 1), date(2020, 1, 1)]
-    valuesOrig = Data('valuesOrig', [Point(*p)
-                      for p in zip(dates, [Decimal(5), Decimal(0), Decimal(4)])])
-    valuesAct = Data('valuesAct', [Point(*p)
-                     for p in zip(dates, [Decimal(2), Decimal(3), Decimal(1)])])
+    _, rows = read_txt(
+        '/home/zed/eclipse-workspace/movs-data/BPOL_accumulator_vitomamma.txt')
+
+    data = Data('acc', list(acc(Point(row.date, row.money)
+                                for row in sorted(rows, key=attrgetter('date')))))
 
     app = QApplication()
     try:
-        chart_view = pysidemain(valuesOrig, valuesAct)
-        chart_view.show()
-
-        plot = qwtmain(valuesOrig, valuesAct)
+        plot = qwtmain(data)
         plot.show()
     finally:
         app.exec_()
