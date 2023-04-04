@@ -18,6 +18,7 @@ from qwt import QwtPlotCurve
 from qwt import QwtPlotGrid
 from qwt.scale_div import QwtScaleDiv
 from qwt.scale_draw import QwtScaleDraw
+from itertools import cycle
 
 
 class Point(NamedTuple):
@@ -63,12 +64,23 @@ def pysidemain(*datas: Data) -> QChartView:
     return chart_view
 
 
+def linecolors(excluded: set[Qt.GlobalColor]=set([Qt.GlobalColor.color0,
+                                                  Qt.GlobalColor.color1,
+                                                  Qt.GlobalColor.black,
+                                                  Qt.GlobalColor.white,
+                                                  Qt.GlobalColor.darkGray,
+                                                  Qt.GlobalColor.gray,
+                                                  Qt.GlobalColor.lightGray,
+                                                  Qt.GlobalColor.transparent])) -> Iterable[Qt.GlobalColor]:
+    return cycle(filter(lambda c: c not in excluded, Qt.GlobalColor))
+
+
 def qwtmain(*datas: Data) -> QwtPlot:
     plot = QwtPlot()
 
     min_xdata: float | None = None
     max_xdata: float | None = None
-    for (name, values) in datas:
+    for ((name, values), linecolor) in zip(datas, linecolors()):
         xdata: list[float] = []
         ydata: list[float] = []
         for when, howmuch in values:
@@ -83,7 +95,9 @@ def qwtmain(*datas: Data) -> QwtPlot:
             max_xdata = tmp
 
         QwtPlotCurve.make(xdata, ydata, name, plot,
-                          # style=QwtPlotCurve.Steps,
+                          style=QwtPlotCurve.Steps,
+                          linecolor=linecolor,
+                          linewidth=3,
                           antialiased=True)
 
     if min_xdata is None or max_xdata is None:

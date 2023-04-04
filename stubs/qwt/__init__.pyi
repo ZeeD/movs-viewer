@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QFrame
+
 from .scale_div import QwtScaleDiv
 from .scale_draw import QwtScaleDraw
-
-from PySide6.QtWidgets import QFrame
 
 
 class QwtPlot(QFrame):
@@ -19,6 +20,8 @@ class QwtPlot(QFrame):
 
 
 class QwtPlotCurve:
+    Steps: int
+
     @classmethod
     def make(cls,
              xdata: list[float] | None =None,
@@ -28,10 +31,10 @@ class QwtPlotCurve:
              z: None=None,
              x_axis: None=None,
              y_axis: None=None,
-             style: None=None,
+             style: int | None=None,
              symbol: None=None,
-             linecolor: None=None,
-             linewidth: None=None,
+             linecolor: Qt.GlobalColor | None=None,
+             linewidth: float | None=None,
              linestyle: None=None,
              antialiased: bool=False,
              size: None=None,
