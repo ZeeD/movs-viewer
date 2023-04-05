@@ -5,10 +5,8 @@ from datetime import timedelta
 from decimal import Decimal
 from itertools import accumulate
 from itertools import cycle
-from itertools import tee
 from operator import attrgetter
 from typing import Iterable
-from typing import NamedTuple
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
@@ -19,16 +17,8 @@ from qwt.scale_div import QwtScaleDiv
 from qwt.scale_draw import QwtScaleDraw
 
 from movs import read_txt
+from movs.model import Row
 
-
-class Point(NamedTuple):
-    when: date
-    howmuch: Decimal
-
-
-class Data(NamedTuple):
-    name: str
-    values: list[Point]
 
 def linecolors(excluded: set[Qt.GlobalColor]=set([Qt.GlobalColor.color0,
                                                   Qt.GlobalColor.color1,
@@ -41,15 +31,25 @@ def linecolors(excluded: set[Qt.GlobalColor]=set([Qt.GlobalColor.color0,
     return cycle(filter(lambda c: c not in excluded, Qt.GlobalColor))
 
 
-def qwtmain(*datas: Data) -> QwtPlot:
+def qwtmain(*rowss: list[Row]) -> QwtPlot:
+    T = tuple[date, Decimal]
+
+    def acc(rows: list[Row]) -> Iterable[T]:
+        def func(a: T, b: Row) -> T:
+            return (b.date, a[1] + b.money)
+
+        it = iter(sorted(rows, key=attrgetter('date')))
+        head: Row = next(it)
+        return accumulate(it, func, initial=(head.date, head.money))
+
     plot = QwtPlot()
 
     min_xdata: float | None = None
     max_xdata: float | None = None
-    for ((name, values), linecolor) in zip(datas, linecolors()):
+    for (rows, linecolor) in zip(rowss, linecolors()):
         xdata: list[float] = []
         ydata: list[float] = []
-        for when, howmuch in values:
+        for when, howmuch in acc(rows):
             xdata.append(datetime.combine(when, time()).timestamp())
             ydata.append(float(howmuch))
 
@@ -60,7 +60,7 @@ def qwtmain(*datas: Data) -> QwtPlot:
         if max_xdata is None or tmp > max_xdata:
             max_xdata = tmp
 
-        QwtPlotCurve.make(xdata, ydata, name, plot,
+        QwtPlotCurve.make(xdata, ydata, 'noname', plot,
                           style=QwtPlotCurve.Steps,
                           linecolor=linecolor,
                           linewidth=3,
@@ -129,24 +129,13 @@ def qwtmain(*datas: Data) -> QwtPlot:
     return plot
 
 
-def acc(rows: Iterable[Point]) -> Iterable[Point]:
-    def func(a: Point, b: Point) -> Point:
-        return Point(b.when, a.howmuch + b.howmuch)
-
-    rows, tmp = tee(rows)
-    return accumulate(rows, func, initial=next(tmp))
-
-
 def main() -> None:
     _, rows = read_txt(
         '/home/zed/eclipse-workspace/movs-data/BPOL_accumulator_vitomamma.txt')
 
-    data = Data('acc', list(acc(Point(row.date, row.money)
-                                for row in sorted(rows, key=attrgetter('date')))))
-
     app = QApplication()
     try:
-        plot = qwtmain(data)
+        plot = qwtmain(rows)
         plot.show()
     finally:
         app.exec_()
