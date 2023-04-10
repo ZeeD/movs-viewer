@@ -1,10 +1,10 @@
+from collections.abc import Callable
+from collections.abc import Iterator
 from contextlib import contextmanager
 from os import listdir
 from os.path import join
 from tempfile import TemporaryDirectory
 from typing import Any
-from typing import Callable
-from typing import Iterator
 
 from selenium.webdriver import Firefox
 from selenium.webdriver.common.by import By
@@ -27,15 +27,15 @@ from .constants import GECKODRIVER_PATH
 
 
 def get_options(dtemp: str) -> Options:
-    options = Options()  # type: ignore
+    options = Options()
 
     # options.headless = True
-    options.profile = FirefoxProfile()  # type: ignore
+    options.profile = FirefoxProfile()
     # set download folder
     options.profile.set_preference(
-        'browser.download.folderList', 2)  # type: ignore
+        'browser.download.folderList', 2)
     options.profile.set_preference(
-        'browser.download.dir', dtemp)  # type: ignore
+        'browser.download.dir', dtemp)
 
     return options
 

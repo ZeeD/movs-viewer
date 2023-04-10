@@ -4,13 +4,12 @@ from decimal import Decimal
 from operator import iadd
 from operator import isub
 from typing import cast
-from typing import Optional
-from typing import Union
 
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtCore import QModelIndex
 from PySide6.QtCore import QObject
+from PySide6.QtCore import QPersistentModelIndex
 from PySide6.QtCore import QRegularExpression
 from PySide6.QtCore import QSortFilterProxyModel
 from PySide6.QtCore import Qt
@@ -25,7 +24,7 @@ from .settings import Settings
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
-T_FIELDS = Union[date, Optional[Decimal], str]
+T_FIELDS = date | Decimal | None | str
 
 ZERO = Decimal(0)
 
@@ -49,35 +48,35 @@ class ViewModel(QAbstractTableModel):
         self._min = abs_data[0] if abs_data else ZERO
         self._max = abs_data[-1] if abs_data else ZERO
 
-    def rowCount(self, _parent: QModelIndex = QModelIndex()) -> int:
+    def rowCount(self, _parent: QModelIndex | QPersistentModelIndex = QModelIndex()) -> int:
         return len(self._data)
 
-    def columnCount(self, _parent: QModelIndex = QModelIndex()) -> int:
+    def columnCount(self, _parent: QModelIndex | QPersistentModelIndex = QModelIndex()) -> int:
         return len(FIELD_NAMES)
 
     def headerData(
             self,
             section: int,
             orientation: Qt.Orientation,
-            role: int = cast(int, Qt.DisplayRole)) -> Optional[str]:
-        if role != cast(int, Qt.DisplayRole):
+            role: int = Qt.ItemDataRole.DisplayRole) -> str | None:
+        if role != Qt.ItemDataRole.DisplayRole:
             return None
 
-        if orientation != Qt.Horizontal:
+        if orientation != Qt.Orientation.Horizontal:
             return None
 
         return FIELD_NAMES[section]
 
     def data(self,
-             index: QModelIndex,
-             role: int = cast(int, Qt.DisplayRole)) -> Optional[T_FIELDS]:
+             index: QModelIndex | QPersistentModelIndex,
+             role: int = Qt.ItemDataRole.DisplayRole) -> T_FIELDS | QBrush | None:
         column = index.column()
         row = index.row()
 
-        if role == cast(int, Qt.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             return str(getattr(self._data[row], FIELD_NAMES[column]))
 
-        if role == cast(int, Qt.BackgroundRole):
+        if role == Qt.ItemDataRole.BackgroundRole:
             abs_value = _abs(self._data[row])
             perc = float((abs_value - self._min) / (self._max - self._min))
 
@@ -87,7 +86,7 @@ class ViewModel(QAbstractTableModel):
 
             return QBrush(QColor(red, green, blue, 127))
 
-        if role == cast(int, Qt.UserRole):
+        if role == Qt.ItemDataRole.UserRole:
             return cast(T_FIELDS, getattr(self._data[row],
                                           FIELD_NAMES[column]))
 
@@ -96,8 +95,8 @@ class ViewModel(QAbstractTableModel):
     def sort(
             self,
             index: int,
-            order: Qt.SortOrder = Qt.AscendingOrder) -> None:
-        def key(row: Row) -> Union[date, Decimal, str]:  # T_FIELDS - None
+            order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
+        def key(row: Row) -> date | Decimal | str:  # T_FIELDS - None
             e: T_FIELDS = getattr(row, FIELD_NAMES[index])
             if e is None:
                 return ZERO
@@ -105,7 +104,8 @@ class ViewModel(QAbstractTableModel):
 
         self.layoutAboutToBeChanged.emit()
         try:
-            self._data.sort(key=key, reverse=order == Qt.DescendingOrder)
+            self._data.sort(key=key, reverse=order ==
+                            Qt.SortOrder.DescendingOrder)
         finally:
             self.layoutChanged.emit()
 
@@ -122,13 +122,13 @@ class SortFilterViewModel(QSortFilterProxyModel):
         super().__init__()
         self.settings = settings
         self.setSourceModel(ViewModel(self, []))
-        self.setFilterCaseSensitivity(Qt.CaseInsensitive)
-        self.setSortCaseSensitivity(Qt.CaseInsensitive)
+        self.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setDynamicSortFilter(True)
 
     def filterAcceptsRow(self,
                          source_row: int,
-                         source_parent: QModelIndex) -> bool:
+                         source_parent: QModelIndex | QPersistentModelIndex) -> bool:
         regex = self.filterRegularExpression()
         source_model = self.sourceModel()
         column_count = source_model.columnCount(source_parent)
@@ -141,13 +141,12 @@ class SortFilterViewModel(QSortFilterProxyModel):
 
     def filterChanged(self, text: str) -> None:
         text = QRegularExpression.escape(text)
-        options = cast(QRegularExpression.PatternOptions,
-                       QRegularExpression.CaseInsensitiveOption)
+        options = QRegularExpression.PatternOption.CaseInsensitiveOption
         self.setFilterRegularExpression(QRegularExpression(text, options))
 
     def sort(self,
              column: int,
-             order: Qt.SortOrder = Qt.AscendingOrder) -> None:
+             order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
         self.sourceModel().sort(column, order)
 
     def selectionChanged(self,
@@ -159,9 +158,8 @@ class SortFilterViewModel(QSortFilterProxyModel):
 
         bigsum = 0
         for column, iop in ((addebiti_index, isub), (accrediti_index, iadd)):
-            for index in cast(list[QModelIndex],
-                              selection_model.selectedRows(column)):
-                data = index.data(cast(int, Qt.UserRole))
+            for index in selection_model.selectedRows(column):
+                data = index.data(Qt.ItemDataRole.UserRole)
                 if data is not None:
                     bigsum = iop(bigsum, data)
 
@@ -172,4 +170,4 @@ class SortFilterViewModel(QSortFilterProxyModel):
             _, data = read_txt(self.settings.data_paths[0])
         else:
             data = []
-        self.sourceModel().load(data)
+        cast(ViewModel, self.sourceModel()).load(data)

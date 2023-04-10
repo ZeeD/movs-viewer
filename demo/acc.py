@@ -1,8 +1,7 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
-from itertools import accumulate
-# from itertools import tee
-from typing import Iterable
 from datetime import date
+from itertools import accumulate
 
 
 @dataclass(frozen=True)

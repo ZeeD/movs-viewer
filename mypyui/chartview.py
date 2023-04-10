@@ -1,3 +1,5 @@
+from collections.abc import Iterable
+from collections.abc import Sequence
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -6,10 +8,7 @@ from itertools import accumulate
 from itertools import chain
 from itertools import groupby
 from typing import cast
-from typing import Iterable
 from typing import NamedTuple
-from typing import Optional
-from typing import Sequence
 
 from PySide6.QtCharts import QBarCategoryAxis
 from PySide6.QtCharts import QBarSeries
@@ -67,7 +66,7 @@ def build_series(data: Sequence[Row],
               for data, mov in summes)
 
     # step the movements
-    last_mov: Optional[Decimal] = None
+    last_mov: Decimal | None = None
     for ts, mov in floats:
         if last_mov is not None:
             series.append(ts, float(last_mov))
