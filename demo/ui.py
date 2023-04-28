@@ -140,12 +140,13 @@ PATH = '/home/zed/eclipse-workspace/movs-data/BPOL_accumulator_vitomamma.txt'
 
 def main() -> None:
     _, rows = read_txt(PATH, 'BPOL')
+
     app = QApplication(argv)
-    try:
-        plot = qwtmain(rows)
-        plot.show()
-    finally:
-        app.exec_()
+
+    plot = qwtmain(rows)
+    plot.show()
+
+    app.exec_()
 
 
 if __name__ == '__main__':
