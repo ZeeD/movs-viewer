@@ -6,24 +6,24 @@ from typing import NoReturn
 
 from movs import read_txt
 from movs.model import Row
-from PySide6.QtCharts import QBarCategoryAxis
-from PySide6.QtCharts import QBarSeries
-from PySide6.QtCharts import QBarSet
-from PySide6.QtCharts import QChart
-from PySide6.QtCharts import QChartView
-from PySide6.QtCharts import QDateTimeAxis
-from PySide6.QtCharts import QLineSeries
-from PySide6.QtCharts import QStackedBarSeries
-from PySide6.QtCharts import QValueAxis
-from PySide6.QtCore import QDateTime
-from PySide6.QtCore import QPointF
-from PySide6.QtCore import QRectF
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPen
-from PySide6.QtWidgets import QApplication
-from PySide6.QtWidgets import QGraphicsSceneMouseEvent
-from PySide6.QtWidgets import QGraphicsSceneWheelEvent
-from PySide6.QtWidgets import QMainWindow
+from qtpy.QtCharts import QBarCategoryAxis
+from qtpy.QtCharts import QBarSeries
+from qtpy.QtCharts import QBarSet
+from qtpy.QtCharts import QChart
+from qtpy.QtCharts import QChartView
+from qtpy.QtCharts import QDateTimeAxis
+from qtpy.QtCharts import QLineSeries
+from qtpy.QtCharts import QStackedBarSeries
+from qtpy.QtCharts import QValueAxis
+from qtpy.QtCore import QDateTime
+from qtpy.QtCore import QPointF
+from qtpy.QtCore import QRectF
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QPen
+from qtpy.QtWidgets import QApplication
+from qtpy.QtWidgets import QGraphicsSceneMouseEvent
+from qtpy.QtWidgets import QGraphicsSceneWheelEvent
+from qtpy.QtWidgets import QMainWindow
 
 from mypyui.settings import Settings
 

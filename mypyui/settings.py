@@ -1,6 +1,6 @@
 from typing import cast
 
-from PySide6.QtCore import QSettings
+from qtpy.QtCore import QSettings
 
 from .constants import SETTINGS_DATA_PATHS
 from .constants import SETTINGS_PASSWORD

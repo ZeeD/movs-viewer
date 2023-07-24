@@ -2,12 +2,12 @@ from datetime import date
 from datetime import datetime
 from decimal import Decimal
 
-from PySide6 import QtCharts
-from PySide6.QtCore import QPointF
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication
-from PySide6.QtWidgets import QGraphicsSceneMouseEvent
-from PySide6.QtWidgets import QGraphicsSceneWheelEvent
+from qtpy import QtCharts
+from qtpy.QtCore import QPointF
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QApplication
+from qtpy.QtWidgets import QGraphicsSceneMouseEvent
+from qtpy.QtWidgets import QGraphicsSceneWheelEvent
 
 app = QApplication([__file__])
 

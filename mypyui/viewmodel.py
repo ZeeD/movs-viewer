@@ -7,17 +7,17 @@ from typing import cast
 
 from movs import read_txt
 from movs.model import Row
-from PySide6.QtCore import QAbstractTableModel
-from PySide6.QtCore import QItemSelectionModel
-from PySide6.QtCore import QModelIndex
-from PySide6.QtCore import QObject
-from PySide6.QtCore import QPersistentModelIndex
-from PySide6.QtCore import QRegularExpression
-from PySide6.QtCore import QSortFilterProxyModel
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QBrush
-from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QStatusBar
+from qtpy.QtCore import QAbstractTableModel
+from qtpy.QtCore import QItemSelectionModel
+from qtpy.QtCore import QModelIndex
+from qtpy.QtCore import QObject
+from qtpy.QtCore import QPersistentModelIndex
+from qtpy.QtCore import QRegularExpression
+from qtpy.QtCore import QSortFilterProxyModel
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QBrush
+from qtpy.QtGui import QColor
+from qtpy.QtWidgets import QStatusBar
 
 from .settings import Settings
 

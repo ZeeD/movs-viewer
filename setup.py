@@ -15,6 +15,7 @@ setup(name='mypyui',
           ]
       },
       install_requires=[
+          'qtpy',
           'PySide6',
           'movs',
           'movs-merger'

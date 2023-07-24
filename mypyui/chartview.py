@@ -12,17 +12,17 @@ from typing import NamedTuple
 
 from movs import read_txt
 from movs.model import Row
-from PySide6.QtCharts import QBarCategoryAxis
-from PySide6.QtCharts import QBarSeries
-from PySide6.QtCharts import QBarSet
-from PySide6.QtCharts import QCategoryAxis
-from PySide6.QtCharts import QChart
-from PySide6.QtCharts import QChartView
-from PySide6.QtCharts import QLineSeries
-from PySide6.QtCharts import QValueAxis
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QGraphicsSceneMouseEvent
-from PySide6.QtWidgets import QGraphicsSceneWheelEvent
+from qtpy.QtCharts import QBarCategoryAxis
+from qtpy.QtCharts import QBarSeries
+from qtpy.QtCharts import QBarSet
+from qtpy.QtCharts import QCategoryAxis
+from qtpy.QtCharts import QChart
+from qtpy.QtCharts import QChartView
+from qtpy.QtCharts import QLineSeries
+from qtpy.QtCharts import QValueAxis
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QGraphicsSceneMouseEvent
+from qtpy.QtWidgets import QGraphicsSceneWheelEvent
 
 from .settings import Settings
 
