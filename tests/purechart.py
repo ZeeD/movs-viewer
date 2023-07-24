@@ -1,7 +1,6 @@
 from datetime import date
 from datetime import datetime
 from decimal import Decimal
-from typing import cast
 
 from PySide6 import QtCharts
 from PySide6.QtCore import QPointF
@@ -41,12 +40,12 @@ def years(rows: list[tuple[date, Decimal]]) -> list[date]:
 
 # axis_x = QtCharts.QDateTimeAxis()
 axis_x = QtCharts.QCategoryAxis()
-axis_x.setLabelsPosition(QtCharts.QCategoryAxis.AxisLabelsPositionOnValue)
+axis_x.setLabelsPosition(QtCharts.QCategoryAxis.AxisLabelsPosition.AxisLabelsPositionOnValue)
 for dt in years(rows):
     axis_x.append(f'{dt}', ts(dt))
 
 axis_y = QtCharts.QValueAxis()
-axis_y.setTickType(QtCharts.QValueAxis.TicksDynamic)
+axis_y.setTickType(QtCharts.QValueAxis.TickType.TicksDynamic)
 axis_y.setTickAnchor(0.)
 axis_y.setTickInterval(100.)
 axis_y.setMinorTickCount(9)
@@ -77,9 +76,9 @@ chart = Chart()
 chart.legend().setVisible(False)
 
 chart.addSeries(series)
-chart.addAxis(axis_x, cast(Qt.Alignment, Qt.AlignBottom))
+chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
 series.attachAxis(axis_x)
-chart.addAxis(axis_y, cast(Qt.Alignment, Qt.AlignLeft))
+chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
 series.attachAxis(axis_y)
 
 

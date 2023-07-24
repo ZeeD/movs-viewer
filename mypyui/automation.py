@@ -11,6 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.support.expected_conditions import (
@@ -43,8 +44,7 @@ def get_options(dtemp: str) -> Options:
 def _w(wait: WebDriverWait,
        condition: Callable[[tuple[str, str]], Callable[[Firefox], Any]],
        css_selector: str) -> Any:
-    return wait.until(condition((By.CSS_SELECTOR,
-                                 css_selector)))  # type: ignore
+    return wait.until(condition((By.CSS_SELECTOR, css_selector)))
 
 
 def _c(wait: WebDriverWait, css_selector: str) -> Any:
@@ -62,8 +62,7 @@ def _i(wait: WebDriverWait, css_selector: str) -> Any:
 def pl(wait: WebDriverWait, wd: WebDriver) -> None:
     _p(wait, '.pageLoader')
     founds = wd.find_elements(By.CSS_SELECTOR, '.pageLoader')
-    wait.until(all_of(*(invisibility_of_element(found)
-                        for found in founds)))  # type: ignore
+    wait.until(all_of(*(invisibility_of_element(found) for found in founds)))
 
 
 HP = 'https://bancoposta.poste.it/bpol/public/BPOL_ListaMovimentiAPP/index.html'
@@ -75,7 +74,7 @@ def get_movimenti(username: str,
                   num_conto: str,
                   get_otp: Callable[[], str]) -> Iterator[str]:
     with TemporaryDirectory() as dtemp, \
-            Firefox(executable_path=GECKODRIVER_PATH,
+            Firefox(service=Service(executable_path=GECKODRIVER_PATH),
                     options=get_options(dtemp)) as wd:
         wait = WebDriverWait(wd, 1000)
         # login

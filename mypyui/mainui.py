@@ -6,6 +6,7 @@ from PySide6.QtGui import QKeySequence
 from PySide6.QtGui import QShortcut
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QDialog
 from PySide6.QtWidgets import QDialogButtonBox
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QLineEdit
@@ -32,7 +33,7 @@ class Mainui(QMainWindow):
     actionUpdate: QAction
 
 
-class Settingsui(QWidget):
+class Settingsui(QDialog):
     usernameLineEdit: QLineEdit
     passwordLineEdit: QLineEdit
     dataPaths: QPlainTextEdit
@@ -48,7 +49,7 @@ def _getDataPaths(dataPaths: QPlainTextEdit) -> list[str]:
     return dataPaths.toPlainText().split(_dataPathsSeparator)
 
 
-def new_settingsui(settings: Settings) -> QWidget:
+def new_settingsui(settings: Settings) -> Settingsui:
     def save_settings() -> None:
         settings.data_paths = _getDataPaths(settingsui.dataPaths)
         settings.username = settingsui.usernameLineEdit.text()
@@ -71,7 +72,7 @@ def new_settingsui(settings: Settings) -> QWidget:
 
 def new_mainui(settings: Settings,
                model: SortFilterViewModel,
-               settingsui: QWidget) -> QWidget:
+               settingsui: Settingsui) -> QWidget:
     def update_helper() -> None:
         model.reload()
         chart_view.reload()

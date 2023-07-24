@@ -2,7 +2,6 @@ from datetime import date
 from itertools import accumulate
 from itertools import groupby
 from sys import argv
-from typing import cast
 from typing import NoReturn
 
 from movs import read_txt
@@ -117,7 +116,7 @@ def main() -> NoReturn:
     try:
         # axis
         axis_y = QValueAxis()
-        axis_y.setTickType(QValueAxis.TicksDynamic)
+        axis_y.setTickType(QValueAxis.TickType.TicksDynamic)
         axis_y.setTickAnchor(0.)
         axis_y.setTickInterval(10_000.)
         axis_y.setRange(-40_000, 120_000)
@@ -184,13 +183,13 @@ def main() -> NoReturn:
                 self.scroll(event.lastPos().x() - event.pos().x(), 0)
 
         chart = C()
-        chart.setTheme(QChart.ChartThemeQt)
+        chart.setTheme(QChart.ChartTheme.ChartThemeQt)
         chart.addSeries(series_year)
         chart.addSeries(series_month)
         chart.addSeries(series_day)
-        chart.addAxis(axis_x_bar, cast(Qt.Alignment, Qt.AlignBottom))
-        chart.addAxis(axis_x_line, cast(Qt.Alignment, Qt.AlignBottom))
-        chart.addAxis(axis_y, cast(Qt.Alignment, Qt.AlignLeft))
+        chart.addAxis(axis_x_bar, Qt.AlignmentFlag.AlignBottom)
+        chart.addAxis(axis_x_line, Qt.AlignmentFlag.AlignBottom)
+        chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
 
         # for some reason I need to link the axis to the series after the chart
         series_year.attachAxis(axis_x_bar)
@@ -201,7 +200,7 @@ def main() -> NoReturn:
         series_day.attachAxis(axis_y)
 
         chart_view = QChartView(chart)
-        chart_view.setCursor(Qt.CrossCursor)
+        chart_view.setCursor(Qt.CursorShape.CrossCursor)
 
         # main
         main_window = QMainWindow()
