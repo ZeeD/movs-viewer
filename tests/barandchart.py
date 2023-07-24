@@ -5,6 +5,8 @@ from sys import argv
 from typing import cast
 from typing import NoReturn
 
+from movs import read_txt
+from movs.model import Row
 from PySide6.QtCharts import QBarCategoryAxis
 from PySide6.QtCharts import QBarSeries
 from PySide6.QtCharts import QBarSet
@@ -24,8 +26,6 @@ from PySide6.QtWidgets import QGraphicsSceneMouseEvent
 from PySide6.QtWidgets import QGraphicsSceneWheelEvent
 from PySide6.QtWidgets import QMainWindow
 
-from movs import read_txt
-from movs.model import Row
 from mypyui.settings import Settings
 
 

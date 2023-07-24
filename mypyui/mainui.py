@@ -63,8 +63,8 @@ def new_settingsui(settings: Settings) -> QWidget:
     settingsui.passwordLineEdit.setText(settings.password)
     _setDataPaths(settingsui.dataPaths, settings.data_paths)
 
-    settingsui.buttonBox.accepted.connect(save_settings)  # type: ignore
-    settingsui.openFileChooser.clicked.connect(open_data_paths)  # type: ignore
+    settingsui.buttonBox.accepted.connect(save_settings)
+    settingsui.openFileChooser.clicked.connect(open_data_paths)
 
     return settingsui
 
@@ -84,20 +84,20 @@ def new_mainui(settings: Settings,
 
     mainui.tableView.setModel(model)
     selection_model = mainui.tableView.selectionModel()
-    selection_model.selectionChanged.connect(update_status_bar)  # type: ignore
+    selection_model.selectionChanged.connect(update_status_bar)
 
-    mainui.lineEdit.textChanged.connect(model.filterChanged)  # type: ignore
+    mainui.lineEdit.textChanged.connect(model.filterChanged)
 
     chart_view = ChartView(settings)
     mainui.tab_2.layout().addWidget(chart_view)
 
-    mainui.actionUpdate.triggered.connect(update_helper)  # type: ignore
-    mainui.actionSettings.triggered.connect(settingsui.show)  # type: ignore
-    settingsui.accepted.connect(update_helper)  # type: ignore
+    mainui.actionUpdate.triggered.connect(update_helper)
+    mainui.actionSettings.triggered.connect(settingsui.show)
+    settingsui.accepted.connect(update_helper)
 
-    QShortcut(QKeySequence('Ctrl+F'),  # type: ignore
+    QShortcut(QKeySequence('Ctrl+F'),
               mainui).activated.connect(mainui.lineEdit.setFocus)
-    QShortcut(QKeySequence('Esc'), mainui).activated.connect(  # type: ignore
+    QShortcut(QKeySequence('Esc'), mainui).activated.connect(
         lambda: mainui.lineEdit.setText(''))
 
     # on startup load

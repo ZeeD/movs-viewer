@@ -9,6 +9,9 @@ from itertools import cycle
 from operator import attrgetter
 from sys import argv
 
+from movs import read_txt
+from movs.model import Row
+from movs.model import Rows
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication
 from qwt import QwtPlot
@@ -16,10 +19,6 @@ from qwt import QwtPlotCurve
 from qwt import QwtPlotGrid
 from qwt.scale_div import QwtScaleDiv
 from qwt.scale_draw import QwtScaleDraw
-
-from movs import read_txt
-from movs.model import Row
-from movs.model import Rows
 
 
 def linecolors(excluded: set[Qt.GlobalColor]=set([Qt.GlobalColor.color0,

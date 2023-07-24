@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QApplication, QLineEdit
+from movsmerger import merge_files
+from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QInputDialog
+from PySide6.QtWidgets import QLineEdit
 from PySide6.QtWidgets import QWidget
 
-from movsmerger import merge_files
 from mypyui.automation import get_movimenti
 from mypyui.settings import Settings
 

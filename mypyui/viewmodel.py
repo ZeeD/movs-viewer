@@ -5,6 +5,8 @@ from operator import iadd
 from operator import isub
 from typing import cast
 
+from movs import read_txt
+from movs.model import Row
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtCore import QModelIndex
@@ -16,9 +18,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QStatusBar
-
-from movs import read_txt
-from movs.model import Row
 
 from .settings import Settings
 

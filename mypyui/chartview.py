@@ -10,6 +10,8 @@ from itertools import groupby
 from typing import cast
 from typing import NamedTuple
 
+from movs import read_txt
+from movs.model import Row
 from PySide6.QtCharts import QBarCategoryAxis
 from PySide6.QtCharts import QBarSeries
 from PySide6.QtCharts import QBarSet
@@ -21,9 +23,6 @@ from PySide6.QtCharts import QValueAxis
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QGraphicsSceneMouseEvent
 from PySide6.QtWidgets import QGraphicsSceneWheelEvent
-
-from movs import read_txt
-from movs.model import Row
 
 from .settings import Settings
 
