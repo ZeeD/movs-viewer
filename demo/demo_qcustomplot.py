@@ -3,6 +3,7 @@ from datetime import datetime
 from datetime import time
 from decimal import Decimal
 
+from movs import read_txt
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush
 from PyQt6.QtGui import QColor
@@ -12,8 +13,6 @@ from PyQt6.QtWidgets import QMainWindow
 from QCustomPlot_PyQt6 import QCP
 from QCustomPlot_PyQt6 import QCPAxisTickerDateTime
 from QCustomPlot_PyQt6 import QCustomPlot
-
-from movs import read_txt
 
 app = QApplication(sys.argv)
 

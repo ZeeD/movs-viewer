@@ -6,6 +6,7 @@ from typing import NoReturn
 
 from movs import read_txt
 from movs.model import Row
+from movs.model import ZERO
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
 from qtpy.QtCharts import QBarSet
@@ -69,7 +70,7 @@ def sums_years_by_month(ROWS: list[Row]) -> dict[str, list[float]]:
                 for k, v in groupby(sorted(tmp.get(i, []), key=year), key=year)}
 
         ret[m] = [float(sum((row.money for row in tmp2.get(y, [])),
-                            start=Row.zero))
+                            start=ZERO))
                   for y in range_years(ROWS)]
 
     return ret
@@ -80,7 +81,7 @@ def sums_by_year(ROWS: list[Row]) -> list[float]:
 
     tmp = {k: list(v) for k, v in groupby(sorted(ROWS, key=year), key=year)}
     return [float(sum((row.money for row in tmp.get(y, [])),
-                      start=Row.zero))
+                      start=ZERO))
             for y in range_years(ROWS)]
 
 
