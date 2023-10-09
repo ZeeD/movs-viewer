@@ -10,14 +10,10 @@ class DC:
     b: int
 
 
-t = tuple[date, int]
-
-def acc(dcs: Iterable[DC]) -> Iterable[t]:
-    def func(l: t, r: DC) -> t:
-        return (r.a, l[1]+r.b)
+def acc(dcs: Iterable[DC]) -> Iterable[tuple[date, int]]:
     it = iter(dcs)
-    head = next(it)
-    return accumulate(it, func, initial=(head.a, head.b))
+    h = next(it)
+    return accumulate(it, lambda t, dc: (dc.a, t[1]+dc.b), initial=(h.a, h.b))
 
 
 for e in acc([DC(date(2020, 1, 1), 1),

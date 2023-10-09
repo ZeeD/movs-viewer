@@ -9,9 +9,6 @@ from itertools import cycle
 from operator import attrgetter
 from sys import argv
 
-from movs import read_txt
-from movs.model import Row
-from movs.model import Rows
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication
 from qwt import QwtPlot
@@ -20,16 +17,21 @@ from qwt import QwtPlotGrid
 from qwt.scale_div import QwtScaleDiv
 from qwt.scale_draw import QwtScaleDraw
 
+from movs import read_txt
+from movs.model import Row
+from movs.model import Rows
 
-def linecolors(excluded: set[Qt.GlobalColor]=set([Qt.GlobalColor.color0,
-                                                  Qt.GlobalColor.color1,
-                                                  Qt.GlobalColor.black,
-                                                  Qt.GlobalColor.white,
-                                                  Qt.GlobalColor.darkGray,
-                                                  Qt.GlobalColor.gray,
-                                                  Qt.GlobalColor.lightGray,
-                                                  Qt.GlobalColor.transparent])) -> Iterable[Qt.GlobalColor]:
-    return cycle(filter(lambda c: c not in excluded, Qt.GlobalColor))
+
+def linecolors() -> Iterable[Qt.GlobalColor]:
+    return cycle(filter(lambda c: c not in set([Qt.GlobalColor.color0,
+                                                Qt.GlobalColor.color1,
+                                                Qt.GlobalColor.black,
+                                                Qt.GlobalColor.white,
+                                                Qt.GlobalColor.darkGray,
+                                                Qt.GlobalColor.gray,
+                                                Qt.GlobalColor.lightGray,
+                                                Qt.GlobalColor.transparent]),
+                        Qt.GlobalColor))
 
 
 T = tuple[date, Decimal]
