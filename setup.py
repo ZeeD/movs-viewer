@@ -11,7 +11,7 @@ setup(name='mypyui',
       python_requires='>=3.8',
       entry_points={
           'gui_scripts': [
-              'mypyui = mypyui:main'
+              'mypyui = mypyui.mainui:main'
           ]
       },
       install_requires=[
