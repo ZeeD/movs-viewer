@@ -89,6 +89,7 @@ def new_mainui(settings: Settings,
     mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
 
     mainui.tableView.setModel(model)
+    model.modelReset.connect(mainui.tableView.resizeColumnsToContents)
     selection_model = mainui.tableView.selectionModel()
     selection_model.selectionChanged.connect(update_status_bar)
 
