@@ -8,8 +8,9 @@ from .constants import SETTINGS_USERNAME
 
 
 class Settings:
-    def __init__(self) -> None:
+    def __init__(self, argv1: list[str]) -> None:
         self.settings = QSettings('ZeeD', 'mypyui')
+        self.argv1 = argv1
 
     @property
     def username(self) -> str:
@@ -31,6 +32,9 @@ class Settings:
 
     @property
     def data_paths(self) -> list[str]:
+        if self.argv1:
+            return self.argv1
+
         value = self.settings.value(SETTINGS_DATA_PATHS)
 
         if value is None:

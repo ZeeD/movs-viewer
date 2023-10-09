@@ -1,3 +1,4 @@
+from sys import argv
 from typing import cast
 
 from qtpy.QtCore import QItemSelection
@@ -108,8 +109,8 @@ def new_mainui(settings: Settings,
 
 
 def main() -> None:
-    app = QApplication([__file__])
-    settings = Settings()
+    app = QApplication(argv)
+    settings = Settings(argv[1:])
     model = SortFilterViewModel(settings)
     settingsui = new_settingsui(settings)
     mainui = new_mainui(settings, model, settingsui)
