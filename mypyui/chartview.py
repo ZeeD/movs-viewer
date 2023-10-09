@@ -82,7 +82,7 @@ def build_group_by_year_series(data: Sequence[Row]) -> tuple[QBarSeries,
     axis_x = QBarCategoryAxis()
 
     series = QBarSeries()
-    series.attachAxis(axis_x)
+    # series.attachAxis(axis_x)
     barset = QBarSet('group by year')
     series.append(barset)
 
@@ -106,7 +106,7 @@ def build_group_by_month_series(data: Sequence[Row]) -> tuple[QBarSeries,
     axis_x = QBarCategoryAxis()
 
     series = QBarSeries()
-    series.attachAxis(axis_x)
+    # series.attachAxis(axis_x)
     barset = QBarSet('group by month')
     series.append(barset)
 
@@ -175,14 +175,14 @@ class Chart(QChart):
 
         group_by_year_series, axis_x_years = build_group_by_year_series(data)
         self.addSeries(group_by_year_series)
-        group_by_year_series.attachAxis(axis_y)
         self.addAxis(axis_x_years, Qt.AlignmentFlag.AlignBottom)
+        group_by_year_series.attachAxis(axis_y)
 
         group_by_month_series, axis_x_months = build_group_by_month_series(
             data)
         self.addSeries(group_by_month_series)
-        group_by_month_series.attachAxis(axis_y)
         self.addAxis(axis_x_months, Qt.AlignmentFlag.AlignBottom)
+        group_by_month_series.attachAxis(axis_y)
 
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         super().wheelEvent(event)

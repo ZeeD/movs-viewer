@@ -1,10 +1,14 @@
 from sys import argv
 from typing import cast
 
+from qtpy.QtCore import QCoreApplication
 from qtpy.QtCore import QItemSelection
+from qtpy.QtCore import Qt
 from qtpy.QtGui import QAction
 from qtpy.QtGui import QKeySequence
 from qtpy.QtGui import QShortcut
+from qtpy.QtQuick import QQuickWindow
+from qtpy.QtQuick import QSGRendererInterface
 from qtpy.QtUiTools import QUiLoader
 from qtpy.QtWidgets import QApplication
 from qtpy.QtWidgets import QDialog
@@ -109,6 +113,10 @@ def new_mainui(settings: Settings,
 
 
 def main() -> None:
+    QCoreApplication.setAttribute(
+        Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
+    QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGLRhi)
+
     app = QApplication(argv)
     settings = Settings(argv[1:])
     model = SortFilterViewModel(settings)
