@@ -6,6 +6,7 @@ from qtpy.QtWidgets import QWidget
 
 from mypyui.automation import get_movimenti
 from mypyui.settings import Settings
+from sys import argv
 
 
 # TODO: capire dove metterla
@@ -23,11 +24,11 @@ class ask_otp:
 
 
 def main() -> None:
-    app = QApplication([__file__])
+    app = QApplication(argv)
     q = QWidget()
     q.show()
 
-    settings = Settings()
+    settings = Settings(argv[1:])
     numconto = '000091703983'  # TODO move in settings
     with get_movimenti(settings.username,
                        settings.password,
@@ -36,6 +37,7 @@ def main() -> None:
         print(movimenti)
         merge_files(settings.data_paths[0], movimenti)
     raise SystemExit(app.exec())
+
 
 if __name__ == '__main__':
     main()

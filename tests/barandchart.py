@@ -4,9 +4,6 @@ from itertools import groupby
 from sys import argv
 from typing import NoReturn
 
-from movs import read_txt
-from movs.model import Row
-from movs.model import ZERO
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
 from qtpy.QtCharts import QBarSet
@@ -26,6 +23,9 @@ from qtpy.QtWidgets import QGraphicsSceneMouseEvent
 from qtpy.QtWidgets import QGraphicsSceneWheelEvent
 from qtpy.QtWidgets import QMainWindow
 
+from movs import read_txt
+from movs.model import Row
+from movs.model import ZERO
 from mypyui.settings import Settings
 
 
@@ -42,7 +42,7 @@ def day(row: Row) -> date:
 
 
 def get_rows() -> list[Row]:
-    settings = Settings()
+    settings = Settings(argv[1:])
     _, rows = read_txt(settings.data_paths[0])
     return rows
 

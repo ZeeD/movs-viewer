@@ -5,8 +5,6 @@ from operator import iadd
 from operator import isub
 from typing import cast
 
-from movs import read_txt
-from movs.model import Row
 from qtpy.QtCore import QAbstractTableModel
 from qtpy.QtCore import QItemSelectionModel
 from qtpy.QtCore import QModelIndex
@@ -18,6 +16,9 @@ from qtpy.QtCore import Qt
 from qtpy.QtGui import QBrush
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QStatusBar
+
+from movs import read_txt
+from movs.model import Row
 
 from .settings import Settings
 
@@ -36,6 +37,9 @@ def _abs(row: Row) -> Decimal:
     return ZERO
 
 
+T_INDEX = QModelIndex | QPersistentModelIndex
+
+
 class ViewModel(QAbstractTableModel):
     def __init__(self, parent: QObject, data: list[Row]):
         super().__init__(parent)
@@ -47,10 +51,10 @@ class ViewModel(QAbstractTableModel):
         self._min = abs_data[0] if abs_data else ZERO
         self._max = abs_data[-1] if abs_data else ZERO
 
-    def rowCount(self, _parent: QModelIndex | QPersistentModelIndex = QModelIndex()) -> int:
+    def rowCount(self, parent: T_INDEX = QModelIndex()) -> int:
         return len(self._data)
 
-    def columnCount(self, _parent: QModelIndex | QPersistentModelIndex = QModelIndex()) -> int:
+    def columnCount(self, parent: T_INDEX = QModelIndex()) -> int:
         return len(FIELD_NAMES)
 
     def headerData(

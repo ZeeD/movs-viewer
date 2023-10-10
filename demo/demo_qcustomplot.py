@@ -46,7 +46,7 @@ dateTicker = QCPAxisTickerDateTime()
 customPlot.xAxis.setTicker(dateTicker)
 
 customPlot.legend.setVisible(True)
-customPlot.legend.setBrush(QColor(255, 255, 255, 150));
+customPlot.legend.setBrush(QColor(255, 255, 255, 150))
 
 window = QMainWindow()
 window.resize(800, 600)
