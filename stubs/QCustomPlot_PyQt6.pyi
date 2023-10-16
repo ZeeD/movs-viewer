@@ -26,7 +26,18 @@ class QCPGraph:
     def setBrush(self, brush: QBrush) -> None:
         ...
 
-    def setData(self, x: list[float], y: list[Decimal]) -> None:
+    def setData(self,
+                keys: list[float],
+                values: list[Decimal],
+                alreadySorted: bool=False) -> None:
+        ...
+
+    def setName(self, name: str) -> None:
+        ...
+
+    def addData(self,
+                key: float,
+                value: Decimal) -> None:
         ...
 
 
