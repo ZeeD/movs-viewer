@@ -6,6 +6,8 @@ from PyQt6.QtGui import QBrush
 from PyQt6.QtGui import QColor
 from PyQt6.QtGui import QPen
 from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import pyqtBoundSignal
+from typing import ClassVar
 
 
 class QCP:
@@ -16,7 +18,11 @@ class QCP:
 
 
 class QCPAxisTickerDateTime:
-    ...
+    def setDateTimeFormat(self, fmt: str) -> None:
+        ...
+
+    def setTickCount(self, tickCount: int) -> None:
+        ...
 
 
 class QCPGraph:
@@ -45,6 +51,17 @@ class QCPAxis:
     def setTicker(self, ticker: QCPAxisTickerDateTime) -> None:
         ...
 
+    def setTicks(self, ticks: bool) -> None:
+        ...
+
+    def setSubTicks(self, subTicks: bool) -> None:
+        ...
+
+    def setRangeLower(self, rangeLower: float) -> None:
+        ...
+
+    rangeChanged: ClassVar[pyqtBoundSignal]
+
 
 class QCPLegend:
     def setVisible(self, visible: bool) -> None:
@@ -62,6 +79,9 @@ class QCustomPlot(QWidget):
         ...
 
     def setInteraction(self, interaction: QCP.Interaction) -> None:
+        ...
+
+    def replot(self) -> None:
         ...
 
     xAxis: QCPAxis

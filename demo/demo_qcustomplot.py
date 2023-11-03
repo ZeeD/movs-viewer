@@ -1,9 +1,12 @@
 from datetime import date
-from datetime import datetime, timedelta
+from datetime import datetime
 from datetime import time
 from decimal import Decimal
+from functools import partial
 from operator import attrgetter
-
+from sys import argv
+from movs import read_txt
+from movs.model import Rows
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush
 from PyQt6.QtGui import QColor
@@ -15,11 +18,6 @@ from PyQt6.QtWidgets import QWidget
 from QCustomPlot_PyQt6 import QCP
 from QCustomPlot_PyQt6 import QCPAxisTickerDateTime
 from QCustomPlot_PyQt6 import QCustomPlot
-
-from movs import read_txt
-from movs.model import Rows
-
-from functools import partial
 
 
 def timestamp(d: date) -> float:
@@ -57,6 +55,9 @@ def make_plot(rows: Rows, parent: QWidget | None = None) -> QCustomPlot:
 
     plot.legend.setVisible(True)
     plot.legend.setBrush(QColor(255, 255, 255, 150))
+
+    plot.xAxis.rangeChanged.connect(lambda _: plot.replot())
+
     return plot
 
 
@@ -70,7 +71,7 @@ def main() -> None:
     _, rows = read_txt('../../movs-data/BPOL_accumulator_vitomamma.txt',
                        'vitomamma')
 
-    app = QApplication([__file__])
+    app = QApplication(argv)
 
     mainapp = QWidget()
 
