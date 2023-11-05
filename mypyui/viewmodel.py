@@ -5,6 +5,9 @@ from operator import iadd
 from operator import isub
 from typing import cast
 
+from movs import read_txt
+from movs.model import Row
+from movs.model import ZERO
 from qtpy.QtCore import QAbstractTableModel
 from qtpy.QtCore import QItemSelectionModel
 from qtpy.QtCore import QModelIndex
@@ -17,16 +20,11 @@ from qtpy.QtGui import QBrush
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QStatusBar
 
-from movs import read_txt
-from movs.model import Row
-
 from .settings import Settings
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
 T_FIELDS = date | Decimal | None | str
-
-ZERO = Decimal(0)
 
 
 def _abs(row: Row) -> Decimal:
@@ -51,10 +49,10 @@ class ViewModel(QAbstractTableModel):
         self._min = abs_data[0] if abs_data else ZERO
         self._max = abs_data[-1] if abs_data else ZERO
 
-    def rowCount(self, parent: T_INDEX = QModelIndex()) -> int:
+    def rowCount(self, _parent: T_INDEX = QModelIndex()) -> int:
         return len(self._data)
 
-    def columnCount(self, parent: T_INDEX = QModelIndex()) -> int:
+    def columnCount(self, _parent: T_INDEX = QModelIndex()) -> int:
         return len(FIELD_NAMES)
 
     def headerData(
@@ -80,14 +78,15 @@ class ViewModel(QAbstractTableModel):
             return str(getattr(self._data[row], FIELD_NAMES[column]))
 
         if role == Qt.ItemDataRole.BackgroundRole:
-            abs_value = _abs(self._data[row])
-            perc = float((abs_value - self._min) / (self._max - self._min))
+            max_, min_, val = self._max, self._min, _abs(self._data[row])
+            perc = (val - min_) / \
+                (max_ - min_) if max_ != min_ else Decimal(.5)
 
-            red = int((1 - perc) * 255)  # 0..1 ->  255..0
-            green = int(perc * 255)  # 0..1 -> 0..255
-            blue = int((.5 - abs(perc - .5)) * 511)  # 0..0.5..1 -> 0..255..0
+            hue = int(perc * 120)   # 0..359 ; red=0, green=120
+            saturation = 223        # 0..255
+            lightness = 159         # 0..255
 
-            return QBrush(QColor(red, green, blue, 127))
+            return QBrush(QColor.fromHsl(hue, saturation, lightness))
 
         if role == Qt.ItemDataRole.UserRole:
             return cast(T_FIELDS, getattr(self._data[row],
