@@ -8,6 +8,7 @@ from PyQt6.QtGui import QPen
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtCore import pyqtBoundSignal
 from typing import ClassVar
+from datetime import date, datetime
 
 
 class QCP:
@@ -22,6 +23,10 @@ class QCPAxisTickerDateTime:
         ...
 
     def setTickCount(self, tickCount: int) -> None:
+        ...
+
+    @staticmethod
+    def dateTimeToKey(dateTime: date | datetime) -> float:
         ...
 
 

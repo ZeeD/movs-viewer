@@ -1,10 +1,9 @@
 from datetime import date
-from datetime import datetime
-from datetime import time
 from decimal import Decimal
 from functools import partial
 from operator import attrgetter
 from sys import argv
+
 from movs import read_txt
 from movs.model import Rows
 from PyQt6.QtCore import Qt
@@ -21,7 +20,7 @@ from QCustomPlot_PyQt6 import QCustomPlot
 
 
 def timestamp(d: date) -> float:
-    return datetime.combine(d, time()).timestamp()
+    return QCPAxisTickerDateTime.dateTimeToKey(d)
 
 
 def make_plot(rows: Rows, parent: QWidget | None = None) -> QCustomPlot:
@@ -43,13 +42,9 @@ def make_plot(rows: Rows, parent: QWidget | None = None) -> QCustomPlot:
     plot.setInteraction(QCP.Interaction.iSelectPlottables)
 
     dateTicker = QCPAxisTickerDateTime()
-    dateTicker.setDateTimeFormat('yyyy')
+    dateTicker.setDateTimeFormat('yyyy\ndd/MM')
     dateTicker.setTickCount(rows[0].date.year-rows[-1].date.year)
     plot.xAxis.setTicker(dateTicker)
-    # plot.xAxis.setRange(lower, upper)
-    # setRangeLower
-    # setRangeUpper
-    # rescale
     plot.xAxis.setTicks(True)
     plot.xAxis.setSubTicks(True)
 
