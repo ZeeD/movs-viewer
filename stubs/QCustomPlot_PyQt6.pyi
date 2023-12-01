@@ -31,6 +31,9 @@ class QCPAxisTickerDateTime:
 
 
 class QCPGraph:
+    class LineStyle(Enum):
+        lsStepLeft = auto()
+
     def setPen(self, pen: QPen) -> None:
         ...
 
@@ -50,6 +53,8 @@ class QCPGraph:
                 key: float,
                 value: Decimal) -> None:
         ...
+
+    def setLineStyle(self, ls: LineStyle) -> None:...
 
 
 class QCPAxis:

@@ -17,6 +17,7 @@ from PyQt6.QtWidgets import QWidget
 from QCustomPlot_PyQt6 import QCP
 from QCustomPlot_PyQt6 import QCPAxisTickerDateTime
 from QCustomPlot_PyQt6 import QCustomPlot
+from QCustomPlot_PyQt6 import QCPGraph
 
 
 def timestamp(d: date) -> float:
@@ -30,6 +31,7 @@ def make_plot(rows: Rows, parent: QWidget | None = None) -> QCustomPlot:
     graph.setPen(QPen(Qt.GlobalColor.darkGreen))
     graph.setBrush(QBrush(QColor(0, 0, 255, 20)))
     graph.setName(rows.name)
+    graph.setLineStyle(QCPGraph.LineStyle.lsStepLeft)
 
     value: Decimal | None = None
     for row in sorted(rows, key=attrgetter('date')):
