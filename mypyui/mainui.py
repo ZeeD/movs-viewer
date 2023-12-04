@@ -114,8 +114,8 @@ def new_mainui(settings: Settings,
 
 
 def main() -> None:
-    QCoreApplication.setAttribute(
-        Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
+    QCoreApplication.setAttribute(  # @UndefinedVariable
+        Qt.ApplicationAttribute.AA_ShareOpenGLContexts)  # @UndefinedVariable
     QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGLRhi)
 
     app = QApplication(argv)

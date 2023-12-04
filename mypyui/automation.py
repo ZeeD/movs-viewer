@@ -12,7 +12,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.webdriver import WebDriver
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable)
@@ -42,7 +43,7 @@ def get_options(dtemp: str) -> Options:
 
 
 def _w(wait: WebDriverWait,
-       condition: Callable[[tuple[str, str]], Callable[[Firefox], Any]],
+       condition: Callable[[tuple[str, str]], Callable[[WebDriver], bool | WebElement]],
        css_selector: str) -> Any:
     return wait.until(condition((By.CSS_SELECTOR, css_selector)))
 

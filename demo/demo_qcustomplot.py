@@ -14,16 +14,19 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QSlider
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
-from QCustomPlot_PyQt6 import QCP
-from QCustomPlot_PyQt6 import QCPAxisTickerDateTime
-from QCustomPlot_PyQt6 import QCustomPlot
-from QCustomPlot_PyQt6 import QCPGraph
+from QCustomPlot_PyQt6 import QCP  # @UnresolvedImport
+from QCustomPlot_PyQt6 import QCPAxisTickerDateTime  # @UnresolvedImport
+from QCustomPlot_PyQt6 import QCustomPlot  # @UnresolvedImport
+from QCustomPlot_PyQt6 import QCPGraph  # @UnresolvedImport
 
 
 def timestamp(d: date) -> float:
     return QCPAxisTickerDateTime.dateTimeToKey(d)
 
+
 b = False
+
+
 def _add_graph(plot: QCustomPlot, rows: Rows) -> None:
     global b
     graph = plot.addGraph()
@@ -74,9 +77,9 @@ def plotSetRangeLower(self: QCustomPlot, value: int)-> None:
 
 def main() -> None:
     _, rows_m = read_txt('../../movs-data/BPOL_accumulator_vitomamma.txt',
-                       'vitomamma')
+                         'vitomamma')
     _, rows_e = read_txt('../../movs-data/BPOL_accumulator_vitoelena.txt',
-                       'vitoelena')
+                         'vitoelena')
 
     app = QApplication(argv)
 
@@ -85,8 +88,10 @@ def main() -> None:
     plot = make_plot([rows_m, rows_e], mainapp)
     slider = QSlider(Qt.Orientation.Horizontal, mainapp)
 
-    slider.setMinimum(min(rows[-1].date.toordinal() for rows in (rows_m, rows_e)))
-    slider.setMaximum(max(rows[0].date.toordinal() for rows in (rows_m, rows_e)))
+    slider.setMinimum(min(rows[-1].date.toordinal()
+                      for rows in (rows_m, rows_e)))
+    slider.setMaximum(max(rows[0].date.toordinal()
+                      for rows in (rows_m, rows_e)))
     slider.setSingleStep(1)
     slider.setPageStep(365)
     slider.valueChanged.connect(partial(plotSetRangeLower, plot))
