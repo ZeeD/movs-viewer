@@ -18,7 +18,8 @@ setup(name='mypyui',
           'qtpy',
           'PySide6',
           'movs',
-          'movs-merger'
+          'movs-merger',
+          'setuptools',
       ],
       package_data={
           'mypyui': ['resources/*']

@@ -26,6 +26,7 @@ from .constants import MAINUI_UI_PATH
 from .constants import SETTINGSUI_UI_PATH
 from .settings import Settings
 from .viewmodel import SortFilterViewModel
+from .validator import Validator
 
 _dataPathsSeparator = '; \n'
 
@@ -79,14 +80,17 @@ def new_mainui(settings: Settings,
                model: SortFilterViewModel,
                settingsui: Settingsui) -> QWidget:
     def update_helper() -> None:
-        model.reload()
-        chart_view.reload()
+        if validator.validate():
+            model.reload()
+            chart_view.reload()
 
     def update_status_bar(_selected: QItemSelection,
                           _deselected: QItemSelection) -> None:
         model.selectionChanged(selection_model, mainui.statusBar())
 
     mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
+
+    validator = Validator(mainui, settings)
 
     mainui.tableView.setModel(model)
     model.modelReset.connect(mainui.tableView.resizeColumnsToContents)
