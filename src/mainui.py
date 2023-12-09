@@ -1,5 +1,9 @@
+from os import environ
 from sys import argv
 from typing import cast
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
 
 from qtpy.QtCore import QCoreApplication
 from qtpy.QtCore import QItemSelection

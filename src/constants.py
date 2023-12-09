@@ -4,7 +4,7 @@ from pkg_resources import resource_filename
 
 
 def _resource(filename: str) -> str:
-    return resource_filename('mypyui', f'resources/{filename}')
+    return resource_filename('mainui', f'resources/{filename}')
 
 
 MAINUI_UI_PATH: Final = _resource('mainui.ui')

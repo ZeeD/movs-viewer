@@ -9,6 +9,7 @@ dependencies = [
     'movslib',
     'movs-merger',
     'PyQt6',
+    'PySide6',
 ]
 
 
@@ -23,7 +24,7 @@ devtools = [
 ]
 
 [project.gui-scripts]
-mypyui = 'src.mainui:main'
+movs-viewer = 'mainui:main'
 
 
 [tool.setuptools.packages.find]
