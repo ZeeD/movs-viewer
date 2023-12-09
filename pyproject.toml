@@ -1,19 +1,18 @@
 [project]
-name = 'mypyui'
+name = 'movs-viewer'
 version = '0.0.0'
 requires-python = '>=3.12'
 dependencies = [
     'setuptools',
     'qtpy',
     'guilib',
-    'movs',
-    'movs-merger',
+    'movslib',
 ]
 
 
 [project.urls]
-Homepage = 'https://github.com/ZeeD/mypyui'
-Repository = 'https://github.com/ZeeD/mypyui.git'
+Homepage = 'https://github.com/ZeeD/movs-viewer'
+Repository = 'https://github.com/ZeeD/movs-viewer.git'
 
 [project.optional-dependencies]
 devtools = [
@@ -26,15 +25,15 @@ mypyui = 'src.mainui:main'
 
 
 [tool.setuptools.packages.find]
-where = ['src', 'stubs', 'tests']
+where = ['src']
 namespaces = false
 
 [tool.mypy]
-mypy_path = 'src,stubs,tests'
+mypy_path = 'src,tests,demo,stubs'
 strict = true
 warn_unused_configs = true
 always_false = ['PYQT5', 'PYSIDE2', 'PYQT6']
-exclude = ['src/gen/.*']
+# exclude = ['src/gen/.*']
 
 [tool.ruff]
 extend-select = [
@@ -53,16 +52,14 @@ ignore = [
 ]
 fix = true
 line-length = 80
-extend-exclude = ['src/gen']
-src = ['src', 'stubs', 'tests']
+# extend-exclude = ['src/gen']
+src = ['src', 'tests', 'demo', 'stubs']
 
 [tool.ruff.isort]
 force-single-line = true
 
 [tool.ruff.flake8-quotes]
-# docstring-quotes = 'single'
 inline-quotes = 'single'
-# multiline-quotes = 'single'
 
 [tool.ruff.format]
 quote-style = 'single'

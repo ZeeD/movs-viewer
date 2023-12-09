@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>mypyui</name>
+	<name>movs-viewer</name>
 	<comment></comment>
 	<projects>
 		<project>guilib</project>

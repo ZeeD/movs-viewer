@@ -4,9 +4,9 @@ from itertools import groupby
 from sys import argv
 from typing import NoReturn
 
-from movs.movs import read_txt
-from movs.model import ZERO
-from movs.model import Row
+from movslib.movs import read_txt
+from movslib.model import ZERO
+from movslib.model import Row
 from settings import Settings
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
