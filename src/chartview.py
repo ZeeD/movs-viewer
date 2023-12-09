@@ -7,10 +7,10 @@ from decimal import Decimal
 from itertools import accumulate
 from itertools import chain
 from itertools import groupby
-from typing import cast
 from typing import NamedTuple
+from typing import cast
 
-from movs import read_txt
+from movs.movs import read_txt
 from movs.model import Row
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
@@ -44,25 +44,28 @@ def toPoint(row: Row) -> Point:
     return Point(row.date, mov)
 
 
-def build_series(data: Sequence[Row],
-                 epoch: date = date(2008, 1, 1)) -> QLineSeries:
+def build_series(
+    data: Sequence[Row], epoch: date = date(2008, 1, 1)
+) -> QLineSeries:
     data = sorted(data, key=lambda row: row.date)
 
     series = QLineSeries()
     series.setName('data')
 
     # add start and today
-    moves = chain((Point(epoch, ZERO),),
-                  map(toPoint, data),
-                  (Point(date.today(), ZERO),))
+    moves = chain(
+        (Point(epoch, ZERO),), map(toPoint, data), (Point(date.today(), ZERO),)
+    )
 
     def sumy(a: Point, b: Point) -> Point:
         return Point(b.data, a.mov + b.mov)
 
     summes = accumulate(moves, func=sumy)
 
-    floats = ((datetime.combine(data, time()).timestamp() * 1000, mov)
-              for data, mov in summes)
+    floats = (
+        (datetime.combine(data, time()).timestamp() * 1000, mov)
+        for data, mov in summes
+    )
 
     # step the movements
     last_mov: Decimal | None = None
@@ -75,8 +78,9 @@ def build_series(data: Sequence[Row],
     return series
 
 
-def build_group_by_year_series(data: Sequence[Row]) -> tuple[QBarSeries,
-                                                             QBarCategoryAxis]:
+def build_group_by_year_series(
+    data: Sequence[Row],
+) -> tuple[QBarSeries, QBarCategoryAxis]:
     data = sorted(data, key=lambda row: row.date)
 
     axis_x = QBarCategoryAxis()
@@ -90,8 +94,9 @@ def build_group_by_year_series(data: Sequence[Row]) -> tuple[QBarSeries,
         return sum((point.mov for point in points), start=ZERO)
 
     years = []
-    for year, points in groupby(map(toPoint, data),
-                                lambda point: point.data.year):
+    for year, points in groupby(
+        map(toPoint, data), lambda point: point.data.year
+    ):
         barset.append(float(sum_points(points)))
         years.append(f'{year}')
     axis_x.setCategories(years)
@@ -99,8 +104,9 @@ def build_group_by_year_series(data: Sequence[Row]) -> tuple[QBarSeries,
     return series, axis_x
 
 
-def build_group_by_month_series(data: Sequence[Row]) -> tuple[QBarSeries,
-                                                              QBarCategoryAxis]:
+def build_group_by_month_series(
+    data: Sequence[Row],
+) -> tuple[QBarSeries, QBarCategoryAxis]:
     data = sorted(data, key=lambda row: row.date)
 
     axis_x = QBarCategoryAxis()
@@ -114,9 +120,9 @@ def build_group_by_month_series(data: Sequence[Row]) -> tuple[QBarSeries,
         return sum((point.mov for point in points), start=ZERO)
 
     year_months = []
-    for (year, month), points in groupby(map(toPoint, data),
-                                         lambda point: (point.data.year,
-                                                        point.data.month)):
+    for (year, month), points in groupby(
+        map(toPoint, data), lambda point: (point.data.year, point.data.month)
+    ):
         barset.append(float(sum_points(points)))
         year_months.append(f'{year}-{month}')
     axis_x.setCategories(year_months)
@@ -142,9 +148,11 @@ class Chart(QChart):
             data = sorted(data, key=lambda row: row.date)
             start = data[0].date.year - 1
             end = data[-1].date.year + 1
-            return [date(year, month, 1)
-                    for year in range(start, end + 1)
-                    for month in range(1, 13, step)]
+            return [
+                date(year, month, 1)
+                for year in range(start, end + 1)
+                for month in range(1, 13, step)
+            ]
 
         def reset_axis_x_labels() -> None:
             if True:
@@ -157,13 +165,15 @@ class Chart(QChart):
 
         axis_y = QValueAxis()
         axis_y.setTickType(QValueAxis.TickType.TicksDynamic)
-        axis_y.setTickAnchor(0.)
-        axis_y.setTickInterval(10000.)
+        axis_y.setTickAnchor(0.0)
+        axis_y.setTickInterval(10000.0)
         axis_y.setMinorTickCount(9)
         self.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
 
         axis_x = QCategoryAxis()
-        axis_x.setLabelsPosition(QCategoryAxis.AxisLabelsPosition.AxisLabelsPositionOnValue)
+        axis_x.setLabelsPosition(
+            QCategoryAxis.AxisLabelsPosition.AxisLabelsPositionOnValue
+        )
         for dt in months(data, 6):
             axis_x.append(f'{dt}', ts(dt))
         self.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
@@ -178,8 +188,7 @@ class Chart(QChart):
         self.addAxis(axis_x_years, Qt.AlignmentFlag.AlignBottom)
         group_by_year_series.attachAxis(axis_y)
 
-        group_by_month_series, axis_x_months = build_group_by_month_series(
-            data)
+        group_by_month_series, axis_x_months = build_group_by_month_series(data)
         self.addSeries(group_by_month_series)
         self.addAxis(axis_x_months, Qt.AlignmentFlag.AlignBottom)
         group_by_month_series.attachAxis(axis_y)
@@ -188,7 +197,7 @@ class Chart(QChart):
         super().wheelEvent(event)
         y = event.delta()
         if y < 0:
-            self.zoom(.75)  # zoomOut is ~ .5
+            self.zoom(0.75)  # zoomOut is ~ .5
         elif y > 0:
             self.zoomIn()
 

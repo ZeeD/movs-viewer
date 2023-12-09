@@ -4,6 +4,10 @@ from itertools import groupby
 from sys import argv
 from typing import NoReturn
 
+from movs.movs import read_txt
+from movs.model import ZERO
+from movs.model import Row
+from settings import Settings
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
 from qtpy.QtCharts import QBarSet
@@ -22,11 +26,6 @@ from qtpy.QtWidgets import QApplication
 from qtpy.QtWidgets import QGraphicsSceneMouseEvent
 from qtpy.QtWidgets import QGraphicsSceneWheelEvent
 from qtpy.QtWidgets import QMainWindow
-
-from movs import read_txt
-from movs.model import Row
-from movs.model import ZERO
-from mypyui.settings import Settings
 
 
 def year(row: Row) -> int:
@@ -53,36 +52,52 @@ def range_years(ROWS: list[Row]) -> range:
 
 
 def years(ROWS: list[Row]) -> list[str]:
-    'all years between first and last row'
-
+    'All years between first and last row'
     return [f'{y:04}' for y in range_years(ROWS)]
 
 
 def sums_years_by_month(ROWS: list[Row]) -> dict[str, list[float]]:
     '{month: [sum(row) for row in each year]}'
-
     ret: dict[str, list[float]] = {}
 
     tmp = {k: list(v) for k, v in groupby(sorted(ROWS, key=month), key=month)}
-    for i, m in enumerate(['GEN', 'FEB', 'MAR', 'APR', 'MAG', 'GIU',
-                           'LUG', 'AGO', 'SET', 'OTT', 'NOV', 'DIC'], start=1):
-        tmp2 = {k: list(v)
-                for k, v in groupby(sorted(tmp.get(i, []), key=year), key=year)}
+    for i, m in enumerate(
+        [
+            'GEN',
+            'FEB',
+            'MAR',
+            'APR',
+            'MAG',
+            'GIU',
+            'LUG',
+            'AGO',
+            'SET',
+            'OTT',
+            'NOV',
+            'DIC',
+        ],
+        start=1,
+    ):
+        tmp2 = {
+            k: list(v)
+            for k, v in groupby(sorted(tmp.get(i, []), key=year), key=year)
+        }
 
-        ret[m] = [float(sum((row.money for row in tmp2.get(y, [])),
-                            start=ZERO))
-                  for y in range_years(ROWS)]
+        ret[m] = [
+            float(sum((row.money for row in tmp2.get(y, [])), start=ZERO))
+            for y in range_years(ROWS)
+        ]
 
     return ret
 
 
 def sums_by_year(ROWS: list[Row]) -> list[float]:
     '[sum(row) for row in each year]'
-
     tmp = {k: list(v) for k, v in groupby(sorted(ROWS, key=year), key=year)}
-    return [float(sum((row.money for row in tmp.get(y, [])),
-                      start=ZERO))
-            for y in range_years(ROWS)]
+    return [
+        float(sum((row.money for row in tmp.get(y, [])), start=ZERO))
+        for y in range_years(ROWS)
+    ]
 
 
 def sums_by_day(ROWS: list[Row]) -> list[tuple[float, float]]:
@@ -91,14 +106,16 @@ def sums_by_day(ROWS: list[Row]) -> list[tuple[float, float]]:
     def msec(d: date) -> float:
         return (d - epoch).total_seconds() * 1000
 
-    rows = list(sorted(ROWS, key=day))
-    ret = list(accumulate(rows,
-                          lambda acc, row: (msec(day(row)),
-                                            float(row.money) + acc[1]),
-                          initial=(msec(date(year(rows[0]), 1, 1)), 0.)))
+    rows = sorted(ROWS, key=day)
+    ret = list(
+        accumulate(
+            rows,
+            lambda acc, row: (msec(day(row)), float(row.money) + acc[1]),
+            initial=(msec(date(year(rows[0]), 1, 1)), 0.0),
+        )
+    )
     # append a pair (next year-01-01, lastsum)
-    ret.append((msec(date(year(rows[-1]) + 1, 1, 1)),
-                ret[-1][1]))
+    ret.append((msec(date(year(rows[-1]) + 1, 1, 1)), ret[-1][1]))
     return ret
 
 
@@ -118,8 +135,8 @@ def main() -> NoReturn:
         # axis
         axis_y = QValueAxis()
         axis_y.setTickType(QValueAxis.TickType.TicksDynamic)
-        axis_y.setTickAnchor(0.)
-        axis_y.setTickInterval(10_000.)
+        axis_y.setTickAnchor(0.0)
+        axis_y.setTickInterval(10_000.0)
         axis_y.setRange(-40_000, 120_000)
 
         axis_x_line = QDateTimeAxis()
@@ -142,9 +159,9 @@ def main() -> NoReturn:
         series_day.hovered.connect(series_day_hovered)
 
         # bar series - by month
-        def series_month_hovered(status: bool,
-                                 _index: int,
-                                 _barset: QBarSet) -> None:
+        def series_month_hovered(
+            status: bool, _index: int, _barset: QBarSet
+        ) -> None:
             series_month.setLabelsVisible(status)
 
         series_month = QStackedBarSeries()
@@ -155,9 +172,9 @@ def main() -> NoReturn:
             series_month.append(set_)
 
         # bar series - by year
-        def series_year_hovered(status: bool,
-                                _index: int,
-                                _barset: QBarSet) -> None:
+        def series_year_hovered(
+            status: bool, _index: int, _barset: QBarSet
+        ) -> None:
             series_year.setLabelsVisible(status)
 
         series_year = QBarSeries()
@@ -176,7 +193,7 @@ def main() -> NoReturn:
                 self.zoomIn(QRectF(x, area.y(), w, area.height()))
 
             def mousePressEvent(self, _event: QGraphicsSceneMouseEvent) -> None:
-                'reimplemented to capture the mouse move'
+                'Reimplemented to capture the mouse move'
 
             def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
                 super().mouseMoveEvent(event)

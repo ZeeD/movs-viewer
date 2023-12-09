@@ -1,5 +1,6 @@
-.mypy_cache/
-.pytest_cache/
-*.egg-info/
-build/
-__pycache__/
+/.git
+
+*.egg-info
+**/__pycache__
+.*_cache
+/.settings/

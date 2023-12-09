@@ -3,6 +3,7 @@
 	<name>mypyui</name>
 	<comment></comment>
 	<projects>
+		<project>guilib</project>
 		<project>movs</project>
 		<project>movs-data</project>
 		<project>movs-merger</project>

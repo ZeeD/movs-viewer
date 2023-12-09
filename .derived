@@ -1,5 +1,9 @@
-build/
-node_modules/
+/.git
+/.project
+/.settings
+
 *.egg-info
-.mypy_cache/
-bin/
+**/__pycache__
+.*_cache
+
+/src/gen

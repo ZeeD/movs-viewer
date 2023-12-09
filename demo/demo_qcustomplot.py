@@ -4,7 +4,7 @@ from functools import partial
 from operator import attrgetter
 from sys import argv
 
-from movs import read_txt
+from movs.movs import read_txt
 from movs.model import Rows
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush
@@ -16,8 +16,8 @@ from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
 from QCustomPlot_PyQt6 import QCP  # @UnresolvedImport
 from QCustomPlot_PyQt6 import QCPAxisTickerDateTime  # @UnresolvedImport
-from QCustomPlot_PyQt6 import QCustomPlot  # @UnresolvedImport
 from QCustomPlot_PyQt6 import QCPGraph  # @UnresolvedImport
+from QCustomPlot_PyQt6 import QCustomPlot  # @UnresolvedImport
 
 
 def timestamp(d: date) -> float:
@@ -61,7 +61,7 @@ def make_plot(rowss: list[Rows], parent: QWidget | None = None) -> QCustomPlot:
 
     dateTicker = QCPAxisTickerDateTime()
     dateTicker.setDateTimeFormat('yyyy\ndd/MM')
-    dateTicker.setTickCount(rows[0].date.year-rows[-1].date.year)
+    dateTicker.setTickCount(rows[0].date.year - rows[-1].date.year)
     plot.xAxis.setTicker(dateTicker)
     plot.xAxis.setTicks(True)
     plot.xAxis.setSubTicks(True)
@@ -69,17 +69,19 @@ def make_plot(rowss: list[Rows], parent: QWidget | None = None) -> QCustomPlot:
     return plot
 
 
-def plotSetRangeLower(self: QCustomPlot, value: int)-> None:
+def plotSetRangeLower(self: QCustomPlot, value: int) -> None:
     d = date.fromordinal(value)
     t = timestamp(d)
     self.xAxis.setRangeLower(t)
 
 
 def main() -> None:
-    _, rows_m = read_txt('../../movs-data/BPOL_accumulator_vitomamma.txt',
-                         'vitomamma')
-    _, rows_e = read_txt('../../movs-data/BPOL_accumulator_vitoelena.txt',
-                         'vitoelena')
+    _, rows_m = read_txt(
+        '../../movs-data/BPOL_accumulator_vitomamma.txt', 'vitomamma'
+    )
+    _, rows_e = read_txt(
+        '../../movs-data/BPOL_accumulator_vitoelena.txt', 'vitoelena'
+    )
 
     app = QApplication(argv)
 
@@ -88,10 +90,12 @@ def main() -> None:
     plot = make_plot([rows_m, rows_e], mainapp)
     slider = QSlider(Qt.Orientation.Horizontal, mainapp)
 
-    slider.setMinimum(min(rows[-1].date.toordinal()
-                      for rows in (rows_m, rows_e)))
-    slider.setMaximum(max(rows[0].date.toordinal()
-                      for rows in (rows_m, rows_e)))
+    slider.setMinimum(
+        min(rows[-1].date.toordinal() for rows in (rows_m, rows_e))
+    )
+    slider.setMaximum(
+        max(rows[0].date.toordinal() for rows in (rows_m, rows_e))
+    )
     slider.setSingleStep(1)
     slider.setPageStep(365)
     slider.valueChanged.connect(partial(plotSetRangeLower, plot))

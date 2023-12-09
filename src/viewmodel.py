@@ -5,9 +5,9 @@ from operator import iadd
 from operator import isub
 from typing import cast
 
-from movs import read_txt
-from movs.model import Row
+from movs.movs import read_txt
 from movs.model import ZERO
+from movs.model import Row
 from qtpy.QtCore import QAbstractTableModel
 from qtpy.QtCore import QItemSelectionModel
 from qtpy.QtCore import QModelIndex
@@ -20,7 +20,7 @@ from qtpy.QtGui import QBrush
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QStatusBar
 
-from .settings import Settings
+from settings import Settings
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
@@ -56,10 +56,11 @@ class ViewModel(QAbstractTableModel):
         return len(FIELD_NAMES)
 
     def headerData(
-            self,
-            section: int,
-            orientation: Qt.Orientation,
-            role: int = Qt.ItemDataRole.DisplayRole) -> str | None:
+        self,
+        section: int,
+        orientation: Qt.Orientation,
+        role: int = Qt.ItemDataRole.DisplayRole,
+    ) -> str | None:
         if role != Qt.ItemDataRole.DisplayRole:
             return None
 
@@ -68,9 +69,11 @@ class ViewModel(QAbstractTableModel):
 
         return FIELD_NAMES[section]
 
-    def data(self,
-             index: QModelIndex | QPersistentModelIndex,
-             role: int = Qt.ItemDataRole.DisplayRole) -> T_FIELDS | QBrush | None:
+    def data(
+        self,
+        index: QModelIndex | QPersistentModelIndex,
+        role: int = Qt.ItemDataRole.DisplayRole,
+    ) -> T_FIELDS | QBrush | None:
         column = index.column()
         row = index.row()
 
@@ -79,25 +82,24 @@ class ViewModel(QAbstractTableModel):
 
         if role == Qt.ItemDataRole.BackgroundRole:
             max_, min_, val = self._max, self._min, _abs(self._data[row])
-            perc = (val - min_) / \
-                (max_ - min_) if max_ != min_ else Decimal(.5)
+            perc = (
+                (val - min_) / (max_ - min_) if max_ != min_ else Decimal(0.5)
+            )
 
-            hue = int(perc * 120)   # 0..359 ; red=0, green=120
-            saturation = 223        # 0..255
-            lightness = 159         # 0..255
+            hue = int(perc * 120)  # 0..359 ; red=0, green=120
+            saturation = 223  # 0..255
+            lightness = 159  # 0..255
 
             return QBrush(QColor.fromHsl(hue, saturation, lightness))
 
         if role == Qt.ItemDataRole.UserRole:
-            return cast(T_FIELDS, getattr(self._data[row],
-                                          FIELD_NAMES[column]))
+            return cast(T_FIELDS, getattr(self._data[row], FIELD_NAMES[column]))
 
         return None
 
     def sort(
-            self,
-            index: int,
-            order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
+        self, index: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
+    ) -> None:
         def key(row: Row) -> date | Decimal | str:  # T_FIELDS - None
             e: T_FIELDS = getattr(row, FIELD_NAMES[index])
             if e is None:
@@ -106,8 +108,9 @@ class ViewModel(QAbstractTableModel):
 
         self.layoutAboutToBeChanged.emit()
         try:
-            self._data.sort(key=key, reverse=order ==
-                            Qt.SortOrder.DescendingOrder)
+            self._data.sort(
+                key=key, reverse=order == Qt.SortOrder.DescendingOrder
+            )
         finally:
             self.layoutChanged.emit()
 
@@ -128,33 +131,36 @@ class SortFilterViewModel(QSortFilterProxyModel):
         self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setDynamicSortFilter(True)
 
-    def filterAcceptsRow(self,
-                         source_row: int,
-                         source_parent: QModelIndex | QPersistentModelIndex) -> bool:
+    def filterAcceptsRow(
+        self,
+        source_row: int,
+        source_parent: QModelIndex | QPersistentModelIndex,
+    ) -> bool:
         regex = self.filterRegularExpression()
         source_model = self.sourceModel()
         column_count = source_model.columnCount(source_parent)
 
-        return any(regex.match(source_model.data(index)).hasMatch()
-                   for index in (source_model.index(source_row,
-                                                    i,
-                                                    source_parent)
-                                 for i in range(column_count)))
+        return any(
+            regex.match(source_model.data(index)).hasMatch()
+            for index in (
+                source_model.index(source_row, i, source_parent)
+                for i in range(column_count)
+            )
+        )
 
     def filterChanged(self, text: str) -> None:
         text = QRegularExpression.escape(text)
         options = QRegularExpression.PatternOption.CaseInsensitiveOption
         self.setFilterRegularExpression(QRegularExpression(text, options))
 
-    def sort(self,
-             column: int,
-             order: Qt.SortOrder = Qt.SortOrder.AscendingOrder) -> None:
+    def sort(
+        self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
+    ) -> None:
         self.sourceModel().sort(column, order)
 
-    def selectionChanged(self,
-                         selection_model: QItemSelectionModel,
-                         statusbar: QStatusBar) -> None:
-
+    def selectionChanged(
+        self, selection_model: QItemSelectionModel, statusbar: QStatusBar
+    ) -> None:
         addebiti_index = FIELD_NAMES.index('addebiti')
         accrediti_index = FIELD_NAMES.index('accrediti')
 

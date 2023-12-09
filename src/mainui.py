@@ -21,12 +21,12 @@ from qtpy.QtWidgets import QTableView
 from qtpy.QtWidgets import QToolButton
 from qtpy.QtWidgets import QWidget
 
-from .chartview import ChartView
-from .constants import MAINUI_UI_PATH
-from .constants import SETTINGSUI_UI_PATH
-from .settings import Settings
-from .viewmodel import SortFilterViewModel
-from .validator import Validator
+from chartview import ChartView
+from constants import MAINUI_UI_PATH
+from constants import SETTINGSUI_UI_PATH
+from settings import Settings
+from validator import Validator
+from viewmodel import SortFilterViewModel
 
 _dataPathsSeparator = '; \n'
 
@@ -76,16 +76,17 @@ def new_settingsui(settings: Settings) -> Settingsui:
     return settingsui
 
 
-def new_mainui(settings: Settings,
-               model: SortFilterViewModel,
-               settingsui: Settingsui) -> QWidget:
+def new_mainui(
+    settings: Settings, model: SortFilterViewModel, settingsui: Settingsui
+) -> QWidget:
     def update_helper() -> None:
         if validator.validate():
             model.reload()
             chart_view.reload()
 
-    def update_status_bar(_selected: QItemSelection,
-                          _deselected: QItemSelection) -> None:
+    def update_status_bar(
+        _selected: QItemSelection, _deselected: QItemSelection
+    ) -> None:
         model.selectionChanged(selection_model, mainui.statusBar())
 
     mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
@@ -106,10 +107,12 @@ def new_mainui(settings: Settings,
     mainui.actionSettings.triggered.connect(settingsui.show)
     settingsui.accepted.connect(update_helper)
 
-    QShortcut(QKeySequence('Ctrl+F'),
-              mainui).activated.connect(mainui.lineEdit.setFocus)
+    QShortcut(QKeySequence('Ctrl+F'), mainui).activated.connect(
+        mainui.lineEdit.setFocus
+    )
     QShortcut(QKeySequence('Esc'), mainui).activated.connect(
-        lambda: mainui.lineEdit.setText(''))
+        lambda: mainui.lineEdit.setText('')
+    )
 
     # on startup load
     update_helper()
@@ -119,7 +122,8 @@ def new_mainui(settings: Settings,
 
 def main() -> None:
     QCoreApplication.setAttribute(  # @UndefinedVariable
-        Qt.ApplicationAttribute.AA_ShareOpenGLContexts)  # @UndefinedVariable
+        Qt.ApplicationAttribute.AA_ShareOpenGLContexts
+    )  # @UndefinedVariable
     QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.OpenGLRhi)
 
     app = QApplication(argv)

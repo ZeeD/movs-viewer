@@ -18,7 +18,7 @@ rows: list[tuple[date, Decimal]] = [
     (date(2002, 2, 2), Decimal(2000)),
     (date(2005, 7, 4), Decimal(1500)),
     (date(2005, 11, 9), Decimal(500)),
-    (date(2010, 4, 27), Decimal(2500))
+    (date(2010, 4, 27), Decimal(2500)),
 ]
 
 
@@ -34,20 +34,21 @@ for dt, d in rows:
 def years(rows: list[tuple[date, Decimal]]) -> list[date]:
     start_year = rows[0][0].year - 1
     end_year = rows[-1][0].year + 1
-    return [date(year, 1, 1)
-            for year in range(start_year, end_year + 1)]
+    return [date(year, 1, 1) for year in range(start_year, end_year + 1)]
 
 
 # axis_x = QtCharts.QDateTimeAxis()
 axis_x = QtCharts.QCategoryAxis()
-axis_x.setLabelsPosition(QtCharts.QCategoryAxis.AxisLabelsPosition.AxisLabelsPositionOnValue)
+axis_x.setLabelsPosition(
+    QtCharts.QCategoryAxis.AxisLabelsPosition.AxisLabelsPositionOnValue
+)
 for dt in years(rows):
     axis_x.append(f'{dt}', ts(dt))
 
 axis_y = QtCharts.QValueAxis()
 axis_y.setTickType(QtCharts.QValueAxis.TickType.TicksDynamic)
-axis_y.setTickAnchor(0.)
-axis_y.setTickInterval(100.)
+axis_y.setTickAnchor(0.0)
+axis_y.setTickInterval(100.0)
 axis_y.setMinorTickCount(9)
 
 

@@ -16,16 +16,19 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.support.expected_conditions import (
-    element_to_be_clickable)
+    element_to_be_clickable,
+)
 from selenium.webdriver.support.expected_conditions import (
-    invisibility_of_element)
+    invisibility_of_element,
+)
 from selenium.webdriver.support.expected_conditions import (
-    presence_of_element_located)
+    presence_of_element_located,
+)
 from selenium.webdriver.support.expected_conditions import url_contains
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
-from .constants import GECKODRIVER_PATH
+from constants import GECKODRIVER_PATH
 
 
 def get_options(dtemp: str) -> Options:
@@ -34,17 +37,19 @@ def get_options(dtemp: str) -> Options:
     # options.headless = True
     options.profile = FirefoxProfile()
     # set download folder
-    options.profile.set_preference(
-        'browser.download.folderList', 2)
-    options.profile.set_preference(
-        'browser.download.dir', dtemp)
+    options.profile.set_preference('browser.download.folderList', 2)
+    options.profile.set_preference('browser.download.dir', dtemp)
 
     return options
 
 
-def _w(wait: WebDriverWait,
-       condition: Callable[[tuple[str, str]], Callable[[WebDriver], bool | WebElement]],
-       css_selector: str) -> Any:
+def _w(
+    wait: WebDriverWait,
+    condition: Callable[
+        [tuple[str, str]], Callable[[WebDriver], bool | WebElement]
+    ],
+    css_selector: str,
+) -> Any:
     return wait.until(condition((By.CSS_SELECTOR, css_selector)))
 
 
@@ -70,22 +75,26 @@ HP = 'https://bancoposta.poste.it/bpol/public/BPOL_ListaMovimentiAPP/index.html'
 
 
 @contextmanager
-def get_movimenti(username: str,
-                  password: str,
-                  num_conto: str,
-                  get_otp: Callable[[], str]) -> Iterator[str]:
-    with TemporaryDirectory() as dtemp, \
-            Firefox(service=Service(executable_path=GECKODRIVER_PATH),
-                    options=get_options(dtemp)) as wd:
+def get_movimenti(
+    username: str, password: str, num_conto: str, get_otp: Callable[[], str]
+) -> Iterator[str]:
+    with TemporaryDirectory() as dtemp, Firefox(
+        service=Service(executable_path=GECKODRIVER_PATH),
+        options=get_options(dtemp),
+    ) as wd:
         wait = WebDriverWait(wd, 1000)
         # login
         wd.get(HP)
         pl(wait, wd)
         wd.find_element(By.CSS_SELECTOR, '#username').send_keys(username)
-        wd.find_element(By.CSS_SELECTOR,
-                        '#password').send_keys(password + Keys.RETURN)
-        wait.until(url_contains(
-            'https://idp-poste.poste.it/jod-idp-retail/cas/app.html'))
+        wd.find_element(By.CSS_SELECTOR, '#password').send_keys(
+            password + Keys.RETURN
+        )
+        wait.until(
+            url_contains(
+                'https://idp-poste.poste.it/jod-idp-retail/cas/app.html'
+            )
+        )
         pl(wait, wd)
         _c(wait, '#_prosegui').click()
         otp = get_otp()
@@ -94,12 +103,15 @@ def get_movimenti(username: str,
         # choose conto and download text
         _p(wait, f'select.numconto>option[value="string:{num_conto}"]')
         pl(wait, wd)
-        Select(_p(wait,
-                  'select.numconto')).select_by_value(f'string:{num_conto}')
+        Select(_p(wait, 'select.numconto')).select_by_value(
+            f'string:{num_conto}'
+        )
 
         # hide cookie banner
-        wd.execute_script('document.querySelector("#content-alert-cookie")'
-                          '.style.display="none"')
+        wd.execute_script(
+            'document.querySelector("#content-alert-cookie")'
+            '.style.display="none"'
+        )
         _c(wait, '#select>option[value=TESTO]')
         Select(_p(wait, '#select')).select_by_value('TESTO')
 
