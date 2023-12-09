@@ -1,11 +1,11 @@
 from datetime import date
-from decimal import Decimal
 from functools import partial
 from operator import attrgetter
 from sys import argv
+from typing import TYPE_CHECKING
 
-from movs.movs import read_txt
-from movs.model import Rows
+from movslib.model import Rows
+from movslib.movs import read_txt
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush
 from PyQt6.QtGui import QColor
@@ -19,57 +19,63 @@ from QCustomPlot_PyQt6 import QCPAxisTickerDateTime  # @UnresolvedImport
 from QCustomPlot_PyQt6 import QCPGraph  # @UnresolvedImport
 from QCustomPlot_PyQt6 import QCustomPlot  # @UnresolvedImport
 
+if TYPE_CHECKING:
+    from decimal import Decimal
+
 
 def timestamp(d: date) -> float:
     return QCPAxisTickerDateTime.dateTimeToKey(d)
 
 
-b = False
+class _AddGraph:
+    def __init__(self) -> None:
+        self.b = False
 
+    def __call__(self, plot: QCustomPlot, rows: Rows) -> None:
+        graph = plot.addGraph()
+        graph.setPen(QPen(Qt.GlobalColor.darkGreen))
+        graph.setBrush(
+            QBrush(QColor(255 if self.b else 0, 0, 0 if self.b else 255, 20))
+        )
+        graph.setName(rows.name)
+        graph.setLineStyle(QCPGraph.LineStyle.lsStepLeft)
 
-def _add_graph(plot: QCustomPlot, rows: Rows) -> None:
-    global b
-    graph = plot.addGraph()
-    graph.setPen(QPen(Qt.GlobalColor.darkGreen))
-    graph.setBrush(QBrush(QColor(255 if b else 0, 0, 0 if b else 255, 20)))
-    graph.setName(rows.name)
-    graph.setLineStyle(QCPGraph.LineStyle.lsStepLeft)
+        value: Decimal | None = None
+        for row in sorted(rows, key=attrgetter('date')):
+            value = row.money if value is None else (value + row.money)
+            graph.addData(timestamp(row.date), value)
 
-    value: Decimal | None = None
-    for row in sorted(rows, key=attrgetter('date')):
-        value = row.money if value is None else (value + row.money)
-        graph.addData(timestamp(row.date), value)
-
-    b = not b
+        self.b = not self.b
 
 
 def make_plot(rowss: list[Rows], parent: QWidget | None = None) -> QCustomPlot:
     plot = QCustomPlot(parent)
 
-    plot.legend.setVisible(True)
+    plot.legend.setVisible(True)  # noqa: FBT003
     plot.legend.setBrush(QColor(255, 255, 255, 150))
 
     plot.xAxis.rangeChanged.connect(lambda _: plot.replot())
 
+    add_graph = _AddGraph()
     for rows in rowss:
-        _add_graph(plot, rows)
+        add_graph(plot, rows)
 
     plot.rescaleAxes()
     plot.setInteraction(QCP.Interaction.iRangeDrag)
     plot.setInteraction(QCP.Interaction.iRangeZoom)
     plot.setInteraction(QCP.Interaction.iSelectPlottables)
 
-    dateTicker = QCPAxisTickerDateTime()
-    dateTicker.setDateTimeFormat('yyyy\ndd/MM')
-    dateTicker.setTickCount(rows[0].date.year - rows[-1].date.year)
-    plot.xAxis.setTicker(dateTicker)
-    plot.xAxis.setTicks(True)
-    plot.xAxis.setSubTicks(True)
+    date_ticker = QCPAxisTickerDateTime()
+    date_ticker.setDateTimeFormat('yyyy\ndd/MM')
+    date_ticker.setTickCount(rows[0].date.year - rows[-1].date.year)
+    plot.xAxis.setTicker(date_ticker)
+    plot.xAxis.setTicks(True)  # noqa: FBT003
+    plot.xAxis.setSubTicks(True)  # noqa: FBT003
 
     return plot
 
 
-def plotSetRangeLower(self: QCustomPlot, value: int) -> None:
+def plot_set_range_lower(self: QCustomPlot, value: int) -> None:
     d = date.fromordinal(value)
     t = timestamp(d)
     self.xAxis.setRangeLower(t)
@@ -98,7 +104,7 @@ def main() -> None:
     )
     slider.setSingleStep(1)
     slider.setPageStep(365)
-    slider.valueChanged.connect(partial(plotSetRangeLower, plot))
+    slider.valueChanged.connect(partial(plot_set_range_lower, plot))
 
     layout = QVBoxLayout(mainapp)
     layout.addWidget(plot)

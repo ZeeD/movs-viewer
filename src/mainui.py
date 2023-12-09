@@ -28,47 +28,47 @@ from settings import Settings
 from validator import Validator
 from viewmodel import SortFilterViewModel
 
-_dataPathsSeparator = '; \n'
+_DATA_PATHS_SEPARATOR = '; \n'
 
 
 class Mainui(QMainWindow):
-    lineEdit: QLineEdit
-    tableView: QTableView
+    lineEdit: QLineEdit  # noqa: N815
+    tableView: QTableView  # noqa: N815
     tab_2: QWidget
-    actionSettings: QAction
-    actionUpdate: QAction
+    actionSettings: QAction  # noqa: N815
+    actionUpdate: QAction  # noqa: N815
 
 
 class Settingsui(QDialog):
-    usernameLineEdit: QLineEdit
-    passwordLineEdit: QLineEdit
-    dataPaths: QPlainTextEdit
-    buttonBox: QDialogButtonBox
-    openFileChooser: QToolButton
+    usernameLineEdit: QLineEdit  # noqa: N815
+    passwordLineEdit: QLineEdit  # noqa: N815
+    dataPaths: QPlainTextEdit  # noqa: N815
+    buttonBox: QDialogButtonBox  # noqa: N815
+    openFileChooser: QToolButton  # noqa: N815
 
 
-def _setDataPaths(dataPaths: QPlainTextEdit, fileNames: list[str]) -> None:
-    dataPaths.setPlainText(_dataPathsSeparator.join(fileNames))
+def _set_data_paths(data_paths: QPlainTextEdit, file_names: list[str]) -> None:
+    data_paths.setPlainText(_DATA_PATHS_SEPARATOR.join(file_names))
 
 
-def _getDataPaths(dataPaths: QPlainTextEdit) -> list[str]:
-    return dataPaths.toPlainText().split(_dataPathsSeparator)
+def _get_data_paths(data_paths: QPlainTextEdit) -> list[str]:
+    return data_paths.toPlainText().split(_DATA_PATHS_SEPARATOR)
 
 
 def new_settingsui(settings: Settings) -> Settingsui:
     def save_settings() -> None:
-        settings.data_paths = _getDataPaths(settingsui.dataPaths)
+        settings.data_paths = _get_data_paths(settingsui.dataPaths)
         settings.username = settingsui.usernameLineEdit.text()
         settings.password = settingsui.passwordLineEdit.text()
 
     def open_data_paths() -> None:
-        fileNames, _ = QFileDialog.getOpenFileNames(settingsui)
-        _setDataPaths(settingsui.dataPaths, fileNames)
+        file_names, _ = QFileDialog.getOpenFileNames(settingsui)
+        _set_data_paths(settingsui.dataPaths, file_names)
 
     settingsui = cast(Settingsui, QUiLoader().load(SETTINGSUI_UI_PATH))
     settingsui.usernameLineEdit.setText(settings.username)
     settingsui.passwordLineEdit.setText(settings.password)
-    _setDataPaths(settingsui.dataPaths, settings.data_paths)
+    _set_data_paths(settingsui.dataPaths, settings.data_paths)
 
     settingsui.buttonBox.accepted.connect(save_settings)
     settingsui.openFileChooser.clicked.connect(open_data_paths)

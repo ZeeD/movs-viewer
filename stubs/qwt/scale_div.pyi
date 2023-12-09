@@ -1,20 +1,21 @@
 from typing import overload
 
-type Ticks = list[float]
-
 class QwtScaleDiv:
     @overload
     def __init__(self) -> None: ...
     @overload
     def __init__(
-        self, lowerBound: float, upperBound: float, ticks: list[Ticks]
+        self,
+        lowerBound: float,  # noqa: N803
+        upperBound: float,  # noqa: N803
+        ticks: list[list[float]],
     ) -> None: ...
     @overload
     def __init__(
         self,
-        lowerBound: float,
-        upperBound: float,
-        minorTicks: Ticks,
-        mediumTicks: Ticks,
-        majorTicks: Ticks,
+        lowerBound: float,  # noqa: N803
+        upperBound: float,  # noqa: N803
+        minorTicks: list[float],  # noqa: N803
+        mediumTicks: list[float],  # noqa: N803
+        majorTicks: list[float],  # noqa: N803
     ) -> None: ...

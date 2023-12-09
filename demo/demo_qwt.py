@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from datetime import UTC
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -9,9 +10,9 @@ from itertools import cycle
 from operator import attrgetter
 from sys import argv
 
-from movs import read_txt
-from movs.model import Row
-from movs.model import Rows
+from movslib.model import Row
+from movslib.model import Rows
+from movslib.movs import read_txt
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication
 
@@ -26,18 +27,16 @@ def linecolors() -> Iterable[Qt.GlobalColor]:
     return cycle(
         filter(
             lambda c: c
-            not in set(
-                [
-                    Qt.GlobalColor.color0,
-                    Qt.GlobalColor.color1,
-                    Qt.GlobalColor.black,
-                    Qt.GlobalColor.white,
-                    Qt.GlobalColor.darkGray,
-                    Qt.GlobalColor.gray,
-                    Qt.GlobalColor.lightGray,
-                    Qt.GlobalColor.transparent,
-                ]
-            ),
+            not in {
+                Qt.GlobalColor.color0,
+                Qt.GlobalColor.color1,
+                Qt.GlobalColor.black,
+                Qt.GlobalColor.white,
+                Qt.GlobalColor.darkGray,
+                Qt.GlobalColor.gray,
+                Qt.GlobalColor.lightGray,
+                Qt.GlobalColor.transparent,
+            },
             Qt.GlobalColor,
         )
     )
@@ -56,8 +55,8 @@ def acc(rows: Rows) -> Iterable[T]:
 
 
 def days(min_xdata: float, max_xdata: float) -> list[float]:
-    lower = date.fromtimestamp(min_xdata)
-    upper = date.fromtimestamp(max_xdata)
+    lower = datetime.fromtimestamp(min_xdata, tz=UTC).date()
+    upper = datetime.fromtimestamp(max_xdata, tz=UTC).date()
 
     def it() -> Iterable[float]:
         when = lower
@@ -69,8 +68,8 @@ def days(min_xdata: float, max_xdata: float) -> list[float]:
 
 
 def months(min_xdata: float, max_xdata: float) -> list[float]:
-    lower = date.fromtimestamp(min_xdata)
-    upper = date.fromtimestamp(max_xdata)
+    lower = datetime.fromtimestamp(min_xdata, tz=UTC).date()
+    upper = datetime.fromtimestamp(max_xdata, tz=UTC).date()
 
     ly, lm = (lower.year, lower.month)
     uy, um = (upper.year, upper.month)
@@ -79,7 +78,8 @@ def months(min_xdata: float, max_xdata: float) -> list[float]:
         wy, wm = ly, lm
         while (wy, wm) < (uy, um):
             yield datetime.combine(date(wy, wm, 1), time()).timestamp()
-            if wm < 12:
+            ml = 12
+            if wm < ml:
                 wm += 1
             else:
                 wy += 1
@@ -89,8 +89,8 @@ def months(min_xdata: float, max_xdata: float) -> list[float]:
 
 
 def years(min_xdata: float, max_xdata: float) -> list[float]:
-    lower = date.fromtimestamp(min_xdata).year
-    upper = date.fromtimestamp(max_xdata).year
+    lower = datetime.fromtimestamp(min_xdata, tz=UTC).year
+    upper = datetime.fromtimestamp(max_xdata, tz=UTC).year
 
     def it() -> Iterable[float]:
         when = lower
@@ -103,7 +103,7 @@ def years(min_xdata: float, max_xdata: float) -> list[float]:
 
 class SD(QwtScaleDraw):
     def label(self, value: float) -> str:
-        return date.fromtimestamp(value).strftime('%Y-%m')
+        return datetime.fromtimestamp(value, tz=UTC).strftime('%Y-%m')
 
 
 def qwtmain(*rowss: Rows) -> QwtPlot:
@@ -111,7 +111,7 @@ def qwtmain(*rowss: Rows) -> QwtPlot:
 
     min_xdata: float | None = None
     max_xdata: float | None = None
-    for rows, linecolor in zip(rowss, linecolors()):
+    for rows, linecolor in zip(rowss, linecolors(), strict=True):
         xdata: list[float] = []
         ydata: list[float] = []
         for when, howmuch in acc(rows):
@@ -137,7 +137,7 @@ def qwtmain(*rowss: Rows) -> QwtPlot:
         )
 
     if min_xdata is None or max_xdata is None:
-        raise Exception('...')
+        raise ValueError
 
     plot.setAxisScaleDiv(
         QwtPlot.xBottom,

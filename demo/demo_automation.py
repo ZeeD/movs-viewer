@@ -1,16 +1,20 @@
+from logging import INFO
+from logging import basicConfig
+from logging import info
 from sys import argv
 
-from movsmerger import merge_files
-from mypyui.automation import get_movimenti
-from mypyui.settings import Settings
+from movsmerger.movsmerger import merge_files
 from qtpy.QtWidgets import QApplication
 from qtpy.QtWidgets import QInputDialog
 from qtpy.QtWidgets import QLineEdit
 from qtpy.QtWidgets import QWidget
 
+from automation import get_movimenti
+from settings import Settings
+
 
 # TODO: capire dove metterla
-class ask_otp:
+class AskOtp:
     def __init__(self, parent: QWidget) -> None:
         self.parent = parent
 
@@ -24,17 +28,18 @@ class ask_otp:
 
 
 def main() -> None:
+    basicConfig(level=INFO, format='%(message)s')
     app = QApplication(argv)
     q = QWidget()
     q.show()
 
     settings = Settings(argv[1:])
-    numconto = '000091703983'  # TODO move in settings
+    numconto = '000091703983'  # TODO: move in settings
     with get_movimenti(
-        settings.username, settings.password, numconto, ask_otp(q)
+        settings.username, settings.password, numconto, AskOtp(q)
     ) as movimenti:
-        print(movimenti)
-        merge_files(settings.data_paths[0], movimenti)
+        info(movimenti)
+        merge_files(settings.data_paths[0], str(movimenti))
     raise SystemExit(app.exec())
 
 

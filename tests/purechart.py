@@ -1,6 +1,8 @@
+from datetime import UTC
 from datetime import date
 from datetime import datetime
 from decimal import Decimal
+from typing import override
 
 from qtpy import QtCharts
 from qtpy.QtCore import QPointF
@@ -23,7 +25,7 @@ rows: list[tuple[date, Decimal]] = [
 
 
 def ts(d: date) -> float:
-    return datetime(d.year, d.month, d.day).timestamp() * 1000
+    return datetime(d.year, d.month, d.day, tzinfo=UTC).timestamp() * 1000
 
 
 series = QtCharts.QLineSeries()
@@ -53,6 +55,7 @@ axis_y.setMinorTickCount(9)
 
 
 class Chart(QtCharts.QChart):
+    @override
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         y = event.delta()
         if y < 0:
@@ -61,9 +64,11 @@ class Chart(QtCharts.QChart):
             self.zoomIn()
         super().wheelEvent(event)
 
+    @override
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         event.accept()
 
+    @override
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         def t(pos: QPointF) -> tuple[float, float]:
             return pos.x(), pos.y()
@@ -74,7 +79,7 @@ class Chart(QtCharts.QChart):
 
 
 chart = Chart()
-chart.legend().setVisible(False)
+chart.legend().setVisible(False)  # noqa: FBT003
 
 chart.addSeries(series)
 chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)

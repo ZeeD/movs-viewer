@@ -4,10 +4,11 @@ from decimal import Decimal
 from operator import iadd
 from operator import isub
 from typing import cast
+from typing import override
 
-from movs.movs import read_txt
-from movs.model import ZERO
-from movs.model import Row
+from movslib.model import ZERO
+from movslib.model import Row
+from movslib.movs import read_txt
 from qtpy.QtCore import QAbstractTableModel
 from qtpy.QtCore import QItemSelectionModel
 from qtpy.QtCore import QModelIndex
@@ -38,8 +39,11 @@ def _abs(row: Row) -> Decimal:
 T_INDEX = QModelIndex | QPersistentModelIndex
 
 
+_INDEX = QModelIndex()
+
+
 class ViewModel(QAbstractTableModel):
-    def __init__(self, parent: QObject, data: list[Row]):
+    def __init__(self, parent: QObject, data: list[Row]) -> None:
         super().__init__(parent)
         self._set_data(data)
 
@@ -49,12 +53,15 @@ class ViewModel(QAbstractTableModel):
         self._min = abs_data[0] if abs_data else ZERO
         self._max = abs_data[-1] if abs_data else ZERO
 
-    def rowCount(self, _parent: T_INDEX = QModelIndex()) -> int:
+    @override
+    def rowCount(self, _parent: T_INDEX = _INDEX) -> int:
         return len(self._data)
 
-    def columnCount(self, _parent: T_INDEX = QModelIndex()) -> int:
+    @override
+    def columnCount(self, _parent: T_INDEX = _INDEX) -> int:
         return len(FIELD_NAMES)
 
+    @override
     def headerData(
         self,
         section: int,
@@ -69,6 +76,7 @@ class ViewModel(QAbstractTableModel):
 
         return FIELD_NAMES[section]
 
+    @override
     def data(
         self,
         index: QModelIndex | QPersistentModelIndex,
@@ -97,6 +105,7 @@ class ViewModel(QAbstractTableModel):
 
         return None
 
+    @override
     def sort(
         self, index: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
     ) -> None:
@@ -129,8 +138,9 @@ class SortFilterViewModel(QSortFilterProxyModel):
         self.setSourceModel(ViewModel(self, []))
         self.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self.setDynamicSortFilter(True)
+        self.setDynamicSortFilter(True)  # noqa: FBT003
 
+    @override
     def filterAcceptsRow(
         self,
         source_row: int,
@@ -148,16 +158,19 @@ class SortFilterViewModel(QSortFilterProxyModel):
             )
         )
 
+    @override
     def filterChanged(self, text: str) -> None:
         text = QRegularExpression.escape(text)
         options = QRegularExpression.PatternOption.CaseInsensitiveOption
         self.setFilterRegularExpression(QRegularExpression(text, options))
 
+    @override
     def sort(
         self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
     ) -> None:
         self.sourceModel().sort(column, order)
 
+    @override
     def selectionChanged(
         self, selection_model: QItemSelectionModel, statusbar: QStatusBar
     ) -> None:

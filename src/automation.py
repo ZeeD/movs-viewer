@@ -1,10 +1,10 @@
 from collections.abc import Callable
 from collections.abc import Iterator
 from contextlib import contextmanager
+from logging import info
 from os import listdir
-from os.path import join
+from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
 
 from selenium.webdriver import Firefox
 from selenium.webdriver.common.by import By
@@ -49,19 +49,21 @@ def _w(
         [tuple[str, str]], Callable[[WebDriver], bool | WebElement]
     ],
     css_selector: str,
-) -> Any:
-    return wait.until(condition((By.CSS_SELECTOR, css_selector)))
+) -> WebElement:
+    ret = wait.until(condition((By.CSS_SELECTOR, css_selector)))
+    assert isinstance(ret, WebElement)
+    return ret
 
 
-def _c(wait: WebDriverWait, css_selector: str) -> Any:
+def _c(wait: WebDriverWait, css_selector: str) -> WebElement:
     return _w(wait, element_to_be_clickable, css_selector)
 
 
-def _p(wait: WebDriverWait, css_selector: str) -> Any:
+def _p(wait: WebDriverWait, css_selector: str) -> WebElement:
     return _w(wait, presence_of_element_located, css_selector)
 
 
-def _i(wait: WebDriverWait, css_selector: str) -> Any:
+def _i(wait: WebDriverWait, css_selector: str) -> WebElement:
     return _w(wait, invisibility_of_element, css_selector)
 
 
@@ -77,7 +79,7 @@ HP = 'https://bancoposta.poste.it/bpol/public/BPOL_ListaMovimentiAPP/index.html'
 @contextmanager
 def get_movimenti(
     username: str, password: str, num_conto: str, get_otp: Callable[[], str]
-) -> Iterator[str]:
+) -> Iterator[Path]:
     with TemporaryDirectory() as dtemp, Firefox(
         service=Service(executable_path=GECKODRIVER_PATH),
         options=get_options(dtemp),
@@ -115,9 +117,9 @@ def get_movimenti(
         _c(wait, '#select>option[value=TESTO]')
         Select(_p(wait, '#select')).select_by_value('TESTO')
 
-        print('prima: ', listdir(dtemp))
+        info('prima: %s', listdir(dtemp))
         _c(wait, '#downloadApi').click()
         _i(wait, '.waiting')
-        print('dopo:  ', listdir(dtemp))
+        info('dopo:  %s', listdir(dtemp))
 
-        yield join(dtemp, 'ListaMovimenti.txt')
+        yield Path(dtemp) / 'ListaMovimenti.txt'

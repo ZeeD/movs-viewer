@@ -7,6 +7,8 @@ dependencies = [
     'qtpy',
     'guilib',
     'movslib',
+    'movs-merger',
+    'PyQt6',
 ]
 
 
@@ -34,6 +36,10 @@ strict = true
 warn_unused_configs = true
 always_false = ['PYQT5', 'PYSIDE2', 'PYQT6']
 # exclude = ['src/gen/.*']
+[[tool.mypy.overrides]]
+module = 'automation'
+disable_error_code = 'no-untyped-call'
+
 
 [tool.ruff]
 extend-select = [
@@ -49,6 +55,7 @@ ignore = [
     'D104', 'ERA001', 'D300', 'D106',
     'COM812', 'COM819', 'D206', 'E501', 'ISC001', 'Q000', 'Q001', 'Q002', 'Q003', 'W191',
     'D105', 'D107', 'PT009', 'S101',
+    'TD002', 'TD003',
 ]
 fix = true
 line-length = 80

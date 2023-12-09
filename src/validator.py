@@ -1,9 +1,11 @@
+from datetime import UTC
 from datetime import date
-from sys import argv
+from datetime import datetime
+from logging import error
 
-from movs.movs import read_txt
-from movs.model import KV
-from movs.model import Row
+from movslib.model import KV
+from movslib.model import Row
+from movslib.movs import read_txt
 from qtpy.QtWidgets import QMessageBox
 from qtpy.QtWidgets import QWidget
 
@@ -13,7 +15,7 @@ from settings import Settings
 def validate_saldo(kv: KV, csv: list[Row], messages: list[str]) -> bool:
     messages.append(f'bpol.saldo_al:                      {kv.saldo_al}')
     if kv.saldo_al:
-        ultimo_update = (date.today() - kv.saldo_al).days
+        ultimo_update = (datetime.now(tz=UTC).date() - kv.saldo_al).days
         messages.append(
             f'ultimo update:                      {ultimo_update} giorni fa'
         )
@@ -66,19 +68,7 @@ class Validator:
                     f'{fn} seems has some problems!',
                     '\n'.join(messages),
                 )
-                print(
-                    f'{button=}'
-                )  # TODO use button to check for continue/skip
+                # TODO: use button to check for continue/skip
+                error('button: %s', button)
                 return False
         return True
-
-
-def main() -> None:
-    if not argv[1:]:
-        raise SystemExit(f'uso: {argv[0]} ACCUMULATOR...')
-
-    for fn in argv[1:]:
-        messages: list[str] = []
-        if not validate(fn, messages):
-            print('\n'.join(messages))
-            raise SystemExit(f'{fn} seems has some problems!')

@@ -1,5 +1,6 @@
 from collections.abc import Iterable
 from collections.abc import Sequence
+from datetime import UTC
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -9,9 +10,10 @@ from itertools import chain
 from itertools import groupby
 from typing import NamedTuple
 from typing import cast
+from typing import override
 
-from movs.movs import read_txt
-from movs.model import Row
+from movslib.model import Row
+from movslib.movs import read_txt
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
 from qtpy.QtCharts import QBarSet
@@ -24,7 +26,7 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QGraphicsSceneMouseEvent
 from qtpy.QtWidgets import QGraphicsSceneWheelEvent
 
-from .settings import Settings
+from settings import Settings
 
 ZERO = Decimal(0)
 
@@ -34,7 +36,7 @@ class Point(NamedTuple):
     mov: Decimal
 
 
-def toPoint(row: Row) -> Point:
+def to_point(row: Row) -> Point:
     if row.accrediti is not None:
         mov = row.accrediti
     elif row.addebiti is not None:
@@ -54,7 +56,9 @@ def build_series(
 
     # add start and today
     moves = chain(
-        (Point(epoch, ZERO),), map(toPoint, data), (Point(date.today(), ZERO),)
+        (Point(epoch, ZERO),),
+        map(to_point, data),
+        (Point(datetime.now(tz=UTC).date(), ZERO),),
     )
 
     def sumy(a: Point, b: Point) -> Point:
@@ -95,7 +99,7 @@ def build_group_by_year_series(
 
     years = []
     for year, points in groupby(
-        map(toPoint, data), lambda point: point.data.year
+        map(to_point, data), lambda point: point.data.year
     ):
         barset.append(float(sum_points(points)))
         years.append(f'{year}')
@@ -121,7 +125,7 @@ def build_group_by_month_series(
 
     year_months = []
     for (year, month), points in groupby(
-        map(toPoint, data), lambda point: (point.data.year, point.data.month)
+        map(to_point, data), lambda point: (point.data.year, point.data.month)
     ):
         barset.append(float(sum_points(points)))
         year_months.append(f'{year}-{month}')
@@ -131,7 +135,7 @@ def build_group_by_month_series(
 
 
 class Chart(QChart):
-    def __init__(self, data: Sequence[Row]):
+    def __init__(self, data: Sequence[Row]) -> None:
         super().__init__()
 
         def years(data: Sequence[Row]) -> list[date]:
@@ -159,7 +163,9 @@ class Chart(QChart):
                 pass
 
         def ts(d: date) -> float:
-            return datetime(d.year, d.month, d.day).timestamp() * 1000
+            return (
+                datetime(d.year, d.month, d.day, tzinfo=UTC).timestamp() * 1000
+            )
 
         # self.legend().setVisible(False)
 
@@ -193,6 +199,7 @@ class Chart(QChart):
         self.addAxis(axis_x_months, Qt.AlignmentFlag.AlignBottom)
         group_by_month_series.attachAxis(axis_y)
 
+    @override
     def wheelEvent(self, event: QGraphicsSceneWheelEvent) -> None:
         super().wheelEvent(event)
         y = event.delta()
@@ -201,10 +208,12 @@ class Chart(QChart):
         elif y > 0:
             self.zoomIn()
 
+    @override
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         super().mousePressEvent(event)
         event.accept()
 
+    @override
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         super().mouseMoveEvent(event)
 
@@ -214,7 +223,7 @@ class Chart(QChart):
 
 
 class ChartView(QChartView):
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings) -> None:
         super().__init__()
         self.settings = settings
         self.setCursor(Qt.CursorShape.CrossCursor)

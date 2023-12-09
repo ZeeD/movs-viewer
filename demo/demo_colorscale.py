@@ -1,4 +1,6 @@
 from sys import argv
+from typing import ClassVar
+from typing import override
 
 from qtpy.QtCore import QAbstractTableModel
 from qtpy.QtCore import QModelIndex
@@ -10,17 +12,21 @@ from qtpy.QtWidgets import QApplication
 from qtpy.QtWidgets import QTableView
 
 T_INDEX = QModelIndex | QPersistentModelIndex
+_INDEX = QModelIndex()
 
 
 class Model(QAbstractTableModel):
-    _data = list(range(101))
+    _data: ClassVar = list(range(101))
 
-    def rowCount(self, _parent: T_INDEX = QModelIndex()) -> int:
+    @override
+    def rowCount(self, _parent: T_INDEX = _INDEX) -> int:
         return len(self._data)
 
-    def columnCount(self, _parent: T_INDEX = QModelIndex()) -> int:
+    @override
+    def columnCount(self, _parent: T_INDEX = _INDEX) -> int:
         return 1
 
+    @override
     def data(
         self, index: T_INDEX, role: int = Qt.ItemDataRole.DisplayRole
     ) -> str | QBrush | None:
