@@ -40,7 +40,7 @@ class _AddGraph:
         graph.setName(rows.name)
         graph.setLineStyle(QCPGraph.LineStyle.lsStepLeft)
 
-        value: Decimal | None = None
+        value: Decimal | None = None  # @UndefinedVariable
         for row in sorted(rows, key=attrgetter('date')):
             value = row.money if value is None else (value + row.money)
             graph.addData(timestamp(row.date), value)
