@@ -81,7 +81,7 @@ def get_movimenti(
     username: str, password: str, num_conto: str, get_otp: Callable[[], str]
 ) -> Iterator[Path]:
     with TemporaryDirectory() as dtemp, Firefox(
-        service=Service(executable_path=GECKODRIVER_PATH),
+        service=Service(executable_path=str(GECKODRIVER_PATH)),
         options=get_options(dtemp),
     ) as wd:
         wait = WebDriverWait(wd, 1000)

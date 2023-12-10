@@ -1,10 +1,9 @@
+from pathlib import Path
 from typing import Final
 
-from pkg_resources import resource_filename
 
-
-def _resource(filename: str) -> str:
-    return resource_filename('mainui', f'resources/{filename}')
+def _resource(filename: str) -> Path:
+    return Path(__file__).with_name('resources') / filename
 
 
 MAINUI_UI_PATH: Final = _resource('mainui.ui')

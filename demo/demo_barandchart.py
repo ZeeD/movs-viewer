@@ -3,9 +3,13 @@ from datetime import date
 from datetime import datetime
 from itertools import accumulate
 from itertools import groupby
+from os import environ
 from sys import argv
 from typing import NoReturn
 from typing import override
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
 
 from movslib.model import ZERO
 from movslib.model import Row

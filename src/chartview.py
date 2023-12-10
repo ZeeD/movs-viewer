@@ -26,8 +26,6 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QGraphicsSceneMouseEvent
 from qtpy.QtWidgets import QGraphicsSceneWheelEvent
 
-from settings import Settings
-
 ZERO = Decimal(0)
 
 
@@ -223,15 +221,12 @@ class Chart(QChart):
 
 
 class ChartView(QChartView):
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, data_path: str) -> None:
         super().__init__()
-        self.settings = settings
+        self.data_path = data_path
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.reload()
 
     def reload(self) -> None:
-        if self.settings.data_paths:
-            _, data = read_txt(self.settings.data_paths[0])
-        else:
-            data = []
+        _, data = read_txt(self.data_path)
         self.setChart(Chart(data))

@@ -111,7 +111,7 @@ def qwtmain(*rowss: Rows) -> QwtPlot:
 
     min_xdata: float | None = None
     max_xdata: float | None = None
-    for rows, linecolor in zip(rowss, linecolors(), strict=True):
+    for rows, linecolor in zip(rowss, linecolors(), strict=False):
         xdata: list[float] = []
         ydata: list[float] = []
         for when, howmuch in acc(rows):
@@ -158,18 +158,20 @@ def qwtmain(*rowss: Rows) -> QwtPlot:
     return plot
 
 
-PATH = '/home/zed/eclipse-workspace/movs-data/BPOL_accumulator_vitomamma.txt'
-
-
 def main() -> None:
-    _, rows = read_txt(PATH, 'BPOL')
+    _, rows_vm = read_txt(
+        '/home/zed/eclipse-workspace/movs-data/BPOL_accumulator_vitomamma.txt',
+        'vm',
+    )
+    _, rows_ve = read_txt(
+        '/home/zed/eclipse-workspace/movs-data/BPOL_accumulator_vitoelena.txt',
+        'vm',
+    )
 
     app = QApplication(argv)
-
-    plot = qwtmain(rows)
+    plot = qwtmain(rows_vm, rows_ve)
     plot.show()
-
-    app.exec_()
+    app.exec()
 
 
 if __name__ == '__main__':

@@ -21,8 +21,6 @@ from qtpy.QtGui import QBrush
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QStatusBar
 
-from settings import Settings
-
 FIELD_NAMES = [field.name for field in fields(Row)]
 
 T_FIELDS = date | Decimal | None | str
@@ -132,9 +130,9 @@ class ViewModel(QAbstractTableModel):
 
 
 class SortFilterViewModel(QSortFilterProxyModel):
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, data_path: str) -> None:
         super().__init__()
-        self.settings = settings
+        self.data_path = data_path
         self.setSourceModel(ViewModel(self, []))
         self.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
@@ -187,8 +185,5 @@ class SortFilterViewModel(QSortFilterProxyModel):
         statusbar.showMessage(f'⅀ = {bigsum}')
 
     def reload(self) -> None:
-        if self.settings.data_paths:
-            _, data = read_txt(self.settings.data_paths[0])
-        else:
-            data = []
+        _, data = read_txt(self.data_path)
         cast(ViewModel, self.sourceModel()).load(data)

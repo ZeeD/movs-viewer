@@ -2,7 +2,11 @@ from datetime import UTC
 from datetime import date
 from datetime import datetime
 from decimal import Decimal
+from os import environ
 from typing import override
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
 
 from qtpy import QtCharts
 from qtpy.QtCore import QPointF

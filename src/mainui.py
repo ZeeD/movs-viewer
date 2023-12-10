@@ -5,12 +5,12 @@ from typing import cast
 if 'QT_API' not in environ:
     environ['QT_API'] = 'pyside6'
 
+from guilib.multitabs.widget import MultiTabs
+from guilib.searchsheet.widget import SearchSheet
 from qtpy.QtCore import QCoreApplication
 from qtpy.QtCore import QItemSelection
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QAction
-from qtpy.QtGui import QKeySequence
-from qtpy.QtGui import QShortcut
 from qtpy.QtQuick import QQuickWindow
 from qtpy.QtQuick import QSGRendererInterface
 from qtpy.QtUiTools import QUiLoader
@@ -18,10 +18,10 @@ from qtpy.QtWidgets import QApplication
 from qtpy.QtWidgets import QDialog
 from qtpy.QtWidgets import QDialogButtonBox
 from qtpy.QtWidgets import QFileDialog
+from qtpy.QtWidgets import QGridLayout
 from qtpy.QtWidgets import QLineEdit
 from qtpy.QtWidgets import QMainWindow
 from qtpy.QtWidgets import QPlainTextEdit
-from qtpy.QtWidgets import QTableView
 from qtpy.QtWidgets import QToolButton
 from qtpy.QtWidgets import QWidget
 
@@ -36,11 +36,13 @@ _DATA_PATHS_SEPARATOR = '; \n'
 
 
 class Mainui(QMainWindow):
-    lineEdit: QLineEdit  # noqa: N815
-    tableView: QTableView  # noqa: N815
-    tab_2: QWidget
+    # lineEdit: QLineEdit
+    # tableView: QTableView
+    # tab_2: QWidget
     actionSettings: QAction  # noqa: N815
     actionUpdate: QAction  # noqa: N815
+    gridLayout: QGridLayout  # noqa: N815
+    centralwidget: QWidget
 
 
 class Settingsui(QDialog):
@@ -80,43 +82,43 @@ def new_settingsui(settings: Settings) -> Settingsui:
     return settingsui
 
 
-def new_mainui(
-    settings: Settings, model: SortFilterViewModel, settingsui: Settingsui
-) -> QWidget:
+def new_mainui(settings: Settings, settingsui: Settingsui) -> QWidget:
+    models = [
+        SortFilterViewModel(data_path) for data_path in settings.data_paths
+    ]
+    charts = [ChartView(data_path) for data_path in settings.data_paths]
+
     def update_helper() -> None:
         if validator.validate():
-            model.reload()
-            chart_view.reload()
+            for model in models:
+                model.reload()
+            for chart in charts:
+                chart.reload()
 
     def update_status_bar(
         _selected: QItemSelection, _deselected: QItemSelection
     ) -> None:
-        model.selectionChanged(selection_model, mainui.statusBar())
+        for model in models:
+            model.selectionChanged(selection_model, mainui.statusBar())
 
     mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
 
     validator = Validator(mainui, settings)
 
-    mainui.tableView.setModel(model)
-    model.modelReset.connect(mainui.tableView.resizeColumnsToContents)
-    selection_model = mainui.tableView.selectionModel()
-    selection_model.selectionChanged.connect(update_status_bar)
+    multi_tabs = MultiTabs(mainui.centralwidget)
+    mainui.gridLayout.addWidget(multi_tabs, 0, 0, 1, 1)
 
-    mainui.lineEdit.textChanged.connect(model.filterChanged)
+    for model, chart in zip(models, charts, strict=True):
+        sheet = SearchSheet(multi_tabs)
+        sheet.set_model(model)
+        selection_model = sheet.selection_model()
+        selection_model.selectionChanged.connect(update_status_bar)
 
-    chart_view = ChartView(settings)
-    mainui.tab_2.layout().addWidget(chart_view)
+        multi_tabs.add_double_box(sheet, chart, 'todo')
 
     mainui.actionUpdate.triggered.connect(update_helper)
     mainui.actionSettings.triggered.connect(settingsui.show)
     settingsui.accepted.connect(update_helper)
-
-    QShortcut(QKeySequence('Ctrl+F'), mainui).activated.connect(
-        mainui.lineEdit.setFocus
-    )
-    QShortcut(QKeySequence('Esc'), mainui).activated.connect(
-        lambda: mainui.lineEdit.setText('')
-    )
 
     # on startup load
     update_helper()
@@ -134,9 +136,8 @@ def main() -> None:
 
     app = QApplication(argv)
     settings = Settings(argv[1:])
-    model = SortFilterViewModel(settings)
     settingsui = new_settingsui(settings)
-    mainui = new_mainui(settings, model, settingsui)
+    mainui = new_mainui(settings, settingsui)
 
     mainui.show()
 
