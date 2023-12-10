@@ -8,12 +8,18 @@ from decimal import Decimal
 from itertools import accumulate
 from itertools import chain
 from itertools import groupby
+from os import environ
 from typing import NamedTuple
 from typing import cast
 from typing import override
 
 from movslib.model import Row
 from movslib.movs import read_txt
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
+
+
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
 from qtpy.QtCharts import QBarSet

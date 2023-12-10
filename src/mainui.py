@@ -2,13 +2,22 @@ from os import environ
 from sys import argv
 from typing import cast
 
+from guilib.multitabs.widget import MultiTabs
+from guilib.searchsheet.widget import SearchSheet
+
+from chartview import ChartView
+from constants import MAINUI_UI_PATH
+from constants import SETTINGSUI_UI_PATH
+from settings import Settings
+from validator import Validator
+from viewmodel import SortFilterViewModel
+
 if 'QT_API' not in environ:
     environ['QT_API'] = 'pyside6'
 
-from guilib.multitabs.widget import MultiTabs
-from guilib.searchsheet.widget import SearchSheet
 from qtpy.QtCore import QCoreApplication
 from qtpy.QtCore import QItemSelection
+from qtpy.QtCore import QItemSelectionModel
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QAction
 from qtpy.QtQuick import QQuickWindow
@@ -24,13 +33,6 @@ from qtpy.QtWidgets import QMainWindow
 from qtpy.QtWidgets import QPlainTextEdit
 from qtpy.QtWidgets import QToolButton
 from qtpy.QtWidgets import QWidget
-
-from chartview import ChartView
-from constants import MAINUI_UI_PATH
-from constants import SETTINGSUI_UI_PATH
-from settings import Settings
-from validator import Validator
-from viewmodel import SortFilterViewModel
 
 _DATA_PATHS_SEPARATOR = '; \n'
 
@@ -89,17 +91,27 @@ def new_mainui(settings: Settings, settingsui: Settingsui) -> QWidget:
     charts = [ChartView(data_path) for data_path in settings.data_paths]
 
     def update_helper() -> None:
-        if validator.validate():
+        if True or validator.validate():
             for model in models:
                 model.reload()
             for chart in charts:
                 chart.reload()
 
-    def update_status_bar(
-        _selected: QItemSelection, _deselected: QItemSelection
-    ) -> None:
-        for model in models:
-            model.selectionChanged(selection_model, mainui.statusBar())
+    class UpdateStatusBar:
+        def __init__(
+            self,
+            model: SortFilterViewModel,
+            selection_model: QItemSelectionModel,
+        ) -> None:
+            self.model = model
+            self.selection_model = selection_model
+
+        def __call__(
+            self, _selected: QItemSelection, _deselected: QItemSelection
+        ) -> None:
+            self.model.selection_changed(
+                self.selection_model, mainui.statusBar()
+            )
 
     mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
 
@@ -111,8 +123,11 @@ def new_mainui(settings: Settings, settingsui: Settingsui) -> QWidget:
     for model, chart in zip(models, charts, strict=True):
         sheet = SearchSheet(multi_tabs)
         sheet.set_model(model)
+
         selection_model = sheet.selection_model()
-        selection_model.selectionChanged.connect(update_status_bar)
+        selection_model.selectionChanged.connect(
+            UpdateStatusBar(model, selection_model)
+        )
 
         multi_tabs.add_double_box(sheet, chart, 'todo')
 

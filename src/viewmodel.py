@@ -6,6 +6,7 @@ from operator import isub
 from typing import cast
 from typing import override
 
+from guilib.searchsheet.model import SearchableModel
 from movslib.model import ZERO
 from movslib.model import Row
 from movslib.movs import read_txt
@@ -14,8 +15,6 @@ from qtpy.QtCore import QItemSelectionModel
 from qtpy.QtCore import QModelIndex
 from qtpy.QtCore import QObject
 from qtpy.QtCore import QPersistentModelIndex
-from qtpy.QtCore import QRegularExpression
-from qtpy.QtCore import QSortFilterProxyModel
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QBrush
 from qtpy.QtGui import QColor
@@ -41,7 +40,7 @@ _INDEX = QModelIndex()
 
 
 class ViewModel(QAbstractTableModel):
-    def __init__(self, parent: QObject, data: list[Row]) -> None:
+    def __init__(self, data: list[Row], parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._set_data(data)
 
@@ -129,38 +128,10 @@ class ViewModel(QAbstractTableModel):
             self.endResetModel()
 
 
-class SortFilterViewModel(QSortFilterProxyModel):
+class SortFilterViewModel(SearchableModel):
     def __init__(self, data_path: str) -> None:
-        super().__init__()
+        super().__init__(ViewModel([]))
         self.data_path = data_path
-        self.setSourceModel(ViewModel(self, []))
-        self.setFilterCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
-        self.setDynamicSortFilter(True)  # noqa: FBT003
-
-    @override
-    def filterAcceptsRow(
-        self,
-        source_row: int,
-        source_parent: QModelIndex | QPersistentModelIndex,
-    ) -> bool:
-        regex = self.filterRegularExpression()
-        source_model = self.sourceModel()
-        column_count = source_model.columnCount(source_parent)
-
-        return any(
-            regex.match(source_model.data(index)).hasMatch()
-            for index in (
-                source_model.index(source_row, i, source_parent)
-                for i in range(column_count)
-            )
-        )
-
-    @override
-    def filterChanged(self, text: str) -> None:
-        text = QRegularExpression.escape(text)
-        options = QRegularExpression.PatternOption.CaseInsensitiveOption
-        self.setFilterRegularExpression(QRegularExpression(text, options))
 
     @override
     def sort(
@@ -168,8 +139,7 @@ class SortFilterViewModel(QSortFilterProxyModel):
     ) -> None:
         self.sourceModel().sort(column, order)
 
-    @override
-    def selectionChanged(
+    def selection_changed(
         self, selection_model: QItemSelectionModel, statusbar: QStatusBar
     ) -> None:
         addebiti_index = FIELD_NAMES.index('addebiti')
