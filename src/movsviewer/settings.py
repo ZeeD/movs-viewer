@@ -2,9 +2,9 @@ from typing import cast
 
 from qtpy.QtCore import QSettings
 
-from constants import SETTINGS_DATA_PATHS
-from constants import SETTINGS_PASSWORD
-from constants import SETTINGS_USERNAME
+from movsviewer.constants import SETTINGS_DATA_PATHS
+from movsviewer.constants import SETTINGS_PASSWORD
+from movsviewer.constants import SETTINGS_USERNAME
 
 
 class Settings:

@@ -9,7 +9,7 @@ from movslib.movs import read_txt
 from qtpy.QtWidgets import QMessageBox
 from qtpy.QtWidgets import QWidget
 
-from settings import Settings
+from movsviewer.settings import Settings
 
 
 def validate_saldo(kv: KV, csv: list[Row], messages: list[str]) -> bool:

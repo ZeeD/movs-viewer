@@ -28,7 +28,7 @@ from selenium.webdriver.support.expected_conditions import url_contains
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
-from constants import GECKODRIVER_PATH
+from movsviewer.constants import GECKODRIVER_PATH
 
 
 def get_options(dtemp: str) -> Options:
@@ -44,7 +44,7 @@ def get_options(dtemp: str) -> Options:
 
 
 def _w(
-    wait: WebDriverWait,
+    wait: WebDriverWait[WebDriver],
     condition: Callable[
         [tuple[str, str]], Callable[[WebDriver], bool | WebElement]
     ],
@@ -55,19 +55,19 @@ def _w(
     return ret
 
 
-def _c(wait: WebDriverWait, css_selector: str) -> WebElement:
+def _c(wait: WebDriverWait[WebDriver], css_selector: str) -> WebElement:
     return _w(wait, element_to_be_clickable, css_selector)
 
 
-def _p(wait: WebDriverWait, css_selector: str) -> WebElement:
+def _p(wait: WebDriverWait[WebDriver], css_selector: str) -> WebElement:
     return _w(wait, presence_of_element_located, css_selector)
 
 
-def _i(wait: WebDriverWait, css_selector: str) -> WebElement:
+def _i(wait: WebDriverWait[WebDriver], css_selector: str) -> WebElement:
     return _w(wait, invisibility_of_element, css_selector)
 
 
-def pl(wait: WebDriverWait, wd: WebDriver) -> None:
+def pl(wait: WebDriverWait[WebDriver], wd: WebDriver) -> None:
     _p(wait, '.pageLoader')
     founds = wd.find_elements(By.CSS_SELECTOR, '.pageLoader')
     wait.until(all_of(*(invisibility_of_element(found) for found in founds)))

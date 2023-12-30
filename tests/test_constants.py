@@ -1,8 +1,8 @@
 from unittest import TestCase
 
-from constants import GECKODRIVER_PATH
-from constants import MAINUI_UI_PATH
-from constants import SETTINGSUI_UI_PATH
+from movsviewer.constants import GECKODRIVER_PATH
+from movsviewer.constants import MAINUI_UI_PATH
+from movsviewer.constants import SETTINGSUI_UI_PATH
 
 
 class TestConstants(TestCase):

@@ -9,8 +9,8 @@ from qtpy.QtWidgets import QInputDialog
 from qtpy.QtWidgets import QLineEdit
 from qtpy.QtWidgets import QWidget
 
-from automation import get_movimenti
-from settings import Settings
+from movsviewer.automation import get_movimenti
+from movsviewer.settings import Settings
 
 
 # TODO: capire dove metterla

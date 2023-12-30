@@ -5,12 +5,12 @@ from typing import cast
 from guilib.multitabs.widget import MultiTabs
 from guilib.searchsheet.widget import SearchSheet
 
-from chartview import ChartView
-from constants import MAINUI_UI_PATH
-from constants import SETTINGSUI_UI_PATH
-from settings import Settings
-from validator import Validator
-from viewmodel import SortFilterViewModel
+from movsviewer.chartview import ChartView
+from movsviewer.constants import MAINUI_UI_PATH
+from movsviewer.constants import SETTINGSUI_UI_PATH
+from movsviewer.settings import Settings
+from movsviewer.validator import Validator
+from movsviewer.viewmodel import SortFilterViewModel
 
 if 'QT_API' not in environ:
     environ['QT_API'] = 'pyside6'
@@ -91,7 +91,7 @@ def new_mainui(settings: Settings, settingsui: Settingsui) -> QWidget:
     charts = [ChartView(data_path) for data_path in settings.data_paths]
 
     def update_helper() -> None:
-        if True or validator.validate():
+        if validator.validate():
             for model in models:
                 model.reload()
             for chart in charts:

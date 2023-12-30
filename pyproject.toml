@@ -25,7 +25,7 @@ devtools = [
 ]
 
 [project.gui-scripts]
-movs-viewer = 'mainui:main'
+movs-viewer = 'movsviewer.mainui:main'
 
 
 [tool.setuptools.packages.find]
@@ -39,7 +39,7 @@ warn_unused_configs = true
 always_false = ['PYQT5', 'PYSIDE2', 'PYQT6']
 # exclude = ['src/gen/.*']
 [[tool.mypy.overrides]]
-module = 'automation'
+module = 'movsviewer.automation'
 disable_error_code = 'no-untyped-call'
 
 

@@ -33,7 +33,7 @@ from qtpy.QtWidgets import QGraphicsSceneMouseEvent
 from qtpy.QtWidgets import QGraphicsSceneWheelEvent
 from qtpy.QtWidgets import QMainWindow
 
-from settings import Settings
+from movsviewer.settings import Settings
 
 
 def year(row: Row) -> int:
@@ -60,12 +60,12 @@ def range_years(rows: list[Row]) -> range:
 
 
 def years(rows: list[Row]) -> list[str]:
-    'All years between first and last row.'
+    "All years between first and last row."
     return [f'{y: 04}' for y in range_years(rows)]
 
 
 def sums_years_by_month(rows: list[Row]) -> dict[str, list[float]]:
-    'Return {month: [sum(row) for row in each year]} .'
+    "Return {month: [sum(row) for row in each year]} ."
     ret: dict[str, list[float]] = {}
 
     tmp = {k: list(v) for k, v in groupby(sorted(rows, key=month), key=month)}
@@ -100,7 +100,7 @@ def sums_years_by_month(rows: list[Row]) -> dict[str, list[float]]:
 
 
 def sums_by_year(rows: list[Row]) -> list[float]:
-    'Return [sum(row) for row in each year] .'
+    "Return [sum(row) for row in each year] ."
     tmp = {k: list(v) for k, v in groupby(sorted(rows, key=year), key=year)}
     return [
         float(sum((row.money for row in tmp.get(y, [])), start=ZERO))
@@ -186,7 +186,7 @@ class C(QChart):
 
     @override
     def mousePressEvent(self, _event: QGraphicsSceneMouseEvent) -> None:
-        'Reimplemented to capture the mouse move.'
+        "Reimplemented to capture the mouse move."
 
     @override
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
