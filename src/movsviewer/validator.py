@@ -1,7 +1,6 @@
 from datetime import UTC
 from datetime import date
 from datetime import datetime
-from logging import error
 
 from movslib.model import KV
 from movslib.model import Row
@@ -67,8 +66,8 @@ class Validator:
                     self.parent,
                     f'{fn} seems has some problems!',
                     '\n'.join(messages),
+                    QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No,
                 )
-                # TODO: use button to check for continue/skip
-                error('button: %s', button)
-                return False
+                return button is QMessageBox.StandardButton.Yes
         return True
