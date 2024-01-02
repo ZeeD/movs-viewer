@@ -1,9 +1,10 @@
 from datetime import UTC
 from datetime import date
 from datetime import datetime
+from pathlib import Path
 
 from movslib.model import KV
-from movslib.model import Row
+from movslib.model import Rows
 from movslib.movs import read_txt
 from qtpy.QtWidgets import QMessageBox
 from qtpy.QtWidgets import QWidget
@@ -11,7 +12,7 @@ from qtpy.QtWidgets import QWidget
 from movsviewer.settings import Settings
 
 
-def validate_saldo(kv: KV, csv: list[Row], messages: list[str]) -> bool:
+def validate_saldo(kv: KV, csv: Rows, messages: list[str]) -> bool:
     messages.append(f'bpol.saldo_al:                      {kv.saldo_al}')
     if kv.saldo_al:
         ultimo_update = (datetime.now(tz=UTC).date() - kv.saldo_al).days
@@ -36,7 +37,7 @@ def validate_saldo(kv: KV, csv: list[Row], messages: list[str]) -> bool:
     return ret
 
 
-def validate_dates(csv: list[Row], messages: list[str]) -> bool:
+def validate_dates(csv: Rows, messages: list[str]) -> bool:
     data_contabile: date | None = None
     for row in csv:
         if data_contabile is not None and data_contabile < row.data_contabile:
@@ -47,7 +48,7 @@ def validate_dates(csv: list[Row], messages: list[str]) -> bool:
 
 def validate(fn: str, messages: list[str]) -> bool:
     messages.append(fn)
-    kv, csv = read_txt(fn)
+    kv, csv = read_txt(fn, Path(fn).stem)
     return all(
         [validate_saldo(kv, csv, messages), validate_dates(csv, messages)]
     )

@@ -4,17 +4,6 @@ from typing import cast
 
 from guilib.multitabs.widget import MultiTabs
 from guilib.searchsheet.widget import SearchSheet
-
-from movsviewer.chartview import ChartView
-from movsviewer.constants import MAINUI_UI_PATH
-from movsviewer.constants import SETTINGSUI_UI_PATH
-from movsviewer.settings import Settings
-from movsviewer.validator import Validator
-from movsviewer.viewmodel import SortFilterViewModel
-
-if 'QT_API' not in environ:
-    environ['QT_API'] = 'pyside6'
-
 from qtpy.QtCore import QCoreApplication
 from qtpy.QtCore import QItemSelection
 from qtpy.QtCore import QItemSelectionModel
@@ -34,13 +23,21 @@ from qtpy.QtWidgets import QPlainTextEdit
 from qtpy.QtWidgets import QToolButton
 from qtpy.QtWidgets import QWidget
 
+from movsviewer.chartview import ChartView
+from movsviewer.constants import MAINUI_UI_PATH
+from movsviewer.constants import SETTINGSUI_UI_PATH
+from movsviewer.settings import Settings
+from movsviewer.validator import Validator
+from movsviewer.viewmodel import SortFilterViewModel
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
+
+
 _DATA_PATHS_SEPARATOR = '; \n'
 
 
 class Mainui(QMainWindow):
-    # lineEdit: QLineEdit
-    # tableView: QTableView
-    # tab_2: QWidget
     actionSettings: QAction  # noqa: N815
     actionUpdate: QAction  # noqa: N815
     gridLayout: QGridLayout  # noqa: N815
@@ -129,7 +126,10 @@ def new_mainui(settings: Settings, settingsui: Settingsui) -> QWidget:
             UpdateStatusBar(model, selection_model)
         )
 
-        multi_tabs.add_double_box(sheet, chart, 'todo')
+        idx = multi_tabs.add_double_box(sheet, chart, model.name)
+        model.modelReset.connect(
+            lambda mt=multi_tabs, i=idx, m=model: mt.setTabText(i, m.name)
+        )
 
     mainui.actionUpdate.triggered.connect(update_helper)
     mainui.actionSettings.triggered.connect(settingsui.show)

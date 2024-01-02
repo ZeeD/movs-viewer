@@ -4,6 +4,7 @@ from datetime import datetime
 from itertools import accumulate
 from itertools import groupby
 from os import environ
+from pathlib import Path
 from sys import argv
 from typing import NoReturn
 from typing import override
@@ -13,6 +14,7 @@ if 'QT_API' not in environ:
 
 from movslib.model import ZERO
 from movslib.model import Row
+from movslib.model import Rows
 from movslib.movs import read_txt
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
@@ -48,23 +50,25 @@ def day(row: Row) -> date:
     return row.data_valuta
 
 
-def get_rows() -> list[Row]:
+def get_rows() -> Rows:
     settings = Settings(argv[1:])
-    _, rows = read_txt(settings.data_paths[0])
+    _, rows = read_txt(
+        settings.data_paths[0], Path(settings.data_paths[0]).stem
+    )
     return rows
 
 
-def range_years(rows: list[Row]) -> range:
+def range_years(rows: Rows) -> range:
     rows_sorted = sorted(rows, key=year)
     return range(year(rows_sorted[0]), year(rows_sorted[-1]) + 1)
 
 
-def years(rows: list[Row]) -> list[str]:
+def years(rows: Rows) -> list[str]:
     "All years between first and last row."
     return [f'{y: 04}' for y in range_years(rows)]
 
 
-def sums_years_by_month(rows: list[Row]) -> dict[str, list[float]]:
+def sums_years_by_month(rows: Rows) -> dict[str, list[float]]:
     "Return {month: [sum(row) for row in each year]} ."
     ret: dict[str, list[float]] = {}
 
@@ -99,7 +103,7 @@ def sums_years_by_month(rows: list[Row]) -> dict[str, list[float]]:
     return ret
 
 
-def sums_by_year(rows: list[Row]) -> list[float]:
+def sums_by_year(rows: Rows) -> list[float]:
     "Return [sum(row) for row in each year] ."
     tmp = {k: list(v) for k, v in groupby(sorted(rows, key=year), key=year)}
     return [
@@ -108,7 +112,7 @@ def sums_by_year(rows: list[Row]) -> list[float]:
     ]
 
 
-def sums_by_day(rows: list[Row]) -> list[tuple[float, float]]:
+def sums_by_day(rows: Rows) -> list[tuple[float, float]]:
     epoch = datetime.fromtimestamp(0, tz=UTC).date()
 
     def msec(d: date) -> float:
@@ -137,7 +141,7 @@ class C(QChart):
         seriess: tuple[QBarSeries, QStackedBarSeries, QLineSeries],
         data_by_year: list[float],
         data_by_day: list[tuple[float, float]],
-        rows: list[Row],
+        rows: Rows,
     ) -> None:
         super().__init__()
 

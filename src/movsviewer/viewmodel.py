@@ -3,12 +3,14 @@ from datetime import date
 from decimal import Decimal
 from operator import iadd
 from operator import isub
+from pathlib import Path
 from typing import cast
 from typing import override
 
 from guilib.searchsheet.model import SearchableModel
 from movslib.model import ZERO
 from movslib.model import Row
+from movslib.model import Rows
 from movslib.movs import read_txt
 from qtpy.QtCore import QAbstractTableModel
 from qtpy.QtCore import QItemSelectionModel
@@ -40,11 +42,11 @@ _INDEX = QModelIndex()
 
 
 class ViewModel(QAbstractTableModel):
-    def __init__(self, data: list[Row], parent: QObject | None = None) -> None:
+    def __init__(self, data: Rows, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._set_data(data)
 
-    def _set_data(self, data: list[Row]) -> None:
+    def _set_data(self, data: Rows) -> None:
         self._data = data
         abs_data = sorted([_abs(row) for row in data])
         self._min = abs_data[0] if abs_data else ZERO
@@ -120,17 +122,21 @@ class ViewModel(QAbstractTableModel):
         finally:
             self.layoutChanged.emit()
 
-    def load(self, data: list[Row]) -> None:
+    def load(self, data: Rows) -> None:
         self.beginResetModel()
         try:
             self._set_data(data)
         finally:
             self.endResetModel()
 
+    @property
+    def name(self) -> str:
+        return self._data.name
+
 
 class SortFilterViewModel(SearchableModel):
     def __init__(self, data_path: str) -> None:
-        super().__init__(ViewModel([]))
+        super().__init__(ViewModel(Rows('')))
         self.data_path = data_path
 
     @override
@@ -154,6 +160,14 @@ class SortFilterViewModel(SearchableModel):
 
         statusbar.showMessage(f'⅀ = {bigsum}')
 
+    @override
+    def sourceModel(self) -> ViewModel:
+        return cast(ViewModel, super().sourceModel())
+
     def reload(self) -> None:
-        _, data = read_txt(self.data_path)
-        cast(ViewModel, self.sourceModel()).load(data)
+        _, data = read_txt(self.data_path, Path(self.data_path).stem)
+        self.sourceModel().load(data)
+
+    @property
+    def name(self) -> str:
+        return self.sourceModel().name
