@@ -1,10 +1,13 @@
-from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date
 from itertools import accumulate
 from logging import INFO
 from logging import basicConfig
 from logging import info
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 @dataclass(frozen=True)
@@ -13,7 +16,7 @@ class DC:
     b: int
 
 
-def acc(dcs: Iterable[DC]) -> Iterable[tuple[date, int]]:
+def acc(dcs: 'Iterable[DC]') -> 'Iterable[tuple[date, int]]':
     it = iter(dcs)
     h = next(it)
     return accumulate(it, lambda t, dc: (dc.a, t[1] + dc.b), initial=(h.a, h.b))

@@ -9,13 +9,16 @@ from sys import argv
 from typing import NoReturn
 from typing import override
 
-if 'QT_API' not in environ:
-    environ['QT_API'] = 'pyside6'
-
 from movslib.model import ZERO
 from movslib.model import Row
 from movslib.model import Rows
 from movslib.movs import read_txt
+
+from movsviewer.settings import Settings
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
+
 from qtpy.QtCharts import QBarCategoryAxis
 from qtpy.QtCharts import QBarSeries
 from qtpy.QtCharts import QBarSet
@@ -34,8 +37,6 @@ from qtpy.QtWidgets import QApplication
 from qtpy.QtWidgets import QGraphicsSceneMouseEvent
 from qtpy.QtWidgets import QGraphicsSceneWheelEvent
 from qtpy.QtWidgets import QMainWindow
-
-from movsviewer.settings import Settings
 
 
 def year(row: Row) -> int:
@@ -64,12 +65,12 @@ def range_years(rows: Rows) -> range:
 
 
 def years(rows: Rows) -> list[str]:
-    "All years between first and last row."
+    """All years between first and last row."""
     return [f'{y: 04}' for y in range_years(rows)]
 
 
 def sums_years_by_month(rows: Rows) -> dict[str, list[float]]:
-    "Return {month: [sum(row) for row in each year]} ."
+    """Return {month: [sum(row) for row in each year]} ."""
     ret: dict[str, list[float]] = {}
 
     tmp = {k: list(v) for k, v in groupby(sorted(rows, key=month), key=month)}
@@ -104,7 +105,7 @@ def sums_years_by_month(rows: Rows) -> dict[str, list[float]]:
 
 
 def sums_by_year(rows: Rows) -> list[float]:
-    "Return [sum(row) for row in each year] ."
+    """Return [sum(row) for row in each year] ."""
     tmp = {k: list(v) for k, v in groupby(sorted(rows, key=year), key=year)}
     return [
         float(sum((row.money for row in tmp.get(y, [])), start=ZERO))
@@ -147,7 +148,7 @@ class C(QChart):
 
         series_year, series_month, series_day = seriess
 
-        self.setTheme(QChart.ChartTheme.ChartThemeQt)
+        self.setTheme(QChart.ChartTheme.ChartThemeQt) #@UndefinedVariable
         self.addSeries(series_year)
         self.addSeries(series_month)
         self.addSeries(series_day)
@@ -190,7 +191,7 @@ class C(QChart):
 
     @override
     def mousePressEvent(self, _event: QGraphicsSceneMouseEvent) -> None:
-        "Reimplemented to capture the mouse move."
+        """Reimplemented to capture the mouse move."""
 
     @override
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
@@ -215,7 +216,6 @@ def main() -> NoReturn:
 
     series_day = QLineSeries()
     series_day.replace([QPointF(x, y) for x, y in data_by_day])
-    # series_day.setPointLabelsVisible(True)
     series_day.hovered.connect(series_day_hovered)
 
     # bar series - by month

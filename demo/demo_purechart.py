@@ -43,7 +43,6 @@ def years(rows: list[tuple[date, Decimal]]) -> list[date]:
     return [date(year, 1, 1) for year in range(start_year, end_year + 1)]
 
 
-# axis_x = QtCharts.QDateTimeAxis()
 axis_x = QtCharts.QCategoryAxis()
 axis_x.setLabelsPosition(
     QtCharts.QCategoryAxis.AxisLabelsPosition.AxisLabelsPositionOnValue
@@ -83,7 +82,7 @@ class Chart(QtCharts.QChart):
 
 
 chart = Chart()
-chart.legend().setVisible(False)  # noqa: FBT003
+chart.legend().setVisible(False)
 
 chart.addSeries(series)
 chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)

@@ -1,14 +1,25 @@
 from os import environ
 from sys import argv
+from typing import TYPE_CHECKING
 from typing import cast
 
 from guilib.multitabs.widget import MultiTabs
 from guilib.searchsheet.widget import SearchSheet
+
+from movsviewer.chartview import ChartView
+from movsviewer.constants import MAINUI_UI_PATH
+from movsviewer.constants import SETTINGSUI_UI_PATH
+from movsviewer.settings import Settings
+from movsviewer.validator import Validator
+from movsviewer.viewmodel import SortFilterViewModel
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
+
 from qtpy.QtCore import QCoreApplication
 from qtpy.QtCore import QItemSelection
 from qtpy.QtCore import QItemSelectionModel
 from qtpy.QtCore import Qt
-from qtpy.QtGui import QAction
 from qtpy.QtQuick import QQuickWindow
 from qtpy.QtQuick import QSGRendererInterface
 from qtpy.QtUiTools import QUiLoader
@@ -23,23 +34,16 @@ from qtpy.QtWidgets import QPlainTextEdit
 from qtpy.QtWidgets import QToolButton
 from qtpy.QtWidgets import QWidget
 
-from movsviewer.chartview import ChartView
-from movsviewer.constants import MAINUI_UI_PATH
-from movsviewer.constants import SETTINGSUI_UI_PATH
-from movsviewer.settings import Settings
-from movsviewer.validator import Validator
-from movsviewer.viewmodel import SortFilterViewModel
-
-if 'QT_API' not in environ:
-    environ['QT_API'] = 'pyside6'
+if TYPE_CHECKING:
+    from qtpy.QtGui import QAction
 
 
 _DATA_PATHS_SEPARATOR = '; \n'
 
 
 class Mainui(QMainWindow):
-    actionSettings: QAction  # noqa: N815
-    actionUpdate: QAction  # noqa: N815
+    actionSettings: 'QAction'  # noqa: N815
+    actionUpdate: 'QAction'  # noqa: N815
     gridLayout: QGridLayout  # noqa: N815
     centralwidget: QWidget
 

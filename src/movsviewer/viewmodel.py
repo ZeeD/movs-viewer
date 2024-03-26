@@ -3,7 +3,9 @@ from datetime import date
 from decimal import Decimal
 from operator import iadd
 from operator import isub
+from os import environ
 from pathlib import Path
+from typing import TYPE_CHECKING
 from typing import cast
 from typing import override
 
@@ -12,6 +14,10 @@ from movslib.model import ZERO
 from movslib.model import Row
 from movslib.model import Rows
 from movslib.movs import read_txt
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
+
 from qtpy.QtCore import QAbstractTableModel
 from qtpy.QtCore import QItemSelectionModel
 from qtpy.QtCore import QModelIndex
@@ -20,7 +26,10 @@ from qtpy.QtCore import QPersistentModelIndex
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QBrush
 from qtpy.QtGui import QColor
-from qtpy.QtWidgets import QStatusBar
+
+if TYPE_CHECKING:
+    from qtpy.QtWidgets import QStatusBar
+
 
 FIELD_NAMES = [field.name for field in fields(Row)]
 
@@ -146,7 +155,7 @@ class SortFilterViewModel(SearchableModel):
         self.sourceModel().sort(column, order)
 
     def selection_changed(
-        self, selection_model: QItemSelectionModel, statusbar: QStatusBar
+        self, selection_model: QItemSelectionModel, statusbar: 'QStatusBar'
     ) -> None:
         addebiti_index = FIELD_NAMES.index('addebiti')
         accrediti_index = FIELD_NAMES.index('accrediti')

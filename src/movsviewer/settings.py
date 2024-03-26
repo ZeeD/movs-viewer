@@ -1,10 +1,14 @@
+from os import environ
 from typing import cast
-
-from qtpy.QtCore import QSettings
 
 from movsviewer.constants import SETTINGS_DATA_PATHS
 from movsviewer.constants import SETTINGS_PASSWORD
 from movsviewer.constants import SETTINGS_USERNAME
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
+
+from qtpy.QtCore import QSettings
 
 
 class Settings:

@@ -42,36 +42,39 @@ always_false = ['PYQT5', 'PYSIDE2', 'PYQT6']
 module = 'movsviewer.automation'
 disable_error_code = 'no-untyped-call'
 
-
 [tool.ruff]
-extend-select = [
-    'W', 'E', 'C90', 'I', 'N', 'D', 'UP', 'YTT', 'ANN', 'ASYNC', 'S', 'BLE',
-    'FBT', 'B', 'A', 'COM', 'C4', 'DTZ', 'T10', 'DJ', 'EM', 'EXE', 'FA', 'ISC',
-    'ICN', 'G', 'INP', 'PIE', 'T20', 'PYI', 'PT', 'Q', 'RSE', 'RET', 'SLF',
-    'SLOT', 'SIM', 'TID', 'TCH', 'INT', 'ARG', 'PTH', 'TD', 'FIX', 'ERA', 'PD',
-    'PGH', 'PL', 'TRY', 'FLY', 'NPY', 'AIR', 'PERF', 'RUF',
-    # 'CPY', 'FURB', 'LOG', 
-]
-ignore = [
-    'D211', 'D212', 'ANN101', 'ANN102', 'D100', 'D103', 'D101', 'D102', 'S310',
-    'D104', 'ERA001', 'D300', 'D106',
-    'COM812', 'COM819', 'D206', 'E501', 'ISC001', 'Q000', 'Q001', 'Q002', 'Q003', 'W191',
-    'D105', 'D107', 'PT009', 'S101',
-    'TD002', 'TD003',
-]
 fix = true
 line-length = 80
 # extend-exclude = ['src/gen']
 src = ['src', 'tests', 'demo', 'stubs']
 
-[tool.ruff.isort]
-force-single-line = true
-
-[tool.ruff.flake8-quotes]
-inline-quotes = 'single'
-
 [tool.ruff.format]
+docstring-code-format = true
 quote-style = 'single'
+skip-magic-trailing-comma = true
 
-[tool.ruff.flake8-annotations]
+[tool.ruff.lint]
+select = ['ALL']
+ignore = [
+    # disabled by me
+    'D1','ANN1','PT009','TD002','TD003',
+    # incompatibilities
+    'D203', # D211
+    'D213', # D212
+    # conflicts with formatter
+    'COM812','ISC001'
+]
+
+[tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
+
+[tool.ruff.lint.flake8-quotes]
+# docstring-quotes = 'single'
+inline-quotes = 'single'
+# multiline-quotes = 'single'
+
+[tool.ruff.lint.flake8-type-checking]
+quote-annotations = true
+
+[tool.ruff.lint.isort]
+force-single-line = true

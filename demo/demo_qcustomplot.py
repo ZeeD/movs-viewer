@@ -4,7 +4,6 @@ from operator import attrgetter
 from sys import argv
 from typing import TYPE_CHECKING
 
-from movslib.model import Rows
 from movslib.movs import read_txt
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush
@@ -22,23 +21,25 @@ from QCustomPlot_PyQt6 import QCustomPlot  # @UnresolvedImport
 if TYPE_CHECKING:
     from decimal import Decimal
 
+    from movslib.model import Rows
+
 
 def timestamp(d: date) -> float:
-    return QCPAxisTickerDateTime.dateTimeToKey(d)
+    return QCPAxisTickerDateTime.dateTimeToKey(d)#@UndefinedVariable
 
 
 class _AddGraph:
     def __init__(self) -> None:
         self.b = False
 
-    def __call__(self, plot: QCustomPlot, rows: Rows) -> None:
+    def __call__(self, plot: QCustomPlot, rows: 'Rows') -> None:
         graph = plot.addGraph()
         graph.setPen(QPen(Qt.GlobalColor.darkGreen))
         graph.setBrush(
             QBrush(QColor(255 if self.b else 0, 0, 0 if self.b else 255, 20))
         )
         graph.setName(rows.name)
-        graph.setLineStyle(QCPGraph.LineStyle.lsStepLeft)
+        graph.setLineStyle(QCPGraph.LineStyle.lsStepLeft)#@UndefinedVariable
 
         value: Decimal | None = None  # @UndefinedVariable
         for row in sorted(rows, key=attrgetter('date')):
@@ -48,10 +49,12 @@ class _AddGraph:
         self.b = not self.b
 
 
-def make_plot(rowss: list[Rows], parent: QWidget | None = None) -> QCustomPlot:
+def make_plot(
+    rowss: 'list[Rows]', parent: QWidget | None = None
+) -> QCustomPlot:
     plot = QCustomPlot(parent)
 
-    plot.legend.setVisible(True)  # noqa: FBT003
+    plot.legend.setVisible(True)
     plot.legend.setBrush(QColor(255, 255, 255, 150))
 
     plot.xAxis.rangeChanged.connect(lambda _: plot.replot())
@@ -61,16 +64,16 @@ def make_plot(rowss: list[Rows], parent: QWidget | None = None) -> QCustomPlot:
         add_graph(plot, rows)
 
     plot.rescaleAxes()
-    plot.setInteraction(QCP.Interaction.iRangeDrag)
-    plot.setInteraction(QCP.Interaction.iRangeZoom)
-    plot.setInteraction(QCP.Interaction.iSelectPlottables)
+    plot.setInteraction(QCP.Interaction.iRangeDrag)#@UndefinedVariable
+    plot.setInteraction(QCP.Interaction.iRangeZoom)#@UndefinedVariable
+    plot.setInteraction(QCP.Interaction.iSelectPlottables)#@UndefinedVariable
 
     date_ticker = QCPAxisTickerDateTime()
     date_ticker.setDateTimeFormat('yyyy\ndd/MM')
     date_ticker.setTickCount(rows[0].date.year - rows[-1].date.year)
     plot.xAxis.setTicker(date_ticker)
-    plot.xAxis.setTicks(True)  # noqa: FBT003
-    plot.xAxis.setSubTicks(True)  # noqa: FBT003
+    plot.xAxis.setTicks(True)
+    plot.xAxis.setSubTicks(True)
 
     return plot
 

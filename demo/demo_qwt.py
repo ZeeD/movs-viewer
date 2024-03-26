@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from datetime import UTC
 from datetime import date
 from datetime import datetime
@@ -9,9 +8,8 @@ from itertools import accumulate
 from itertools import cycle
 from operator import attrgetter
 from sys import argv
+from typing import TYPE_CHECKING
 
-from movslib.model import Row
-from movslib.model import Rows
 from movslib.movs import read_txt
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QApplication
@@ -22,8 +20,14 @@ from qwt import QwtPlotGrid
 from qwt.scale_div import QwtScaleDiv
 from qwt.scale_draw import QwtScaleDraw
 
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
-def linecolors() -> Iterable[Qt.GlobalColor]:
+    from movslib.model import Row
+    from movslib.model import Rows
+
+
+def linecolors() -> 'Iterable[Qt.GlobalColor]':
     return cycle(
         filter(
             lambda c: c
@@ -45,12 +49,12 @@ def linecolors() -> Iterable[Qt.GlobalColor]:
 T = tuple[date, Decimal]
 
 
-def acc(rows: Rows) -> Iterable[T]:
-    def func(a: T, b: Row) -> T:
+def acc(rows: 'Rows') -> 'Iterable[T]':
+    def func(a: T, b: 'Row') -> T:
         return (b.date, a[1] + b.money)
 
     it = iter(sorted(rows, key=attrgetter('date')))
-    head: Row = next(it)
+    head: 'Row' = next(it)
     return accumulate(it, func, initial=(head.date, head.money))
 
 
@@ -58,7 +62,7 @@ def days(min_xdata: float, max_xdata: float) -> list[float]:
     lower = datetime.fromtimestamp(min_xdata, tz=UTC).date()
     upper = datetime.fromtimestamp(max_xdata, tz=UTC).date()
 
-    def it() -> Iterable[float]:
+    def it() -> 'Iterable[float]':
         when = lower
         while when < upper:
             yield datetime.combine(when, time()).timestamp()
@@ -74,7 +78,7 @@ def months(min_xdata: float, max_xdata: float) -> list[float]:
     ly, lm = (lower.year, lower.month)
     uy, um = (upper.year, upper.month)
 
-    def it() -> Iterable[float]:
+    def it() -> 'Iterable[float]':
         wy, wm = ly, lm
         while (wy, wm) < (uy, um):
             yield datetime.combine(date(wy, wm, 1), time()).timestamp()
@@ -92,7 +96,7 @@ def years(min_xdata: float, max_xdata: float) -> list[float]:
     lower = datetime.fromtimestamp(min_xdata, tz=UTC).year
     upper = datetime.fromtimestamp(max_xdata, tz=UTC).year
 
-    def it() -> Iterable[float]:
+    def it() -> 'Iterable[float]':
         when = lower
         while when < upper:
             yield datetime.combine(date(when, 1, 1), time()).timestamp()
@@ -106,7 +110,7 @@ class SD(QwtScaleDraw):
         return datetime.fromtimestamp(value, tz=UTC).strftime('%Y-%m')
 
 
-def qwtmain(*rowss: Rows) -> QwtPlot:
+def qwtmain(*rowss: 'Rows') -> QwtPlot:
     plot = QwtPlot()
 
     min_xdata: float | None = None

@@ -1,10 +1,9 @@
-from collections.abc import Callable
-from collections.abc import Iterator
 from contextlib import contextmanager
 from logging import info
 from os import listdir
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 
 from selenium.webdriver import Firefox
 from selenium.webdriver.common.by import By
@@ -12,7 +11,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.support.expected_conditions import (
@@ -30,11 +28,16 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from movsviewer.constants import GECKODRIVER_PATH
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from collections.abc import Iterator
+
+    from selenium.webdriver.remote.webdriver import WebDriver
+
 
 def get_options(dtemp: str) -> Options:
     options = Options()
 
-    # options.headless = True
     options.profile = FirefoxProfile()
     # set download folder
     options.profile.set_preference('browser.download.folderList', 2)
@@ -44,30 +47,30 @@ def get_options(dtemp: str) -> Options:
 
 
 def _w(
-    wait: WebDriverWait[WebDriver],
-    condition: Callable[
-        [tuple[str, str]], Callable[[WebDriver], bool | WebElement]
-    ],
+    wait: 'WebDriverWait[WebDriver]',
+    condition: """Callable[[tuple[str, str]],
+                           Callable[[WebDriver], bool | WebElement]]""",
     css_selector: str,
 ) -> WebElement:
     ret = wait.until(condition((By.CSS_SELECTOR, css_selector)))
-    assert isinstance(ret, WebElement)
+    if not isinstance(ret, WebElement):
+        raise TypeError
     return ret
 
 
-def _c(wait: WebDriverWait[WebDriver], css_selector: str) -> WebElement:
+def _c(wait: 'WebDriverWait[WebDriver]', css_selector: str) -> WebElement:
     return _w(wait, element_to_be_clickable, css_selector)
 
 
-def _p(wait: WebDriverWait[WebDriver], css_selector: str) -> WebElement:
+def _p(wait: 'WebDriverWait[WebDriver]', css_selector: str) -> WebElement:
     return _w(wait, presence_of_element_located, css_selector)
 
 
-def _i(wait: WebDriverWait[WebDriver], css_selector: str) -> WebElement:
+def _i(wait: 'WebDriverWait[WebDriver]', css_selector: str) -> WebElement:
     return _w(wait, invisibility_of_element, css_selector)
 
 
-def pl(wait: WebDriverWait[WebDriver], wd: WebDriver) -> None:
+def pl(wait: 'WebDriverWait[WebDriver]', wd: 'WebDriver') -> None:
     _p(wait, '.pageLoader')
     founds = wd.find_elements(By.CSS_SELECTOR, '.pageLoader')
     wait.until(all_of(*(invisibility_of_element(found) for found in founds)))
@@ -78,12 +81,15 @@ HP = 'https://bancoposta.poste.it/bpol/public/BPOL_ListaMovimentiAPP/index.html'
 
 @contextmanager
 def get_movimenti(
-    username: str, password: str, num_conto: str, get_otp: Callable[[], str]
-) -> Iterator[Path]:
-    with TemporaryDirectory() as dtemp, Firefox(
-        service=Service(executable_path=str(GECKODRIVER_PATH)),
-        options=get_options(dtemp),
-    ) as wd:
+    username: str, password: str, num_conto: str, get_otp: 'Callable[[], str]'
+) -> 'Iterator[Path]':
+    with (
+        TemporaryDirectory() as dtemp,
+        Firefox(
+            service=Service(executable_path=str(GECKODRIVER_PATH)),
+            options=get_options(dtemp),
+        ) as wd
+    ):  # fmt: skip
         wait = WebDriverWait(wd, 1000)
         # login
         wd.get(HP)

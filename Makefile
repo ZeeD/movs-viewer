@@ -12,4 +12,4 @@ update:
 
 .PHONY: lint
 lint:
-	. ../venv/bin/activate; ruff format .; ruff .; mypy .
+	. ../venv/bin/activate; ruff format .; ruff check .; mypy .

@@ -1,18 +1,26 @@
 from datetime import UTC
 from datetime import date
 from datetime import datetime
+from os import environ
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from movslib.model import KV
-from movslib.model import Rows
 from movslib.movs import read_txt
+
+if 'QT_API' not in environ:
+    environ['QT_API'] = 'pyside6'
+
 from qtpy.QtWidgets import QMessageBox
 from qtpy.QtWidgets import QWidget
 
-from movsviewer.settings import Settings
+if TYPE_CHECKING:
+    from movslib.model import KV
+    from movslib.model import Rows
+
+    from movsviewer.settings import Settings
 
 
-def validate_saldo(kv: KV, csv: Rows, messages: list[str]) -> bool:
+def validate_saldo(kv: 'KV', csv: 'Rows', messages: list[str]) -> bool:
     messages.append(f'bpol.saldo_al:                      {kv.saldo_al}')
     if kv.saldo_al:
         ultimo_update = (datetime.now(tz=UTC).date() - kv.saldo_al).days
@@ -37,7 +45,7 @@ def validate_saldo(kv: KV, csv: Rows, messages: list[str]) -> bool:
     return ret
 
 
-def validate_dates(csv: Rows, messages: list[str]) -> bool:
+def validate_dates(csv: 'Rows', messages: list[str]) -> bool:
     data_contabile: date | None = None
     for row in csv:
         if data_contabile is not None and data_contabile < row.data_contabile:
@@ -55,7 +63,7 @@ def validate(fn: str, messages: list[str]) -> bool:
 
 
 class Validator:
-    def __init__(self, parent: QWidget, settings: Settings) -> None:
+    def __init__(self, parent: QWidget, settings: 'Settings') -> None:
         self.parent = parent
         self.settings = settings
 

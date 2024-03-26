@@ -23,7 +23,8 @@ class AskOtp:
         response, ok = QInputDialog.getText(
             self.parent, 'OTP', 'homeBanking', QLineEdit.EchoMode.Normal
         )
-        assert ok
+        if not ok:
+            raise ValueError
         return response
 
 
