@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 def timestamp(d: date) -> float:
-    return QCPAxisTickerDateTime.dateTimeToKey(d)#@UndefinedVariable
+    return QCPAxisTickerDateTime.dateTimeToKey(d)  # @UndefinedVariable
 
 
 class _AddGraph:
@@ -39,7 +39,7 @@ class _AddGraph:
             QBrush(QColor(255 if self.b else 0, 0, 0 if self.b else 255, 20))
         )
         graph.setName(rows.name)
-        graph.setLineStyle(QCPGraph.LineStyle.lsStepLeft)#@UndefinedVariable
+        graph.setLineStyle(QCPGraph.LineStyle.lsStepLeft)  # @UndefinedVariable
 
         value: Decimal | None = None  # @UndefinedVariable
         for row in sorted(rows, key=attrgetter('date')):
@@ -64,9 +64,9 @@ def make_plot(
         add_graph(plot, rows)
 
     plot.rescaleAxes()
-    plot.setInteraction(QCP.Interaction.iRangeDrag)#@UndefinedVariable
-    plot.setInteraction(QCP.Interaction.iRangeZoom)#@UndefinedVariable
-    plot.setInteraction(QCP.Interaction.iSelectPlottables)#@UndefinedVariable
+    plot.setInteraction(QCP.Interaction.iRangeDrag)  # @UndefinedVariable
+    plot.setInteraction(QCP.Interaction.iRangeZoom)  # @UndefinedVariable
+    plot.setInteraction(QCP.Interaction.iSelectPlottables)  # @UndefinedVariable
 
     date_ticker = QCPAxisTickerDateTime()
     date_ticker.setDateTimeFormat('yyyy\ndd/MM')

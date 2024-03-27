@@ -148,7 +148,7 @@ class C(QChart):
 
         series_year, series_month, series_day = seriess
 
-        self.setTheme(QChart.ChartTheme.ChartThemeQt) #@UndefinedVariable
+        self.setTheme(QChart.ChartTheme.ChartThemeQt)  # @UndefinedVariable
         self.addSeries(series_year)
         self.addSeries(series_month)
         self.addSeries(series_day)
