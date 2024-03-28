@@ -12,6 +12,9 @@ from typing import NamedTuple
 from typing import cast
 from typing import override
 
+from guilib.chartwidget.chartwidget import ChartWidget
+from guilib.chartwidget.modelgui import SeriesModel
+from guilib.chartwidget.viewmodel import SortFilterViewModel
 from movslib.movs import read_txt
 
 if 'QT_API' not in environ:
@@ -22,7 +25,6 @@ from qtpy.QtCharts import QBarSeries
 from qtpy.QtCharts import QBarSet
 from qtpy.QtCharts import QCategoryAxis
 from qtpy.QtCharts import QChart
-from qtpy.QtCharts import QChartView
 from qtpy.QtCharts import QLineSeries
 from qtpy.QtCharts import QValueAxis
 from qtpy.QtCore import Qt
@@ -31,6 +33,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from collections.abc import Sequence
 
+    from guilib.chartwidget.model import Column
+    from guilib.chartwidget.model import ColumnHeader
+    from guilib.chartwidget.model import Info
     from movslib.model import Row
     from qtpy.QtWidgets import QGraphicsSceneMouseEvent
     from qtpy.QtWidgets import QGraphicsSceneWheelEvent
@@ -225,13 +230,54 @@ class Chart(QChart):
         self.scroll(x_prev - x_curr, y_curr - y_prev)
 
 
-class ChartView(QChartView):
+class CH:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    @override
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, CH):
+            return NotImplemented
+        return self.name == other.name
+
+
+class C:
+    def __init__(
+        self, header: 'ColumnHeader', howmuch: 'Decimal | None'
+    ) -> None:
+        self.header = header
+        self.howmuch = howmuch
+
+
+class I:  # noqa: E742
+    def __init__(self, when: 'date', columns: 'list[Column]') -> None:
+        self.when = when
+        self.columns = columns
+
+    def howmuch(self, column_header: 'ColumnHeader') -> 'Decimal | None':
+        for column in self.columns:
+            if column.header == column_header:
+                return column.howmuch
+        return None
+
+
+class ChartView(ChartWidget):
+    money_header = CH('money')
+
     def __init__(self, data_path: str) -> None:
-        super().__init__()
         self.data_path = data_path
+        self.model = SortFilterViewModel() # TODO there are 2 classes same name
+        factory = SeriesModel.by_column_header(self.money_header)
+        super().__init__(self.model, None, factory)
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.reload()
 
     def reload(self) -> None:
         _, data = read_txt(self.data_path)
-        self.setChart(Chart(data))
+        # convert data to infos
+        infos: 'list[Info]' = []
+        acc = Decimal(0)
+        for row in sorted(data, key=lambda row: row.date):
+            acc += row.money
+            infos.append( I(row.date, [C(self.money_header, acc)]) )
+        self.model.update(infos)
