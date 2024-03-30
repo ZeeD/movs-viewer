@@ -266,7 +266,8 @@ class ChartView(ChartWidget):
 
     def __init__(self, data_path: str) -> None:
         self.data_path = data_path
-        self.model = SortFilterViewModel() # TODO there are 2 classes same name
+        # TODO: there are 2 classes same name
+        self.model = SortFilterViewModel()
         factory = SeriesModel.by_column_header(self.money_header)
         super().__init__(self.model, None, factory)
         self.setCursor(Qt.CursorShape.CrossCursor)
@@ -274,10 +275,11 @@ class ChartView(ChartWidget):
 
     def reload(self) -> None:
         _, data = read_txt(self.data_path)
-        # convert data to infos
+        # convert data to infos (accumulate and step)
         infos: 'list[Info]' = []
         acc = Decimal(0)
         for row in sorted(data, key=lambda row: row.date):
+            infos.append(I(row.date, [C(self.money_header, acc)]))
             acc += row.money
-            infos.append( I(row.date, [C(self.money_header, acc)]) )
+            infos.append(I(row.date, [C(self.money_header, acc)]))
         self.model.update(infos)
