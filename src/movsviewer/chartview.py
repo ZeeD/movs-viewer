@@ -12,9 +12,13 @@ from typing import NamedTuple
 from typing import cast
 from typing import override
 
+from guilib.chartslider.chartslider import date2days
 from guilib.chartwidget.chartwidget import ChartWidget
 from guilib.chartwidget.modelgui import SeriesModel
+from guilib.chartwidget.modelgui import SeriesModelUnit
+from guilib.chartwidget.modelgui import date2QDateTime
 from guilib.chartwidget.viewmodel import SortFilterViewModel
+from movslib.model import ZERO
 from movslib.movs import read_txt
 
 if 'QT_API' not in environ:
@@ -39,8 +43,6 @@ if TYPE_CHECKING:
     from movslib.model import Row
     from qtpy.QtWidgets import QGraphicsSceneMouseEvent
     from qtpy.QtWidgets import QGraphicsSceneWheelEvent
-
-ZERO = Decimal(0)
 
 
 class Point(NamedTuple):
@@ -261,25 +263,111 @@ class I:  # noqa: E742
         return None
 
 
-class ChartView(ChartWidget):
-    money_header = CH('money')
+MONEY_HEADER = CH('money')
 
+
+def series_model_factory(infos: 'list[Info]') -> 'SeriesModel':
+    """Extract money from info; accumulate and step; group by month / year."""
+    x_min = date.max
+    x_max = date.min
+    y_min = Decimal('inf')
+    y_max = -Decimal('inf')
+
+    money = QLineSeries()
+    money.setName('money')
+    money_acc = QLineSeries()
+    money_acc.setName('money acc')
+    money_by_month = QLineSeries()
+    money_by_month.setName('money by month')
+    money_by_year = QLineSeries()
+    money_by_year.setName('money by year')
+
+    acc = 0.0
+    acc_by_month = 0.0
+    acc_by_year = 0.0
+    last_by_month: date | None = None
+    last_by_year: date | None = None
+    for info in infos:
+        when = info.when
+        howmuch = info.howmuch(MONEY_HEADER)
+        if howmuch is None:
+            continue
+
+        if when < x_min:
+            x_min = when
+        if when > x_max:
+            x_max = when
+
+        when_d = date2days(when)
+        howmuch_f = float(howmuch)
+
+        # money
+        money.append(when_d, howmuch_f)
+        # TODO: fix hover to deal with a variable number of items in series
+        money.append(when_d, howmuch_f)
+        if howmuch < y_min:
+            y_min = howmuch
+        if howmuch > y_max:
+            y_max = howmuch
+
+        # money acc
+        money_acc.append(when_d, acc)
+        acc += howmuch_f
+        money_acc.append(when_d, acc)
+        if acc < y_min:
+            y_min = Decimal(acc)
+        if acc > y_max:
+            y_max = Decimal(acc)
+
+        # money_by_month
+        money_by_month.append(when_d, acc_by_month)
+        if last_by_month is None or last_by_month.month != when.month:
+            acc_by_month = 0.0
+        else:
+            acc_by_month += howmuch_f
+        money_by_month.append(when_d, acc_by_month)
+        last_by_month = when
+        if acc_by_month < y_min:
+            y_min = Decimal(acc_by_month)
+        if acc_by_month > y_max:
+            y_max = Decimal(acc_by_month)
+
+        # money_by_year
+        money_by_year.append(when_d, acc_by_year)
+        if last_by_year is None or last_by_year.year != when.year:
+            acc_by_year = 0.0
+        else:
+            acc_by_year += howmuch_f
+        money_by_year.append(when_d, acc_by_year)
+        last_by_year = when
+        if acc_by_year < y_min:
+            y_min = Decimal(acc_by_year)
+        if acc_by_year > y_max:
+            y_max = Decimal(acc_by_year)
+
+    return SeriesModel(
+        [money, money_acc, money_by_month, money_by_year],
+        date2QDateTime(x_min),
+        date2QDateTime(x_max),
+        float(y_min),
+        float(y_max),
+        SeriesModelUnit.EURO,
+    )
+
+
+class ChartView(ChartWidget):
     def __init__(self, data_path: str) -> None:
         self.data_path = data_path
         # TODO: there are 2 classes same name
         self.model = SortFilterViewModel()
-        factory = SeriesModel.by_column_header(self.money_header)
-        super().__init__(self.model, None, factory)
+        super().__init__(self.model, None, series_model_factory, '%d/%m/%Y')
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.reload()
 
     def reload(self) -> None:
         _, data = read_txt(self.data_path)
-        # convert data to infos (accumulate and step)
+        # convert data to infos
         infos: 'list[Info]' = []
-        acc = Decimal(0)
         for row in sorted(data, key=lambda row: row.date):
-            infos.append(I(row.date, [C(self.money_header, acc)]))
-            acc += row.money
-            infos.append(I(row.date, [C(self.money_header, acc)]))
+            infos.append(I(row.date, [C(MONEY_HEADER, row.money)]))
         self.model.update(infos)
