@@ -302,7 +302,7 @@ def series_model_factory(infos: 'list[Info]') -> 'SeriesModel':
         howmuch_f = float(howmuch)
 
         # money
-        money.append(when_d, howmuch_f)
+        money.append(when_d, 0)
         # TODO: fix hover to deal with a variable number of items in series
         money.append(when_d, howmuch_f)
         if howmuch < y_min:

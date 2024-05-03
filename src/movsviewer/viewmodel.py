@@ -149,6 +149,10 @@ class SortFilterViewModel(SearchableModel):
         self.data_path = data_path
 
     @override
+    def sourceModel(self) -> ViewModel:
+        return cast(ViewModel, super().sourceModel())
+
+    @override
     def sort(
         self, column: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
     ) -> None:
@@ -168,10 +172,6 @@ class SortFilterViewModel(SearchableModel):
                     bigsum = iop(bigsum, data)
 
         statusbar.showMessage(f'⅀ = {bigsum}')
-
-    @override
-    def sourceModel(self) -> ViewModel:
-        return cast(ViewModel, super().sourceModel())
 
     def reload(self) -> None:
         _, data = read_txt(self.data_path, Path(self.data_path).stem)
