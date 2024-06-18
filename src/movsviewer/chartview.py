@@ -12,12 +12,12 @@ from typing import NamedTuple
 from typing import cast
 from typing import override
 
-from guilib.chartslider.chartslider import date2days
 from guilib.chartwidget.chartwidget import ChartWidget
 from guilib.chartwidget.modelgui import SeriesModel
 from guilib.chartwidget.modelgui import SeriesModelUnit
-from guilib.chartwidget.modelgui import date2QDateTime
 from guilib.chartwidget.viewmodel import SortFilterViewModel
+from guilib.dates.converters import date2days
+from guilib.dates.converters import date2QDateTime
 from movslib.model import ZERO
 from movslib.movs import read_txt
 
