@@ -11,8 +11,8 @@ from sys import argv
 from typing import TYPE_CHECKING
 
 from movslib.movs import read_txt
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
 
 from qwt import QwtPlot
 from qwt import QwtPlotCurve
@@ -54,7 +54,7 @@ def acc(rows: 'Rows') -> 'Iterable[T]':
         return (b.date, a[1] + b.money)
 
     it = iter(sorted(rows, key=attrgetter('date')))
-    head: 'Row' = next(it)
+    head = next(it)
     return accumulate(it, func, initial=(head.date, head.money))
 
 

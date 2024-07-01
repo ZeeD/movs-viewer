@@ -1,17 +1,12 @@
 from datetime import UTC
 from datetime import date
 from datetime import datetime
-from os import environ
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from movslib.movs import read_txt
-
-if 'QT_API' not in environ:
-    environ['QT_API'] = 'pyside6'
-
-from qtpy.QtWidgets import QMessageBox
-from qtpy.QtWidgets import QWidget
+from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QWidget
 
 if TYPE_CHECKING:
     from movslib.model import KV

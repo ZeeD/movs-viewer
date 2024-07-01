@@ -1,7 +1,11 @@
-/.git
+/.coverage
+/.dmypy.json
+/.git/
+/.mypy_cache/
+/.pdm-build/
+/.pdm-python
+/.ruff_cache/
+/.venv/
 
-*.egg-info
-**/__pycache__
-.*_cache
-/.settings/
-/.project
+/*/*.egg-info/
+/**/__pycache__/

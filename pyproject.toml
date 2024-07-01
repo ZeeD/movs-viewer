@@ -1,80 +1,99 @@
 [project]
-name = 'movs-viewer'
-version = '0.0.0'
-requires-python = '>=3.12'
+name = "movs-viewer"
+version = "0.0.0"
+requires-python = "==3.12.*"
 dependencies = [
-    'setuptools',
-    'qtpy',
-    'guilib',
-    'movslib',
-    'movs-merger',
-    'PyQt6',
-    'PySide6',
-    'QCustomPlot-PyQt6',
+    "PySide6>=6.7.2",
+    "guilib @ file:///${PROJECT_ROOT}/../guilib",
+    "movslib @ file:///${PROJECT_ROOT}/../movslib",
+    "selenium>=4.22.0",
+    "PythonQwt>=0.12.5",
+    "movs-merger @ file:///${PROJECT_ROOT}/../movs-merger",
 ]
-
 
 [project.urls]
-Homepage = 'https://github.com/ZeeD/movs-viewer'
-Repository = 'https://github.com/ZeeD/movs-viewer.git'
+Homepage = "https://github.com/ZeeD/movs-viewer"
+Repository = "https://github.com/ZeeD/movs-viewer.git"
+
+[tool.pdm]
+distribution = true
 
 [project.optional-dependencies]
-devtools = [
-    'mypy',
-    'ruff',
+dev = [
+    "mypy>=1.10.1",
+    "ruff>=0.5.0",
+    "coverage>=7.5.4",
 ]
 
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
 [project.gui-scripts]
-movs-viewer = 'movsviewer.mainui:main'
-
-
-[tool.setuptools.packages.find]
-where = ['src']
-namespaces = false
+movs-viewer = "movsviewer.mainui:main"
 
 [tool.mypy]
-mypy_path = 'src,tests,demo,stubs'
+mypy_path = ["src","tests","demo","stubs"]
 strict = true
 warn_unused_configs = true
-always_false = ['PYQT5', 'PYSIDE2', 'PYQT6']
-# exclude = ['src/gen/.*']
 [[tool.mypy.overrides]]
-module = 'movsviewer.automation'
-disable_error_code = 'no-untyped-call'
+module = "movsviewer.automation"
+disable_error_code = "no-untyped-call"
 
 [tool.ruff]
 fix = true
 line-length = 80
-# extend-exclude = ['src/gen']
-src = ['src', 'tests', 'demo', 'stubs']
+src = ["src", "tests", "demo", "stubs"]
 
 [tool.ruff.format]
 docstring-code-format = true
-quote-style = 'single'
+quote-style = "single"
 skip-magic-trailing-comma = true
 
 [tool.ruff.lint]
-select = ['ALL']
+select = ["ALL"]
 ignore = [
     # disabled by me
-    'D1','ANN1','PT009','TD002','TD003',
+    "D1","ANN1","PT009",
     # incompatibilities
-    'D203', # D211
-    'D213', # D212
+    "D203", # D211
+    "D213", # D212
     # conflicts with formatter
-    'COM812','ISC001'
+    "COM812","ISC001","Q001","Q002"
 ]
 
 [tool.ruff.lint.flake8-annotations]
 allow-star-arg-any = true
 
 [tool.ruff.lint.flake8-quotes]
-# docstring-quotes = 'single'
-inline-quotes = 'single'
-# multiline-quotes = 'single'
+docstring-quotes = "single"
+inline-quotes = "single"
+multiline-quotes = "single"
 
 [tool.ruff.lint.flake8-type-checking]
 quote-annotations = true
 
 [tool.ruff.lint.isort]
 force-single-line = true
+
+[tool.coverage.run]
+branch = true
+source = ["src", "tests"]
+
+[tool.coverage.report]
+show_missing = true
+sort = "Cover"
+skip_empty = true
+
+[tool.pdm.scripts]
+_.env = { PYTHONPATH = "src:tests" }
+lint = { composite = [
+    "ruff format .",
+    "ruff check --exit-zero .",
+    "dmypy run .",
+]}
+tests = { composite = [
+    "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests",
+    "coverage report",
+    "coverage erase"
+]}

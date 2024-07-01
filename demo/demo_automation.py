@@ -4,16 +4,17 @@ from logging import info
 from sys import argv
 
 from movsmerger.movsmerger import merge_files
-from qtpy.QtWidgets import QApplication
-from qtpy.QtWidgets import QInputDialog
-from qtpy.QtWidgets import QLineEdit
-from qtpy.QtWidgets import QWidget
+from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QInputDialog
+from PySide6.QtWidgets import QLineEdit
+from PySide6.QtWidgets import QWidget
 
 from movsviewer.automation import get_movimenti
 from movsviewer.settings import Settings
 
 
-# TODO: capire dove metterla
+# TODO @me: capire dove metterla
+# TOD000
 class AskOtp:
     def __init__(self, parent: QWidget) -> None:
         self.parent = parent
@@ -35,7 +36,8 @@ def main() -> None:
     q.show()
 
     settings = Settings(argv[1:])
-    numconto = '000091703983'  # TODO: move in settings
+    numconto = '000091703983'  # TODO @me: move in settings
+    # TOD000
     with get_movimenti(
         settings.username, settings.password, numconto, AskOtp(q)
     ) as movimenti:

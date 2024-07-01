@@ -1,10 +1,26 @@
-from os import environ
 from sys import argv
 from typing import TYPE_CHECKING
 from typing import cast
 
 from guilib.multitabs.widget import MultiTabs
 from guilib.searchsheet.widget import SearchSheet
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QItemSelection
+from PySide6.QtCore import QItemSelectionModel
+from PySide6.QtCore import Qt
+from PySide6.QtQuick import QQuickWindow
+from PySide6.QtQuick import QSGRendererInterface
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialogButtonBox
+from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QGridLayout
+from PySide6.QtWidgets import QLineEdit
+from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QPlainTextEdit
+from PySide6.QtWidgets import QToolButton
+from PySide6.QtWidgets import QWidget
 
 from movsviewer.chartview import ChartView
 from movsviewer.constants import MAINUI_UI_PATH
@@ -13,29 +29,8 @@ from movsviewer.settings import Settings
 from movsviewer.validator import Validator
 from movsviewer.viewmodel import SortFilterViewModel
 
-if 'QT_API' not in environ:
-    environ['QT_API'] = 'pyside6'
-
-from qtpy.QtCore import QCoreApplication
-from qtpy.QtCore import QItemSelection
-from qtpy.QtCore import QItemSelectionModel
-from qtpy.QtCore import Qt
-from qtpy.QtQuick import QQuickWindow
-from qtpy.QtQuick import QSGRendererInterface
-from qtpy.QtUiTools import QUiLoader
-from qtpy.QtWidgets import QApplication
-from qtpy.QtWidgets import QDialog
-from qtpy.QtWidgets import QDialogButtonBox
-from qtpy.QtWidgets import QFileDialog
-from qtpy.QtWidgets import QGridLayout
-from qtpy.QtWidgets import QLineEdit
-from qtpy.QtWidgets import QMainWindow
-from qtpy.QtWidgets import QPlainTextEdit
-from qtpy.QtWidgets import QToolButton
-from qtpy.QtWidgets import QWidget
-
 if TYPE_CHECKING:
-    from qtpy.QtGui import QAction
+    from PySide6.QtGui import QAction
 
 
 _DATA_PATHS_SEPARATOR = '; \n'

@@ -1,3 +1,5 @@
+from abc import abstractmethod
+from dataclasses import dataclass
 from datetime import UTC
 from datetime import date
 from datetime import datetime
@@ -6,7 +8,6 @@ from decimal import Decimal
 from itertools import accumulate
 from itertools import chain
 from itertools import groupby
-from os import environ
 from typing import TYPE_CHECKING
 from typing import NamedTuple
 from typing import cast
@@ -20,18 +21,14 @@ from guilib.dates.converters import date2days
 from guilib.dates.converters import date2QDateTime
 from movslib.model import ZERO
 from movslib.movs import read_txt
-
-if 'QT_API' not in environ:
-    environ['QT_API'] = 'pyside6'
-
-from qtpy.QtCharts import QBarCategoryAxis
-from qtpy.QtCharts import QBarSeries
-from qtpy.QtCharts import QBarSet
-from qtpy.QtCharts import QCategoryAxis
-from qtpy.QtCharts import QChart
-from qtpy.QtCharts import QLineSeries
-from qtpy.QtCharts import QValueAxis
-from qtpy.QtCore import Qt
+from PySide6.QtCharts import QBarCategoryAxis
+from PySide6.QtCharts import QBarSeries
+from PySide6.QtCharts import QBarSet
+from PySide6.QtCharts import QCategoryAxis
+from PySide6.QtCharts import QChart
+from PySide6.QtCharts import QLineSeries
+from PySide6.QtCharts import QValueAxis
+from PySide6.QtCore import Qt
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -41,8 +38,8 @@ if TYPE_CHECKING:
     from guilib.chartwidget.model import ColumnHeader
     from guilib.chartwidget.model import Info
     from movslib.model import Row
-    from qtpy.QtWidgets import QGraphicsSceneMouseEvent
-    from qtpy.QtWidgets import QGraphicsSceneWheelEvent
+    from PySide6.QtWidgets import QGraphicsSceneMouseEvent
+    from PySide6.QtWidgets import QGraphicsSceneWheelEvent
 
 
 class Point(NamedTuple):
@@ -252,7 +249,7 @@ class C:
 
 
 class I:  # noqa: E742
-    def __init__(self, when: 'date', columns: 'list[Column]') -> None:
+    def __init__(self, when: 'date', columns: 'Sequence[Column]') -> None:
         self.when = when
         self.columns = columns
 
@@ -266,91 +263,178 @@ class I:  # noqa: E742
 MONEY_HEADER = CH('money')
 
 
-def series_model_factory(infos: 'list[Info]') -> 'SeriesModel':
+@dataclass
+class SMFShared:
+    x_min: date
+    x_max: date
+    y_min: Decimal
+    y_max: Decimal
+
+
+class SMFHelper:
+    def __init__(self, line_series: QLineSeries, shared: SMFShared) -> None:
+        self.line_series = line_series
+        self.shared = shared
+        self.acc = 0.0
+        self.last: date | None = None
+
+    @abstractmethod
+    def step(
+        self, when: date, when_d: int, howmuch: Decimal, howmuch_f: float
+    ) -> None: ...
+
+
+class SMFMoney(SMFHelper):
+    @override
+    def __init__(self, line_series: QLineSeries, shared: SMFShared) -> None:
+        super().__init__(line_series, shared)
+        self.line_series.setName('money')
+
+    @override
+    def step(
+        self,
+        when: date,  # @UnusedVariable
+        when_d: int,
+        howmuch: Decimal,
+        howmuch_f: float,
+    ) -> None:
+        self.line_series.append(when_d, 0)
+        # TODO @me: fix hover to deal with a variable number of items in series
+        # TOD000
+        self.line_series.append(when_d, howmuch_f)
+
+        if howmuch < self.shared.y_min:
+            self.shared.y_min = howmuch
+        if self.shared.y_max < howmuch:
+            self.shared.y_max = howmuch
+
+
+class SMFMoneyAcc(SMFHelper):
+    @override
+    def __init__(self, line_series: QLineSeries, shared: SMFShared) -> None:
+        super().__init__(line_series, shared)
+        self.line_series.setName('money acc')
+
+    @override
+    def step(
+        self,
+        when: date,  # @UnusedVariable
+        when_d: int,
+        howmuch: Decimal,  # @UnusedVariable
+        howmuch_f: float,
+    ) -> None:
+        self.line_series.append(when_d, self.acc)
+        self.acc += howmuch_f
+        self.line_series.append(when_d, self.acc)
+
+        if self.acc < self.shared.y_min:
+            self.shared.y_min = Decimal(self.acc)
+        if self.shared.y_max < self.acc:
+            self.shared.y_max = Decimal(self.acc)
+
+
+class SMFMoneyByMonth(SMFHelper):
+    @override
+    def __init__(self, line_series: QLineSeries, shared: SMFShared) -> None:
+        super().__init__(line_series, shared)
+        self.line_series.setName('money by month')
+
+    @override
+    def step(
+        self,
+        when: date,
+        when_d: int,
+        howmuch: Decimal,  # @UnusedVariable
+        howmuch_f: float,
+    ) -> None:
+        # money_by_month
+        self.line_series.append(when_d, self.acc)
+        if self.last is None or self.last.month != when.month:
+            self.acc = 0.0
+        else:
+            self.acc += howmuch_f
+        self.line_series.append(when_d, self.acc)
+        self.last = when
+
+        if self.acc < self.shared.y_min:
+            self.shared.y_min = Decimal(self.acc)
+        if self.shared.y_max < self.acc:
+            self.shared.y_max = Decimal(self.acc)
+
+
+class SMFMoneyByYear(SMFHelper):
+    @override
+    def __init__(self, line_series: QLineSeries, shared: SMFShared) -> None:
+        super().__init__(line_series, shared)
+        self.line_series.setName('money by year')
+
+    @override
+    def step(
+        self,
+        when: date,
+        when_d: int,
+        howmuch: Decimal,  # @UnusedVariable
+        howmuch_f: float,
+    ) -> None:
+        # money_by_year
+        self.line_series.append(when_d, self.acc)
+        if self.last is None or self.last.year != when.year:
+            self.acc = 0.0
+        else:
+            self.acc += howmuch_f
+        self.line_series.append(when_d, self.acc)
+        self.last = when
+
+        if self.acc < self.shared.y_min:
+            self.shared.y_min = Decimal(self.acc)
+        if self.shared.y_max < self.acc:
+            self.shared.y_max = Decimal(self.acc)
+
+
+def series_model_factory(infos: 'Sequence[Info]') -> 'SeriesModel':
     """Extract money from info; accumulate and step; group by month / year."""
-    x_min = date.max
-    x_max = date.min
-    y_min = Decimal('inf')
-    y_max = -Decimal('inf')
+    shared = SMFShared(
+        x_min=date.max,
+        x_max=date.min,
+        y_min=Decimal('inf'),
+        y_max=-Decimal('inf'),
+    )
 
-    money = QLineSeries()
-    money.setName('money')
-    money_acc = QLineSeries()
-    money_acc.setName('money acc')
-    money_by_month = QLineSeries()
-    money_by_month.setName('money by month')
-    money_by_year = QLineSeries()
-    money_by_year.setName('money by year')
+    money = SMFMoney(QLineSeries(), shared)
+    money_acc = SMFMoneyAcc(QLineSeries(), shared)
+    money_by_month = SMFMoneyByMonth(QLineSeries(), shared)
+    money_by_year = SMFMoneyByYear(QLineSeries(), shared)
 
-    acc = 0.0
-    acc_by_month = 0.0
-    acc_by_year = 0.0
-    last_by_month: date | None = None
-    last_by_year: date | None = None
     for info in infos:
         when = info.when
         howmuch = info.howmuch(MONEY_HEADER)
         if howmuch is None:
             continue
 
-        if when < x_min:
-            x_min = when
-        if when > x_max:
-            x_max = when
+        if when < shared.x_min:
+            shared.x_min = when
+        if when > shared.x_max:
+            shared.x_max = when
 
         when_d = date2days(when)
         howmuch_f = float(howmuch)
 
-        # money
-        money.append(when_d, 0)
-        # TODO: fix hover to deal with a variable number of items in series
-        money.append(when_d, howmuch_f)
-        if howmuch < y_min:
-            y_min = howmuch
-        if howmuch > y_max:
-            y_max = howmuch
-
-        # money acc
-        money_acc.append(when_d, acc)
-        acc += howmuch_f
-        money_acc.append(when_d, acc)
-        if acc < y_min:
-            y_min = Decimal(acc)
-        if acc > y_max:
-            y_max = Decimal(acc)
-
-        # money_by_month
-        money_by_month.append(when_d, acc_by_month)
-        if last_by_month is None or last_by_month.month != when.month:
-            acc_by_month = 0.0
-        else:
-            acc_by_month += howmuch_f
-        money_by_month.append(when_d, acc_by_month)
-        last_by_month = when
-        if acc_by_month < y_min:
-            y_min = Decimal(acc_by_month)
-        if acc_by_month > y_max:
-            y_max = Decimal(acc_by_month)
-
-        # money_by_year
-        money_by_year.append(when_d, acc_by_year)
-        if last_by_year is None or last_by_year.year != when.year:
-            acc_by_year = 0.0
-        else:
-            acc_by_year += howmuch_f
-        money_by_year.append(when_d, acc_by_year)
-        last_by_year = when
-        if acc_by_year < y_min:
-            y_min = Decimal(acc_by_year)
-        if acc_by_year > y_max:
-            y_max = Decimal(acc_by_year)
+        money.step(when, when_d, howmuch, howmuch_f)
+        money_acc.step(when, when_d, howmuch, howmuch_f)
+        money_by_month.step(when, when_d, howmuch, howmuch_f)
+        money_by_year.step(when, when_d, howmuch, howmuch_f)
 
     return SeriesModel(
-        [money, money_acc, money_by_month, money_by_year],
-        date2QDateTime(x_min),
-        date2QDateTime(x_max),
-        float(y_min),
-        float(y_max),
+        [
+            money.line_series,
+            money_acc.line_series,
+            money_by_month.line_series,
+            money_by_year.line_series,
+        ],
+        date2QDateTime(shared.x_min),
+        date2QDateTime(shared.x_max),
+        float(shared.y_min),
+        float(shared.y_max),
         SeriesModelUnit.EURO,
     )
 
@@ -358,7 +442,8 @@ def series_model_factory(infos: 'list[Info]') -> 'SeriesModel':
 class ChartView(ChartWidget):
     def __init__(self, data_path: str) -> None:
         self.data_path = data_path
-        # TODO: there are 2 classes same name
+        # TODO @me: there are 2 classes same name
+        # TOD000
         self.model = SortFilterViewModel()
         super().__init__(self.model, None, series_model_factory, '%d/%m/%Y')
         self.setCursor(Qt.CursorShape.CrossCursor)
@@ -367,7 +452,8 @@ class ChartView(ChartWidget):
     def reload(self) -> None:
         _, data = read_txt(self.data_path)
         # convert data to infos
-        infos: 'list[Info]' = []
-        for row in sorted(data, key=lambda row: row.date):
-            infos.append(I(row.date, [C(MONEY_HEADER, row.money)]))
+        infos = [
+            I(row.date, [C(MONEY_HEADER, row.money)])
+            for row in sorted(data, key=lambda row: row.date)
+        ]
         self.model.update(infos)
