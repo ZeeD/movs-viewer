@@ -303,10 +303,8 @@ class SMFMoney(SMFHelper):
         # TOD000
         self.line_series.append(when_d, howmuch_f)
 
-        if howmuch < self.shared.y_min:
-            self.shared.y_min = howmuch
-        if self.shared.y_max < howmuch:
-            self.shared.y_max = howmuch
+        self.shared.y_min = min(howmuch, self.shared.y_min)
+        self.shared.y_max = max(self.shared.y_max, howmuch)
 
 
 class SMFMoneyAcc(SMFHelper):
@@ -411,10 +409,8 @@ def series_model_factory(infos: 'Sequence[Info]') -> 'SeriesModel':
         if howmuch is None:
             continue
 
-        if when < shared.x_min:
-            shared.x_min = when
-        if when > shared.x_max:
-            shared.x_max = when
+        shared.x_min = min(when, shared.x_min)
+        shared.x_max = max(when, shared.x_max)
 
         when_d = date2days(when)
         howmuch_f = float(howmuch)
