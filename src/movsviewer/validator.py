@@ -4,9 +4,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from movslib.movs import read_txt
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QWidget
+
+from .reader import read
 
 if TYPE_CHECKING:
     from movslib.model import KV
@@ -51,7 +52,7 @@ def validate_dates(csv: 'Rows', messages: list[str]) -> bool:
 
 def validate(fn: str, messages: list[str]) -> bool:
     messages.append(fn)
-    kv, csv = read_txt(fn, Path(fn).stem)
+    kv, csv = read(fn, Path(fn).stem)
     return all(
         [validate_saldo(kv, csv, messages), validate_dates(csv, messages)]
     )

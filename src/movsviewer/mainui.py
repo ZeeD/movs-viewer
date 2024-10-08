@@ -74,7 +74,7 @@ def new_settingsui(settings: Settings) -> Settingsui:
     settingsui.passwordLineEdit.setText(settings.password)
     _set_data_paths(settingsui.dataPaths, settings.data_paths)
 
-    settingsui.buttonBox.accepted.connect(save_settings)
+    settingsui.accepted.connect(save_settings)
     settingsui.openFileChooser.clicked.connect(open_data_paths)
 
     return settingsui
@@ -86,12 +86,44 @@ def new_mainui(settings: Settings, settingsui: Settingsui) -> QWidget:
     ]
     charts = [ChartView(data_path) for data_path in settings.data_paths]
 
+    def build_helper() -> None:
+        multi_tabs.clear()
+        for model, chart in zip(models, charts, strict=True):
+            sheet = SearchSheet(multi_tabs)
+            sheet.set_model(model)
+
+            selection_model = sheet.selection_model()
+            selection_model.selectionChanged.connect(
+                UpdateStatusBar(model, selection_model)
+            )
+
+            idx = multi_tabs.add_double_box(sheet, chart, model.name)
+            model.modelReset.connect(
+                lambda mt=multi_tabs, i=idx, m=model: mt.setTabText(i, m.name)
+            )
+
     def update_helper() -> None:
-        if validator.validate():
-            for model in models:
+        data_paths_models = set(settings.data_paths)
+        data_paths_charts = set(settings.data_paths)
+        if not validator.validate():
+            return
+        for model in models[:]:
+            if model.data_path in data_paths_models:
+                data_paths_models.remove(model.data_path)
                 model.reload()
-            for chart in charts:
+            else:
+                models.remove(model)
+        models.extend(
+            SortFilterViewModel(data_path) for data_path in data_paths_models
+        )
+        for chart in charts[:]:
+            if chart.data_path in data_paths_charts:
+                data_paths_charts.remove(chart.data_path)
                 chart.reload()
+            else:
+                charts.remove(chart)
+        charts.extend(ChartView(data_path) for data_path in data_paths_charts)
+        build_helper()
 
     class UpdateStatusBar:
         def __init__(
@@ -116,19 +148,7 @@ def new_mainui(settings: Settings, settingsui: Settingsui) -> QWidget:
     multi_tabs = MultiTabs(mainui.centralwidget)
     mainui.gridLayout.addWidget(multi_tabs, 0, 0, 1, 1)
 
-    for model, chart in zip(models, charts, strict=True):
-        sheet = SearchSheet(multi_tabs)
-        sheet.set_model(model)
-
-        selection_model = sheet.selection_model()
-        selection_model.selectionChanged.connect(
-            UpdateStatusBar(model, selection_model)
-        )
-
-        idx = multi_tabs.add_double_box(sheet, chart, model.name)
-        model.modelReset.connect(
-            lambda mt=multi_tabs, i=idx, m=model: mt.setTabText(i, m.name)
-        )
+    build_helper()
 
     mainui.actionUpdate.triggered.connect(update_helper)
     mainui.actionSettings.triggered.connect(settingsui.show)

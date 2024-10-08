@@ -20,7 +20,6 @@ from guilib.chartwidget.viewmodel import SortFilterViewModel
 from guilib.dates.converters import date2days
 from guilib.dates.converters import date2QDateTime
 from movslib.model import ZERO
-from movslib.movs import read_txt
 from PySide6.QtCharts import QBarCategoryAxis
 from PySide6.QtCharts import QBarSeries
 from PySide6.QtCharts import QBarSet
@@ -29,6 +28,8 @@ from PySide6.QtCharts import QChart
 from PySide6.QtCharts import QLineSeries
 from PySide6.QtCharts import QValueAxis
 from PySide6.QtCore import Qt
+
+from .reader import read
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -446,7 +447,7 @@ class ChartView(ChartWidget):
         self.reload()
 
     def reload(self) -> None:
-        _, data = read_txt(self.data_path)
+        _, data = read(self.data_path)
         # convert data to infos
         infos = [
             I(row.date, [C(MONEY_HEADER, row.money)])

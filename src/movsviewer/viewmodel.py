@@ -12,7 +12,6 @@ from guilib.searchsheet.model import SearchableModel
 from movslib.model import ZERO
 from movslib.model import Row
 from movslib.model import Rows
-from movslib.movs import read_txt
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtCore import QModelIndex
@@ -21,6 +20,8 @@ from PySide6.QtCore import QPersistentModelIndex
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush
 from PySide6.QtGui import QColor
+
+from .reader import read
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QStatusBar
@@ -169,7 +170,7 @@ class SortFilterViewModel(SearchableModel):
         statusbar.showMessage(f'⅀ = {bigsum}')
 
     def reload(self) -> None:
-        _, data = read_txt(self.data_path, Path(self.data_path).stem)
+        _, data = read(self.data_path, Path(self.data_path).stem)
         self.sourceModel().load(data)
 
     @property
