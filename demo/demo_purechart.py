@@ -90,4 +90,4 @@ series.attachAxis(axis_y)
 chart_view = QtCharts.QChartView(chart)
 chart_view.showMaximized()
 
-app.exec_()
+app.exec()
