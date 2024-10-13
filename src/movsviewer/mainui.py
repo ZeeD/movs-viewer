@@ -1,3 +1,4 @@
+from pathlib import Path
 from sys import argv
 from typing import TYPE_CHECKING
 from typing import cast
@@ -66,7 +67,9 @@ def new_settingsui(settings: Settings) -> Settingsui:
         settings.password = settingsui.passwordLineEdit.text()
 
     def open_data_paths() -> None:
-        file_names, _ = QFileDialog.getOpenFileNames(settingsui)
+        file_names, _ = QFileDialog.getOpenFileNames(
+            settingsui, dir=str(Path.home())
+        )
         _set_data_paths(settingsui.dataPaths, file_names)
 
     settingsui = cast(Settingsui, QUiLoader().load(SETTINGSUI_UI_PATH))
@@ -80,84 +83,99 @@ def new_settingsui(settings: Settings) -> Settingsui:
     return settingsui
 
 
-def new_mainui(settings: Settings, settingsui: Settingsui) -> QWidget:
-    models = [
-        SortFilterViewModel(data_path) for data_path in settings.data_paths
-    ]
-    charts = [ChartView(data_path) for data_path in settings.data_paths]
+class NewMainui:
+    models: list[SortFilterViewModel]
+    charts: list[ChartView]
+    multi_tabs: MultiTabs
+    settings: Settings
+    validator: Validator
 
-    def build_helper() -> None:
-        multi_tabs.clear()
-        for model, chart in zip(models, charts, strict=True):
-            sheet = SearchSheet(multi_tabs)
+    def __call__(self, settings: Settings, settingsui: Settingsui) -> QWidget:
+        self.models = [
+            SortFilterViewModel(data_path) for data_path in settings.data_paths
+        ]
+        self.charts = [
+            ChartView(data_path) for data_path in settings.data_paths
+        ]
+        self.settings = settings
+        self.mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
+
+        self.validator = Validator(self.mainui, settings)
+
+        self.multi_tabs = MultiTabs(self.mainui.centralwidget)
+        self.mainui.gridLayout.addWidget(self.multi_tabs, 0, 0, 1, 1)
+
+        self.build_helper()
+
+        self.mainui.actionUpdate.triggered.connect(self.update_helper)
+        self.mainui.actionSettings.triggered.connect(settingsui.show)
+        settingsui.accepted.connect(self.update_helper)
+
+        # on startup load
+        self.update_helper()
+
+        return self.mainui
+
+    def build_helper(self) -> None:
+        self.multi_tabs.clear()
+        for model, chart in zip(self.models, self.charts, strict=True):
+            sheet = SearchSheet(self.multi_tabs)
             sheet.set_model(model)
 
             selection_model = sheet.selection_model()
             selection_model.selectionChanged.connect(
-                UpdateStatusBar(model, selection_model)
+                self.UpdateStatusBar(model, selection_model, self.mainui)
             )
 
-            idx = multi_tabs.add_double_box(sheet, chart, model.name)
+            idx = self.multi_tabs.add_double_box(sheet, chart, model.name)
             model.modelReset.connect(
-                lambda mt=multi_tabs, i=idx, m=model: mt.setTabText(i, m.name)
+                lambda mt=self.multi_tabs, i=idx, m=model: mt.setTabText(
+                    i, m.name
+                )
             )
 
-    def update_helper() -> None:
-        data_paths_models = set(settings.data_paths)
-        data_paths_charts = set(settings.data_paths)
-        if not validator.validate():
+    def update_helper(self) -> None:
+        data_paths_models = set(self.settings.data_paths)
+        data_paths_charts = set(self.settings.data_paths)
+        if not self.validator.validate():
             return
-        for model in models[:]:
+        for model in self.models[:]:
             if model.data_path in data_paths_models:
                 data_paths_models.remove(model.data_path)
                 model.reload()
             else:
-                models.remove(model)
-        models.extend(
+                self.models.remove(model)
+        self.models.extend(
             SortFilterViewModel(data_path) for data_path in data_paths_models
         )
-        for chart in charts[:]:
+        for chart in self.charts[:]:
             if chart.data_path in data_paths_charts:
                 data_paths_charts.remove(chart.data_path)
                 chart.reload()
             else:
-                charts.remove(chart)
-        charts.extend(ChartView(data_path) for data_path in data_paths_charts)
-        build_helper()
+                self.charts.remove(chart)
+        self.charts.extend(
+            ChartView(data_path) for data_path in data_paths_charts
+        )
+        self.build_helper()
 
     class UpdateStatusBar:
         def __init__(
             self,
             model: SortFilterViewModel,
             selection_model: QItemSelectionModel,
+            mainui: Mainui,
         ) -> None:
             self.model = model
             self.selection_model = selection_model
+            self.mainui = mainui
 
         def __call__(
             self, _selected: QItemSelection, _deselected: QItemSelection
         ) -> None:
             self.model.selection_changed(
-                self.selection_model, mainui.statusBar()
+                self.selection_model, self.mainui.statusBar()
             )
-
-    mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
-
-    validator = Validator(mainui, settings)
-
-    multi_tabs = MultiTabs(mainui.centralwidget)
-    mainui.gridLayout.addWidget(multi_tabs, 0, 0, 1, 1)
-
-    build_helper()
-
-    mainui.actionUpdate.triggered.connect(update_helper)
-    mainui.actionSettings.triggered.connect(settingsui.show)
-    settingsui.accepted.connect(update_helper)
-
-    # on startup load
-    update_helper()
-
-    return mainui
 
 
 def main() -> None:
@@ -171,6 +189,7 @@ def main() -> None:
     app = QApplication(argv)
     settings = Settings(argv[1:])
     settingsui = new_settingsui(settings)
+    new_mainui = NewMainui()
     mainui = new_mainui(settings, settingsui)
 
     mainui.show()
