@@ -31,6 +31,8 @@ from movsviewer.validator import Validator
 from movsviewer.viewmodel import SortFilterViewModel
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from PySide6.QtGui import QAction
 
 
@@ -105,8 +107,6 @@ class NewMainui:
         self.multi_tabs = MultiTabs(self.mainui.centralwidget)
         self.mainui.gridLayout.addWidget(self.multi_tabs, 0, 0, 1, 1)
 
-        self.build_helper()
-
         self.mainui.actionUpdate.triggered.connect(self.update_helper)
         self.mainui.actionSettings.triggered.connect(settingsui.show)
         settingsui.accepted.connect(self.update_helper)
@@ -115,24 +115,6 @@ class NewMainui:
         self.update_helper()
 
         return self.mainui
-
-    def build_helper(self) -> None:
-        self.multi_tabs.clear()
-        for model, chart in zip(self.models, self.charts, strict=True):
-            sheet = SearchSheet(self.multi_tabs)
-            sheet.set_model(model)
-
-            selection_model = sheet.selection_model()
-            selection_model.selectionChanged.connect(
-                self.UpdateStatusBar(model, selection_model, self.mainui)
-            )
-
-            idx = self.multi_tabs.add_double_box(sheet, chart, model.name)
-            model.modelReset.connect(
-                lambda mt=self.multi_tabs, i=idx, m=model: mt.setTabText(
-                    i, m.name
-                )
-            )
 
     def update_helper(self) -> None:
         data_paths_models = set(self.settings.data_paths)
@@ -157,25 +139,33 @@ class NewMainui:
         self.charts.extend(
             ChartView(data_path) for data_path in data_paths_charts
         )
-        self.build_helper()
+        self.multi_tabs.clear()
+        for model, chart in zip(self.models, self.charts, strict=True):
+            sheet = SearchSheet(self.multi_tabs)
+            sheet.set_model(model)
 
-    class UpdateStatusBar:
-        def __init__(
-            self,
-            model: SortFilterViewModel,
-            selection_model: QItemSelectionModel,
-            mainui: Mainui,
-        ) -> None:
-            self.model = model
-            self.selection_model = selection_model
-            self.mainui = mainui
-
-        def __call__(
-            self, _selected: QItemSelection, _deselected: QItemSelection
-        ) -> None:
-            self.model.selection_changed(
-                self.selection_model, self.mainui.statusBar()
+            selection_model = sheet.selection_model()
+            selection_model.selectionChanged.connect(
+                self.update_status_bar(model, selection_model)
             )
+
+            idx = self.multi_tabs.add_double_box(sheet, chart, model.name)
+
+            def on_model_reset(
+                mt: MultiTabs = self.multi_tabs,
+                i: int = idx,
+                m: SortFilterViewModel = model,
+            ) -> None:
+                return mt.setTabText(i, m.name)
+
+            model.modelReset.connect(on_model_reset)
+
+    def update_status_bar(
+        self, model: SortFilterViewModel, selection_model: QItemSelectionModel
+    ) -> 'Callable[[QItemSelection, QItemSelection], None]':
+        return lambda _selected, _deselected: model.selection_changed(
+            selection_model, self.mainui.statusBar()
+        )
 
 
 def main() -> None:
