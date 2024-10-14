@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QWidget
 
-from .reader import read
+from movsviewer.reader import read
 
 if TYPE_CHECKING:
     from movslib.model import KV

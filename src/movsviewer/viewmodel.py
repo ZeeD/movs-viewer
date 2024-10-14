@@ -21,7 +21,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush
 from PySide6.QtGui import QColor
 
-from .reader import read
+from movsviewer.reader import read
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QStatusBar

@@ -29,7 +29,7 @@ from PySide6.QtCharts import QLineSeries
 from PySide6.QtCharts import QValueAxis
 from PySide6.QtCore import Qt
 
-from .reader import read
+from movsviewer.reader import read
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

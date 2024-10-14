@@ -1,8 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFrame
 
-from .scale_div import QwtScaleDiv
-from .scale_draw import QwtScaleDraw
+from qwt.scale_div import QwtScaleDiv
+from qwt.scale_draw import QwtScaleDraw
 
 class QwtPlot(QFrame):
     xBottom: int  # noqa: N815
