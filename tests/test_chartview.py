@@ -1,17 +1,18 @@
 from datetime import date
 from decimal import Decimal
 from typing import Final
+from unittest.case import TestCase
 
 from movslib.model import KV
 from movslib.model import ZERO
 from movslib.model import Row
 
-from _support.basetest import BaseTest
-from _support.tmp_txt import tmp_txt
+from _support.tmpapp import tmp_app
+from _support.tmptxt import tmp_txt
 from movsviewer.chartview import ChartView
 
 
-class TestChartView(BaseTest):
+class TestChartView(TestCase):
     kv: Final = KV(
         da=None,
         a=None,
@@ -34,6 +35,5 @@ class TestChartView(BaseTest):
     ]
 
     def test_chart_view(self) -> None:
-        with tmp_txt(self.kv, self.csv) as data_path:
-            chart_view = ChartView(data_path)
-        self.widgets.append(chart_view)
+        with tmp_app() as widgets, tmp_txt(self.kv, self.csv) as data_path:
+            widgets.append(ChartView(data_path))
