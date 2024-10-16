@@ -30,3 +30,4 @@ def tmp_app() -> 'Iterator[list[QWidget]]':
         for widget in widgets:
             widget.show()
         app.exec()
+        app.shutdown()

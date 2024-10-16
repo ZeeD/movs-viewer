@@ -5,6 +5,7 @@ from operator import iadd
 from operator import isub
 from pathlib import Path
 from typing import TYPE_CHECKING
+from typing import Self
 from typing import cast
 from typing import override
 
@@ -143,6 +144,7 @@ class SortFilterViewModel(SearchableModel):
     def __init__(self, data_path: str) -> None:
         super().__init__(ViewModel(Rows('')))
         self.data_path = data_path
+        self.reload()
 
     @override
     def sourceModel(self) -> ViewModel:
@@ -169,9 +171,10 @@ class SortFilterViewModel(SearchableModel):
 
         statusbar.showMessage(f'⅀ = {bigsum}')
 
-    def reload(self) -> None:
+    def reload(self) -> Self:
         _, data = read(self.data_path, Path(self.data_path).stem)
         self.sourceModel().load(data)
+        return self
 
     @property
     def name(self) -> str:

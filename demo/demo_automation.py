@@ -13,8 +13,6 @@ from movsviewer.automation import get_movimenti
 from movsviewer.settings import Settings
 
 
-# TODO @me: capire dove metterla
-# TOD000
 class AskOtp:
     def __init__(self, parent: QWidget) -> None:
         self.parent = parent
@@ -36,8 +34,7 @@ def main() -> None:
     q.show()
 
     settings = Settings(argv[1:])
-    numconto = '000091703983'  # TODO @me: move in settings
-    # TOD000
+    numconto = '000091703983'
     with get_movimenti(
         settings.username, settings.password, numconto, AskOtp(q)
     ) as movimenti:

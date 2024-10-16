@@ -14,7 +14,7 @@ dependencies = [
     "guilib @ file:///home/zed/eclipse-workspace/guilib",
     "movs-merger @ file:///home/zed/eclipse-workspace/movs-merger",
     "movslib>=0.0.1",
-    "pyside6!=6.8,>=6.7",
+    "pyside6!=6.8,!=6.8.0.1,>=6.7",
     "pythonqwt>=0.12.5",
     "selenium>=4.22",
 ]

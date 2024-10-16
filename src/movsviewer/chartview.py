@@ -10,6 +10,7 @@ from itertools import chain
 from itertools import groupby
 from typing import TYPE_CHECKING
 from typing import NamedTuple
+from typing import Self
 from typing import cast
 from typing import override
 
@@ -446,7 +447,7 @@ class ChartView(ChartWidget):
         self.setCursor(Qt.CursorShape.CrossCursor)
         self.reload()
 
-    def reload(self) -> None:
+    def reload(self) -> Self:
         _, data = read(self.data_path)
         # convert data to infos
         infos = [
@@ -454,3 +455,4 @@ class ChartView(ChartWidget):
             for row in sorted(data, key=lambda row: row.date)
         ]
         self.model.update(infos)
+        return self

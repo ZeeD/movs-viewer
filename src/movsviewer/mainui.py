@@ -1,6 +1,7 @@
 from pathlib import Path
 from sys import argv
 from typing import TYPE_CHECKING
+from typing import Final
 from typing import cast
 
 from guilib.multitabs.widget import MultiTabs
@@ -86,23 +87,15 @@ def new_settingsui(settings: Settings) -> Settingsui:
 
 
 class NewMainui:
-    models: list[SortFilterViewModel]
-    charts: list[ChartView]
-    multi_tabs: MultiTabs
+    sheets_charts: Final[dict[str, tuple[SearchSheet, ChartView, int]]] = {}
+
     settings: Settings
-    validator: Validator
+    mainui: Mainui
+    multi_tabs: MultiTabs
 
     def __call__(self, settings: Settings, settingsui: Settingsui) -> QWidget:
-        self.models = [
-            SortFilterViewModel(data_path) for data_path in settings.data_paths
-        ]
-        self.charts = [
-            ChartView(data_path) for data_path in settings.data_paths
-        ]
         self.settings = settings
         self.mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
-
-        self.validator = Validator(self.mainui, settings)
 
         self.multi_tabs = MultiTabs(self.mainui.centralwidget)
         self.mainui.gridLayout.addWidget(self.multi_tabs, 0, 0, 1, 1)
@@ -111,54 +104,40 @@ class NewMainui:
         self.mainui.actionSettings.triggered.connect(settingsui.show)
         settingsui.accepted.connect(self.update_helper)
 
-        # on startup load
-        self.update_helper()
+        self.update_helper()  # on startup load
 
         return self.mainui
 
-    def update_helper(self) -> None:
-        data_paths_models = set(self.settings.data_paths)
-        data_paths_charts = set(self.settings.data_paths)
-        if not self.validator.validate():
-            return
-        for model in self.models[:]:
-            if model.data_path in data_paths_models:
-                data_paths_models.remove(model.data_path)
-                model.reload()
-            else:
-                self.models.remove(model)
-        self.models.extend(
-            SortFilterViewModel(data_path) for data_path in data_paths_models
+    def new_search_sheet(
+        self, data_path: str
+    ) -> tuple[SearchSheet, SortFilterViewModel]:
+        model = SortFilterViewModel(data_path)
+        sheet = SearchSheet(None)
+        sheet.set_model(model)
+        selection_model = sheet.selection_model()
+        selection_model.selectionChanged.connect(
+            self.update_status_bar(model, selection_model)
         )
-        for chart in self.charts[:]:
-            if chart.data_path in data_paths_charts:
-                data_paths_charts.remove(chart.data_path)
+        return sheet, model
+
+    def update_helper(self) -> None:
+        if not Validator(self.mainui, self.settings).validate():
+            return
+
+        data_paths = self.settings.data_paths[:]
+        for data_path, (sheet, chart, idx) in self.sheets_charts.items():
+            if data_path in data_paths:
+                data_paths.remove(data_path)
+                sheet.reload()
                 chart.reload()
             else:
-                self.charts.remove(chart)
-        self.charts.extend(
-            ChartView(data_path) for data_path in data_paths_charts
-        )
-        self.multi_tabs.clear()
-        for model, chart in zip(self.models, self.charts, strict=True):
-            sheet = SearchSheet(self.multi_tabs)
-            sheet.set_model(model)
-
-            selection_model = sheet.selection_model()
-            selection_model.selectionChanged.connect(
-                self.update_status_bar(model, selection_model)
-            )
-
+                self.multi_tabs.remove_double_box(idx)
+                del self.sheets_charts[data_path]
+        for data_path in data_paths:
+            sheet, model = self.new_search_sheet(data_path)
+            chart = ChartView(data_path)
             idx = self.multi_tabs.add_double_box(sheet, chart, model.name)
-
-            def on_model_reset(
-                mt: MultiTabs = self.multi_tabs,
-                i: int = idx,
-                m: SortFilterViewModel = model,
-            ) -> None:
-                return mt.setTabText(i, m.name)
-
-            model.modelReset.connect(on_model_reset)
+            self.sheets_charts[data_path] = (sheet, chart, idx)
 
     def update_status_bar(
         self, model: SortFilterViewModel, selection_model: QItemSelectionModel
