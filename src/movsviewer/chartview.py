@@ -437,11 +437,9 @@ def series_model_factory(infos: 'Sequence[Info]') -> 'SeriesModel':
     )
 
 
-class ChartView(ChartWidget):
+class ChartWidgetWrapper(ChartWidget):
     def __init__(self, data_path: str) -> None:
         self.data_path = data_path
-        # TODO @me: there are 2 classes same name
-        # TOD000
         self.model = SortFilterViewModel()
         super().__init__(self.model, None, series_model_factory, '%d/%m/%Y')
         self.setCursor(Qt.CursorShape.CrossCursor)

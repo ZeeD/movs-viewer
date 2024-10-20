@@ -24,7 +24,7 @@ from PySide6.QtWidgets import QPlainTextEdit
 from PySide6.QtWidgets import QToolButton
 from PySide6.QtWidgets import QWidget
 
-from movsviewer.chartview import ChartView
+from movsviewer.chartview import ChartWidgetWrapper
 from movsviewer.constants import MAINUI_UI_PATH
 from movsviewer.constants import SETTINGSUI_UI_PATH
 from movsviewer.settings import Settings
@@ -87,7 +87,9 @@ def new_settingsui(settings: Settings) -> Settingsui:
 
 
 class NewMainui:
-    sheets_charts: Final[dict[str, tuple[SearchSheet, ChartView, int]]] = {}
+    sheets_charts: Final[
+        dict[str, tuple[SearchSheet, ChartWidgetWrapper, int]]
+    ] = {}
 
     settings: Settings
     mainui: Mainui
@@ -135,7 +137,7 @@ class NewMainui:
                 del self.sheets_charts[data_path]
         for data_path in data_paths:
             sheet, model = self.new_search_sheet(data_path)
-            chart = ChartView(data_path)
+            chart = ChartWidgetWrapper(data_path)
             idx = self.multi_tabs.add_double_box(sheet, chart, model.name)
             self.sheets_charts[data_path] = (sheet, chart, idx)
 

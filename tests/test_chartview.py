@@ -9,7 +9,7 @@ from movslib.model import Row
 
 from _support.tmpapp import tmp_app
 from _support.tmptxt import tmp_txt
-from movsviewer.chartview import ChartView
+from movsviewer.chartview import ChartWidgetWrapper
 
 
 class TestChartView(TestCase):
@@ -36,4 +36,4 @@ class TestChartView(TestCase):
 
     def test_chart_view(self) -> None:
         with tmp_app() as widgets, tmp_txt(self.kv, self.csv) as data_path:
-            widgets.append(ChartView(data_path))
+            widgets.append(ChartWidgetWrapper(data_path))
