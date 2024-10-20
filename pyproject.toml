@@ -3,7 +3,7 @@ build-backend = "pdm.backend"
 requires = [ "pdm-backend" ]
 
 [project]
-name = "movs-viewer"
+name = "zeed-movs-viewer"
 version = "0.0.0"
 requires-python = "==3.12.*"
 classifiers = [
@@ -11,18 +11,12 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "guilib @ file:///home/zed/eclipse-workspace/guilib",
-    "movs-merger @ file:///home/zed/eclipse-workspace/movs-merger",
-    "movslib>=0.0.1",
     "pyside6!=6.8,!=6.8.0.1,>=6.7",
     "pythonqwt>=0.12.5",
     "selenium>=4.22",
-]
-optional-dependencies.dev = [
-    "coverage>=7.6.1",
-    "mypy>=1.11.2",
-    "pyproject-fmt>=2.2.4",
-    "ruff>=0.6.9",
+    "zeed-guilib>=0.0.2",
+    "zeed-movs-merger>=0",
+    "zeed-movslib>=0.0.2",
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-viewer"
 urls.Repository = "https://github.com/ZeeD/movs-viewer.git"
@@ -30,6 +24,15 @@ gui-scripts.movs-viewer = "movsviewer.mainui:main"
 
 [tool.pdm]
 distribution = true
+plugins = [ "pdm-version" ]
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "coverage>=7.6.1",
+    "mypy>=1.11.2",
+    "pyproject-fmt>=2.2.4",
+    "ruff>=0.6.9",
+]
 
 [tool.pdm.scripts]
 _.env = { PYTHONPATH = "src:tests" }
@@ -62,6 +65,7 @@ lint.ignore = [
     "D213",   # incompatible with D212
     "ISC001", # conflicts with formatter
     "PT009",  # disabled by me
+    "PT027",  # disabled by me
     "Q001",   # conflicts with formatter
     "Q002",   # conflicts with formatter
 ]

@@ -10,6 +10,7 @@
 /.ruff_cache/
 /.settings/
 /.venv/
+/dist/
 
 /*/*.egg-info/
 /**/__pycache__/
