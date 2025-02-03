@@ -12,28 +12,28 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "pyside6!=6.8,!=6.8.0.1,>=6.7",
+    "pyside6>=6.8.2",
     "pythonqwt>=0.12.5",
     "selenium>=4.22",
-    "zeed-guilib>=0.0.2",
-    "zeed-movs-merger>=0",
-    "zeed-movslib>=0.0.2",
+    "zeed-guilib>=0.0.4",
+    "zeed-movs-merger>=0.0.1",
+    "zeed-movslib>=0.0.3",
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-viewer"
 urls.Repository = "https://github.com/ZeeD/movs-viewer.git"
 gui-scripts.movs-viewer = "movsviewer.mainui:main"
 
-[tool.pdm]
-distribution = true
-plugins = [ "pdm-version" ]
-
-[tool.pdm.dev-dependencies]
+[dependency-groups]
 dev = [
     "coverage>=7.6.1",
     "mypy>=1.11.2",
-    "pyproject-fmt>=2.2.4",
+    "pyproject-fmt>=2.5",
     "ruff>=0.6.9",
 ]
+
+[tool.pdm]
+distribution = true
+plugins = [ "pdm-version" ]
 
 [tool.pdm.scripts]
 _.env = { PYTHONPATH = "src:tests" }

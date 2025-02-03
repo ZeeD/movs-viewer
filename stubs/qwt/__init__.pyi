@@ -22,7 +22,7 @@ class QwtPlotCurve:
     Steps: int
 
     @classmethod
-    def make(  # noqa: PLR0913
+    def make(
         cls,
         xdata: list[float] | None = None,
         ydata: list[float] | None = None,
@@ -36,14 +36,14 @@ class QwtPlotCurve:
         linecolor: Qt.GlobalColor | None = None,
         linewidth: float | None = None,
         linestyle: None = None,
-        antialiased: bool = False,  # noqa: FBT001, FBT002
+        antialiased: bool = False,
         size: None = None,
         finite: None = None,
     ) -> QwtPlotCurve: ...
 
 class QwtPlotGrid:
     @classmethod
-    def make(  # noqa: PLR0913
+    def make(
         cls,
         plot: QwtPlot | None = None,
         z: None = None,

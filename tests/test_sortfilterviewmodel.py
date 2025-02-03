@@ -50,11 +50,17 @@ class TestSortFilterViewModel(TestCase):
             m_guilib = SFVMguilib()
             m_guilib.update(
                 [
-                    I(row.date, [
-                        C(CH('addebiti'), row.addebiti),
-                        C(CH('accrediti'), row.accrediti),
-                        C(CH('descrizione_operazioni'), row.descrizione_operazioni),
-                    ])
+                    I(
+                        row.date,
+                        [
+                            C(CH('addebiti'), row.addebiti),
+                            C(CH('accrediti'), row.accrediti),
+                            C(
+                                CH('descrizione_operazioni'),
+                                row.descrizione_operazioni,
+                            ),
+                        ],
+                    )
                     for row in self.csv
                 ]
             )
