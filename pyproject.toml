@@ -17,6 +17,7 @@ dependencies = [
     "selenium>=4.22",
     "zeed-guilib>=0.0.4",
     "zeed-movs-merger>=0.0.1",
+    "zeed-movs-validator>=0.0.1",
     "zeed-movslib>=0.0.3",
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-viewer"
