@@ -96,7 +96,7 @@ class ViewModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.BackgroundRole:
             max_, min_, val = self._max, self._min, _abs(self._data[row])
             perc = (
-                (val - min_) / (max_ - min_) if max_ != min_ else Decimal(0.5)
+                (val - min_) / (max_ - min_) if max_ != min_ else Decimal('0.5')
             )
 
             hue = int(perc * 120)  # 0..359 ; red=0, green=120
