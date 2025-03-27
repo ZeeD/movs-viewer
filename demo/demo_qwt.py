@@ -14,9 +14,9 @@ from movslib.movs import read_txt
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
-from qwt import QwtPlot
-from qwt import QwtPlotCurve
-from qwt import QwtPlotGrid
+from qwt.plot import QwtPlot
+from qwt.plot_curve import QwtPlotCurve
+from qwt.plot_grid import QwtPlotGrid
 from qwt.scale_div import QwtScaleDiv
 from qwt.scale_draw import QwtScaleDraw
 
@@ -112,6 +112,8 @@ class SD(QwtScaleDraw):
 
 def qwtmain(*rowss: 'Rows') -> QwtPlot:
     plot = QwtPlot()
+    plot.setCanvasBackground(Qt.GlobalColor.white)
+    QwtPlotGrid.make(plot, enableminor=(False, True))
 
     min_xdata: float | None = None
     max_xdata: float | None = None

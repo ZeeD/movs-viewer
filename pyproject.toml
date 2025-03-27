@@ -40,15 +40,15 @@ plugins = [ "pdm-bump" ]
 excludes = [ "tests" ]
 
 [tool.pdm.scripts]
-_.env = { PYTHONPATH = "src:tests" }
+_.env = { PYTHONPATH = "src:tests:demo:stubs" }
 lint = { composite = [
     "pyproject-fmt pyproject.toml",
-    "ruff format .",
-    "ruff check .",
-    "mypy .",
+    "ruff format {args:.}",
+    "ruff check {args:.}",
+    "mypy {args:.}",
 ], keep_going = true }
 tests = { composite = [
-    "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests",
+    "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests {args}",
     "coverage report",
     "coverage erase",
 ] }
@@ -81,6 +81,14 @@ lint.ignore = [
     "TD002",
     "TD003",
 ]
+lint.extend-per-file-ignores."stubs/**/*.pyi" = [
+    "FBT001",
+    "FBT002",
+    "N802",
+    "N803",
+    "N815",
+    "PLR0913",
+]
 lint.flake8-annotations.allow-star-arg-any = true
 lint.flake8-quotes.docstring-quotes = "single"
 lint.flake8-quotes.inline-quotes = "single"
@@ -107,5 +115,5 @@ strict = true
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
-module = "movsviewer.automation"
+module = [ "movsviewer.automation" ]
 disable_error_code = "no-untyped-call"
