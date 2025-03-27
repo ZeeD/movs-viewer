@@ -3,11 +3,13 @@ from datetime import date
 from itertools import accumulate
 from logging import INFO
 from logging import basicConfig
-from logging import info
+from logging import getLogger
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+logger = getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -32,7 +34,7 @@ def main() -> None:
             DC(date(2021, 1, 3), 2),
         ]
     ):
-        info(e)
+        logger.info(e)
 
 
 if __name__ == '__main__':

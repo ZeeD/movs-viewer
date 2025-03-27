@@ -57,7 +57,7 @@ class TestSortFilterViewModel(TestCase):
                             C(CH('accrediti'), row.accrediti),
                             C(
                                 CH('descrizione_operazioni'),
-                                row.descrizione_operazioni,
+                                row.descrizione_operazioni,  # type: ignore[arg-type]
                             ),
                         ],
                     )

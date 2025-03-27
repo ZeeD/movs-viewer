@@ -75,7 +75,7 @@ def new_settingsui(settings: Settings) -> Settingsui:
         )
         _set_data_paths(settingsui.dataPaths, file_names)
 
-    settingsui = cast(Settingsui, QUiLoader().load(SETTINGSUI_UI_PATH))
+    settingsui = cast('Settingsui', QUiLoader().load(SETTINGSUI_UI_PATH))
     settingsui.usernameLineEdit.setText(settings.username)
     settingsui.passwordLineEdit.setText(settings.password)
     _set_data_paths(settingsui.dataPaths, settings.data_paths)
@@ -97,7 +97,7 @@ class NewMainui:
 
     def __call__(self, settings: Settings, settingsui: Settingsui) -> QWidget:
         self.settings = settings
-        self.mainui = cast(Mainui, QUiLoader().load(MAINUI_UI_PATH))
+        self.mainui = cast('Mainui', QUiLoader().load(MAINUI_UI_PATH))
 
         self.multi_tabs = MultiTabs(self.mainui.centralwidget)
         self.mainui.gridLayout.addWidget(self.multi_tabs, 0, 0, 1, 1)

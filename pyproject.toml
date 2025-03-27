@@ -34,22 +34,30 @@ dev = [
 
 [tool.pdm]
 distribution = true
-plugins = [ "pdm-version" ]
+plugins = [ "pdm-bump" ]
+
+[tool.pdm.build]
+excludes = [ "tests" ]
 
 [tool.pdm.scripts]
 _.env = { PYTHONPATH = "src:tests" }
 lint = { composite = [
     "pyproject-fmt pyproject.toml",
     "ruff format .",
-    "ruff check --exit-zero .",
-    "dmypy run .",
-] }
+    "ruff check .",
+    "mypy .",
+], keep_going = true }
 tests = { composite = [
     "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests",
     "coverage report",
     "coverage erase",
 ] }
-start = "movs-viewer"
+start = { call = "movsviewer.mainui:main" }
+bump_and_publish = { composite = [
+    "pdm bump patch --commit --tag",
+    "pdm publish",
+    "git push",
+] }
 
 [tool.ruff]
 line-length = 80
@@ -60,16 +68,18 @@ format.skip-magic-trailing-comma = true
 format.docstring-code-format = true
 lint.select = [ "ALL" ]
 lint.ignore = [
-    "ANN1",   # disabled by me
-    "COM812", # conflicts with formatter
-    "D1",     # disabled by me
-    "D203",   # incompatible with D211
-    "D213",   # incompatible with D212
-    "ISC001", # conflicts with formatter
-    "PT009",  # disabled by me
-    "PT027",  # disabled by me
-    "Q001",   # conflicts with formatter
-    "Q002",   # conflicts with formatter
+    "ANN1",
+    "COM812",
+    "D1",
+    "D203",
+    "D213",
+    "ISC001",
+    "PT009",
+    "PT027",
+    "Q001",
+    "Q002",
+    "TD002",
+    "TD003",
 ]
 lint.flake8-annotations.allow-star-arg-any = true
 lint.flake8-quotes.docstring-quotes = "single"

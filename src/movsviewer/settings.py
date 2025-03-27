@@ -15,7 +15,7 @@ class Settings:
     @property
     def username(self) -> str:
         value = self.settings.value(SETTINGS_USERNAME)
-        return cast(str, value) if value is not None else ''
+        return cast('str', value) if value is not None else ''
 
     @username.setter
     def username(self, username: str) -> None:
@@ -24,7 +24,7 @@ class Settings:
     @property
     def password(self) -> str:
         value = self.settings.value(SETTINGS_PASSWORD)
-        return cast(str, value) if value is not None else ''
+        return cast('str', value) if value is not None else ''
 
     @password.setter
     def password(self, password: str) -> None:

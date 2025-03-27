@@ -106,7 +106,9 @@ class ViewModel(QAbstractTableModel):
             return QBrush(QColor.fromHsl(hue, saturation, lightness))
 
         if role == Qt.ItemDataRole.UserRole:
-            return cast(T_FIELDS, getattr(self._data[row], FIELD_NAMES[column]))
+            return cast(
+                'T_FIELDS', getattr(self._data[row], FIELD_NAMES[column])
+            )
 
         return None
 
@@ -148,7 +150,7 @@ class SortFilterViewModel(SearchableModel):
 
     @override
     def sourceModel(self) -> ViewModel:
-        return cast(ViewModel, super().sourceModel())
+        return cast('ViewModel', super().sourceModel())
 
     @override
     def sort(

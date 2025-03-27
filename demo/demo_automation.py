@@ -1,6 +1,6 @@
 from logging import INFO
 from logging import basicConfig
-from logging import info
+from logging import getLogger
 from sys import argv
 
 from movsmerger.movsmerger import merge_files
@@ -11,6 +11,8 @@ from PySide6.QtWidgets import QWidget
 
 from movsviewer.automation import get_movimenti
 from movsviewer.settings import Settings
+
+logger = getLogger(__name__)
 
 
 class AskOtp:
@@ -38,7 +40,7 @@ def main() -> None:
     with get_movimenti(
         settings.username, settings.password, numconto, AskOtp(q)
     ) as movimenti:
-        info(movimenti)
+        logger.info(movimenti)
         merge_files(settings.data_paths[0], str(movimenti))
     raise SystemExit(app.exec())
 

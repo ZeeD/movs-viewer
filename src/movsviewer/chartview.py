@@ -226,8 +226,8 @@ class Chart(QChart):
     def mouseMoveEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         super().mouseMoveEvent(event)
 
-        x_curr, y_curr = cast(tuple[float, float], event.pos().toTuple())
-        x_prev, y_prev = cast(tuple[float, float], event.lastPos().toTuple())
+        x_curr, y_curr = cast('tuple[float, float]', event.pos().toTuple())
+        x_prev, y_prev = cast('tuple[float, float]', event.lastPos().toTuple())
         self.scroll(x_prev - x_curr, y_curr - y_prev)
 
 
@@ -301,8 +301,7 @@ class SMFMoney(SMFHelper):
         howmuch_f: float,
     ) -> None:
         self.line_series.append(when_d, 0)
-        # TODO @me: fix hover to deal with a variable number of items in series
-        # TOD000
+        # TODO: fix hover to deal with a variable number of items in series
         self.line_series.append(when_d, howmuch_f)
 
         self.shared.y_min = min(howmuch, self.shared.y_min)

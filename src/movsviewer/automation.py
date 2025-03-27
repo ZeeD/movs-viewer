@@ -1,6 +1,5 @@
 from contextlib import contextmanager
-from logging import info
-from os import listdir
+from logging import getLogger
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
@@ -33,6 +32,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from selenium.webdriver.remote.webdriver import WebDriver
+
+logger = getLogger(__name__)
 
 
 def get_options(dtemp: str) -> Options:
@@ -123,9 +124,11 @@ def get_movimenti(
         _c(wait, '#select>option[value=TESTO]')
         Select(_p(wait, '#select')).select_by_value('TESTO')
 
-        info('prima: %s', listdir(dtemp))
+        pdtemp = Path(dtemp)
+
+        logger.info('prima: %s', list(pdtemp.iterdir()))
         _c(wait, '#downloadApi').click()
         _i(wait, '.waiting')
-        info('dopo:  %s', listdir(dtemp))
+        logger.info('dopo:  %s', list(pdtemp.iterdir()))
 
-        yield Path(dtemp) / 'ListaMovimenti.txt'
+        yield pdtemp / 'ListaMovimenti.txt'
