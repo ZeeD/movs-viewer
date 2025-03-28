@@ -1,7 +1,5 @@
-from datetime import UTC
+from collections import defaultdict
 from datetime import date
-from datetime import datetime
-from datetime import time
 from datetime import timedelta
 from itertools import accumulate
 from itertools import cycle
@@ -12,6 +10,13 @@ from typing import TYPE_CHECKING
 from typing import cast
 from typing import override
 
+from guilib.chartslider.chartslider import ChartSlider
+from guilib.chartwidget.viewmodel import SortFilterViewModel
+from guilib.dates.converters import date2days
+from guilib.dates.converters import days2date
+from guilib.dates.generators import days
+from guilib.dates.generators import months
+from guilib.dates.generators import years
 from movslib.movs import read_txt
 from PySide6.QtCore import QSize
 from PySide6.QtCore import Qt
@@ -20,8 +25,12 @@ from PySide6.QtGui import QBrush
 from PySide6.QtGui import QFont
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QWidget
 
+from movsviewer.chartview import CH
+from movsviewer.chartview import C
+from movsviewer.chartview import I
 from qwt.legend import QwtLegend
 from qwt.plot import QwtPlot
 from qwt.plot_curve import QwtPlotCurve
@@ -58,81 +67,23 @@ def linecolors() -> 'Iterable[Qt.GlobalColor]':
     return cycle(filter(lambda c: c not in excluded, Qt.GlobalColor))
 
 
-def acc(rows: 'Rows') -> 'Iterable[tuple[date, Decimal]]':
-    def func(a: 'tuple[date, Decimal]', b: 'Row') -> 'tuple[date, Decimal]':
-        return (b.date, a[1] + b.money)
-
-    it = iter(sorted(rows, key=attrgetter('date')))
-    head = next(it)
-    return accumulate(it, func, initial=(head.date, head.money))
-
-
-def days(min_xdata: float, max_xdata: float) -> list[float]:
-    lower = datetime.fromtimestamp(min_xdata, tz=UTC).date()
-    upper = datetime.fromtimestamp(max_xdata, tz=UTC).date()
-
-    def it() -> 'Iterable[float]':
-        when = lower
-        while when < upper:
-            yield datetime.combine(when, time()).timestamp()
-            when += timedelta(days=1)
-
-    return list(it())
-
-
-def months(min_xdata: float, max_xdata: float) -> list[float]:
-    lower = datetime.fromtimestamp(min_xdata, tz=UTC).date()
-    upper = datetime.fromtimestamp(max_xdata, tz=UTC).date()
-
-    ly, lm = (lower.year, lower.month)
-    uy, um = (upper.year, upper.month)
-
-    def it() -> 'Iterable[float]':
-        wy, wm = ly, lm
-        while (wy, wm) < (uy, um):
-            yield datetime.combine(date(wy, wm, 1), time()).timestamp()
-            ml = 12
-            if wm < ml:
-                wm += 1
-            else:
-                wy += 1
-                wm = 1
-
-    return list(it())
-
-
-def years(min_xdata: float, max_xdata: float) -> list[float]:
-    lower = datetime.fromtimestamp(min_xdata, tz=UTC).year
-    upper = datetime.fromtimestamp(max_xdata, tz=UTC).year
-
-    def it() -> 'Iterable[float]':
-        when = lower
-        while when < upper:
-            yield datetime.combine(date(when, 1, 1), time()).timestamp()
-            when += 1
-
-    return list(it())
-
-
-def float2date(value: float) -> date:
-    return datetime.fromtimestamp(value, tz=UTC)
-
-
-class YearMonthScaleDraw(QwtScaleDraw):
-    def label(self, value: float) -> str:
-        return float2date(value).strftime('%Y-%m')
-
-
 class EuroScaleDraw(QwtScaleDraw):
     def label(self, value: float) -> str:
         return f'€ {value:_.2f}'
 
 
-class Plot(QwtPlot):
-    def __init__(self, rowss: 'list[Rows]', parent: QWidget | None) -> None:
-        super().__init__(parent)
-        self._rowss = rowss
+class YearMonthScaleDraw(QwtScaleDraw):
+    def label(self, value: float) -> str:
+        return days2date(value).strftime('%Y-%m')
 
+
+class Plot(QwtPlot):
+    def __init__(
+        self, model: 'SortFilterViewModel', parent: QWidget | None
+    ) -> None:
+        super().__init__(parent)
+        self._model = model.sourceModel()
+        self._model.modelReset.connect(self.model_reset)
         self.setCanvasBackground(Qt.GlobalColor.white)
         QwtPlotGrid.make(self, enableminor=(False, True))
         self.setAxisScaleDraw(QwtPlot.xBottom, YearMonthScaleDraw())
@@ -143,21 +94,31 @@ class Plot(QwtPlot):
         self.curves: dict[str, QwtPlotCurve] = {}
         self.markers: dict[str, QwtPlotMarker] = {}
 
-        self.model_reset()
-
     @Slot()
     def model_reset(self) -> None:
         self.setAxisScaleDraw(QwtPlot.yLeft, EuroScaleDraw())
 
+        self.curves.clear()
+
         min_xdata: float | None = None
         max_xdata: float | None = None
-        for rows, linecolor in zip(self._rowss, linecolors(), strict=False):
+        for j in range(self._model.rowCount()):
             xdata: list[float] = []
             ydata: list[float] = []
-            for when, howmuch in acc(rows):
-                xdata.append(datetime.combine(when, time()).timestamp())
+
+            when: date = self._model.data(
+                self._model.index(j, 0), Qt.ItemDataRole.UserRole
+            )
+
+            for i in range(1, self._model.columnCount()):
+                howmuch = cast('Decimal', self._model.data(
+                    self._model.index(j, i), Qt.ItemDataRole.UserRole
+                ))
+
+                xdata.append(date2days(when))
                 ydata.append(float(howmuch))
 
+        if xdata:
             tmp = min(xdata)
             if min_xdata is None or tmp < min_xdata:
                 min_xdata = tmp
@@ -165,38 +126,58 @@ class Plot(QwtPlot):
             if max_xdata is None or tmp > max_xdata:
                 max_xdata = tmp
 
-            name = rows.name
-            self.curves[name] = QwtPlotCurve.make(
-                xdata=xdata,
-                ydata=ydata,
-                title=QwtText.make(
-                    f'{name} - ...', weight=QFont.Weight.Bold, color=linecolor
-                ),
-                plot=self,
-                style=QwtPlotCurve.Steps,
-                linecolor=linecolor,
-                linewidth=2,
-                antialiased=True,
-            )
-            self.markers[name] = QwtPlotMarker.make(
-                symbol=QwtSymbol.make(
-                    style=QwtSymbol.Diamond,
-                    brush=QBrush(linecolor),
-                    size=QSize(9, 9),
-                ),
-                plot=self,
-                align=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
-                linestyle=QwtPlotMarker.Cross,
-                color=Qt.GlobalColor.gray,
-                width=1,
-                style=Qt.PenStyle.DashLine,
-                antialiased=True,
-            )
+            for i, linecolor in zip(
+                range(1, self._model.columnCount()), linecolors(), strict=False
+            ):
+                header = self._model.headerData(i, Qt.Orientation.Horizontal)
+                if not header:
+                    raise ValueError
+                name = header
+                self.curves[name] = QwtPlotCurve.make(
+                    xdata=xdata,
+                    ydata=ydata,
+                    title=QwtText.make(
+                        f'{name} - ...', weight=QFont.Weight.Bold, color=linecolor
+                    ),
+                    plot=self,
+                    style=QwtPlotCurve.Steps,
+                    linecolor=linecolor,
+                    linewidth=2,
+                    antialiased=True,
+                )
+                self.markers[name] = QwtPlotMarker.make(
+                    symbol=QwtSymbol.make(
+                        style=QwtSymbol.Diamond,
+                        brush=QBrush(linecolor),
+                        size=QSize(9, 9),
+                    ),
+                    plot=self,
+                    align=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                    linestyle=QwtPlotMarker.Cross,
+                    color=Qt.GlobalColor.gray,
+                    width=1,
+                    style=Qt.PenStyle.DashLine,
+                    antialiased=True,
+                )
 
         if min_xdata is None or max_xdata is None:
             raise ValueError
 
         self._date_changed(min_xdata, max_xdata)
+
+    @Slot(date)  # type: ignore[arg-type]
+    def start_date_changed(self, start_date: date) -> None:
+        lower_bound = date2days(start_date)
+        upper_bound = self.axisScaleDiv(QwtPlot.xBottom).interval().maxValue()
+
+        self._date_changed(lower_bound, upper_bound)
+
+    @Slot(date)  # type: ignore[arg-type]
+    def end_date_changed(self, end_date: date) -> None:
+        lower_bound = self.axisScaleDiv(QwtPlot.xBottom).interval().minValue()
+        upper_bound = date2days(end_date)
+
+        self._date_changed(lower_bound, upper_bound)
 
     def _date_changed(self, lower_bound: float, upper_bound: float) -> None:
         ds = days(lower_bound, upper_bound)
@@ -234,7 +215,7 @@ class Plot(QwtPlot):
         self.replot()
 
     @override
-    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+    def mouseMoveEvent(self, event: 'QMouseEvent') -> None:
         event_pos = event.position()
 
         scale_map = self.canvasMap(QwtPlot.xBottom)
@@ -242,9 +223,7 @@ class Plot(QwtPlot):
 
         magic_offset = 75  # minimum event_pos_x - TODO: find origin
 
-        dt_hover = float2date(
-            scale_map.invTransform(event_pos_x - magic_offset)
-        )
+        dt_hover = days2date(scale_map.invTransform(event_pos_x - magic_offset))
 
         for name, curve in self.curves.items():
             legend = cast(
@@ -260,7 +239,7 @@ class Plot(QwtPlot):
             y_closest = None
             td_min = timedelta.max
             for x_data, y_data in zip(data.xData(), data.yData(), strict=True):
-                dt_x = float2date(x_data)
+                dt_x = days2date(float(x_data))
                 td = dt_hover - dt_x if dt_hover > dt_x else dt_x - dt_hover
                 if td < td_min:
                     x_closest = x_data
@@ -282,6 +261,26 @@ class Plot(QwtPlot):
         self.replot()
 
 
+def acc(rows: 'Rows') -> 'Iterable[tuple[date, Decimal]]':
+    def func(a: 'tuple[date, Decimal]', b: 'Row') -> 'tuple[date, Decimal]':
+        return (b.date, a[1] + b.money)
+
+    it = iter(sorted(rows, key=attrgetter('date')))
+    head = next(it)
+    return accumulate(it, func, initial=(head.date, head.money))
+
+
+def rowss2sort_filter_view_model(*rowss: 'Rows') -> SortFilterViewModel:
+    tmp = defaultdict[date, list[C]](list)
+    for rows in rowss:
+        ch = CH(rows.name)
+        for d, m in acc(rows):
+            tmp[d].append(C(ch, m))
+    model = SortFilterViewModel()
+    model.update([I(d, tmp[d]) for d in sorted(tmp)])
+    return model
+
+
 def main() -> None:
     _, rows_vm = read_txt(
         '/home/zed/eclipse-workspace/movs-data/BPOL_accumulator_vitomamma.txt',
@@ -292,9 +291,23 @@ def main() -> None:
         'vitoelena',
     )
 
+    model = rowss2sort_filter_view_model(rows_vm, rows_ve)
+
     app = QApplication(argv)
-    plot = Plot([rows_vm, rows_ve], None)
-    plot.show()
+
+    widget = QWidget()
+    plot = Plot(model, None)
+    chart_slider = ChartSlider(model, widget, dates_column=0)
+    layout = QVBoxLayout(widget)
+    layout.addWidget(plot)
+    layout.addWidget(chart_slider)
+    widget.setLayout(layout)
+
+    chart_slider.start_date_changed.connect(plot.start_date_changed)
+    chart_slider.end_date_changed.connect(plot.end_date_changed)
+
+    widget.show()
+
     app.exec()
 
 
