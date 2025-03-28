@@ -102,63 +102,69 @@ class Plot(QwtPlot):
 
         min_xdata: float | None = None
         max_xdata: float | None = None
-        for j in range(self._model.rowCount()):
+
+        for i, linecolor in zip(
+            range(1, self._model.columnCount()), linecolors(), strict=False
+        ):
             xdata: list[float] = []
             ydata: list[float] = []
 
-            when: date = self._model.data(
-                self._model.index(j, 0), Qt.ItemDataRole.UserRole
-            )
+            header = self._model.headerData(i, Qt.Orientation.Horizontal)
+            if not header:
+                raise ValueError
 
-            for i in range(1, self._model.columnCount()):
-                howmuch = cast('Decimal', self._model.data(
-                    self._model.index(j, i), Qt.ItemDataRole.UserRole
-                ))
+            for j in range(self._model.rowCount()):
+                when: date = self._model.data(
+                    self._model.index(j, 0), Qt.ItemDataRole.UserRole
+                )
+
+                howmuch = cast(
+                    'Decimal | None',
+                    self._model.data(
+                        self._model.index(j, i), Qt.ItemDataRole.UserRole
+                    ),
+                )
+                if howmuch is None:
+                    continue
 
                 xdata.append(date2days(when))
                 ydata.append(float(howmuch))
 
-        if xdata:
-            tmp = min(xdata)
-            if min_xdata is None or tmp < min_xdata:
-                min_xdata = tmp
-            tmp = max(xdata)
-            if max_xdata is None or tmp > max_xdata:
-                max_xdata = tmp
+            if xdata:
+                tmp = min(xdata)
+                if min_xdata is None or tmp < min_xdata:
+                    min_xdata = tmp
+                tmp = max(xdata)
+                if max_xdata is None or tmp > max_xdata:
+                    max_xdata = tmp
 
-            for i, linecolor in zip(
-                range(1, self._model.columnCount()), linecolors(), strict=False
-            ):
-                header = self._model.headerData(i, Qt.Orientation.Horizontal)
-                if not header:
-                    raise ValueError
-                name = header
-                self.curves[name] = QwtPlotCurve.make(
-                    xdata=xdata,
-                    ydata=ydata,
-                    title=QwtText.make(
-                        f'{name} - ...', weight=QFont.Weight.Bold, color=linecolor
-                    ),
-                    plot=self,
-                    style=QwtPlotCurve.Steps,
-                    linecolor=linecolor,
-                    linewidth=2,
-                    antialiased=True,
-                )
-                self.markers[name] = QwtPlotMarker.make(
-                    symbol=QwtSymbol.make(
-                        style=QwtSymbol.Diamond,
-                        brush=QBrush(linecolor),
-                        size=QSize(9, 9),
-                    ),
-                    plot=self,
-                    align=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
-                    linestyle=QwtPlotMarker.Cross,
-                    color=Qt.GlobalColor.gray,
-                    width=1,
-                    style=Qt.PenStyle.DashLine,
-                    antialiased=True,
-                )
+            name = header
+            self.curves[name] = QwtPlotCurve.make(
+                xdata=xdata,
+                ydata=ydata,
+                title=QwtText.make(
+                    f'{name} - ...', weight=QFont.Weight.Bold, color=linecolor
+                ),
+                plot=self,
+                style=QwtPlotCurve.Steps,
+                linecolor=linecolor,
+                linewidth=2,
+                antialiased=True,
+            )
+            self.markers[name] = QwtPlotMarker.make(
+                symbol=QwtSymbol.make(
+                    style=QwtSymbol.Diamond,
+                    brush=QBrush(linecolor),
+                    size=QSize(9, 9),
+                ),
+                plot=self,
+                align=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop,
+                linestyle=QwtPlotMarker.Cross,
+                color=Qt.GlobalColor.gray,
+                width=1,
+                style=Qt.PenStyle.DashLine,
+                antialiased=True,
+            )
 
         if min_xdata is None or max_xdata is None:
             raise ValueError
@@ -307,6 +313,8 @@ def main() -> None:
     chart_slider.end_date_changed.connect(plot.end_date_changed)
 
     widget.show()
+
+    plot.model_reset()
 
     app.exec()
 
