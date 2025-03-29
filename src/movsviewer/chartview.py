@@ -15,6 +15,10 @@ from typing import cast
 from typing import override
 
 from guilib.chartwidget.chartwidget import ChartWidget
+from guilib.chartwidget.model import Column
+from guilib.chartwidget.model import ColumnHeader
+from guilib.chartwidget.model import Info
+from guilib.chartwidget.model import InfoProto
 from guilib.chartwidget.modelgui import SeriesModel
 from guilib.chartwidget.modelgui import SeriesModelUnit
 from guilib.chartwidget.viewmodel import SortFilterViewModel
@@ -36,9 +40,6 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from collections.abc import Sequence
 
-    from guilib.chartwidget.model import Column
-    from guilib.chartwidget.model import ColumnHeader
-    from guilib.chartwidget.model import Info
     from movslib.model import Row
     from PySide6.QtWidgets import QGraphicsSceneMouseEvent
     from PySide6.QtWidgets import QGraphicsSceneWheelEvent
@@ -231,38 +232,7 @@ class Chart(QChart):
         self.scroll(x_prev - x_curr, y_curr - y_prev)
 
 
-class CH:
-    def __init__(self, name: str) -> None:
-        self.name = name
-
-    @override
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, CH):
-            return NotImplemented
-        return self.name == other.name
-
-
-class C:
-    def __init__(
-        self, header: 'ColumnHeader', howmuch: 'Decimal | None'
-    ) -> None:
-        self.header = header
-        self.howmuch = howmuch
-
-
-class I:  # noqa: E742
-    def __init__(self, when: 'date', columns: 'Sequence[Column]') -> None:
-        self.when = when
-        self.columns = columns
-
-    def howmuch(self, column_header: 'ColumnHeader') -> 'Decimal | None':
-        for column in self.columns:
-            if column.header == column_header:
-                return column.howmuch
-        return None
-
-
-MONEY_HEADER = CH('money')
+MONEY_HEADER = ColumnHeader('money')
 
 
 @dataclass
@@ -390,7 +360,7 @@ class SMFMoneyByYear(SMFHelper):
             self.shared.y_max = Decimal(self.acc)
 
 
-def series_model_factory(infos: 'Sequence[Info]') -> 'SeriesModel':
+def series_model_factory(infos: 'Sequence[InfoProto]') -> 'SeriesModel':
     """Extract money from info; accumulate and step; group by month / year."""
     shared = SMFShared(
         x_min=date.max,
@@ -448,7 +418,7 @@ class ChartWidgetWrapper(ChartWidget):
         _, data = read(self.data_path)
         # convert data to infos
         infos = [
-            I(row.date, [C(MONEY_HEADER, row.money)])
+            Info(row.date, [Column(MONEY_HEADER, row.money)])
             for row in sorted(data, key=lambda row: row.date)
         ]
         self.model.update(infos)

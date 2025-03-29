@@ -5,6 +5,7 @@ requires = [ "pdm-backend" ]
 [project]
 name = "zeed-movs-viewer"
 version = "0.0.0"
+license = { file = "LICENSE" }
 requires-python = ">=3.12,<3.14"
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
@@ -40,7 +41,7 @@ plugins = [ "pdm-bump" ]
 excludes = [ "tests" ]
 
 [tool.pdm.scripts]
-_.env = { PYTHONPATH = "src:tests:demo:stubs" }
+_.env = { PYTHONPATH = "src:tests:stubs:demo" }
 lint = { composite = [
     "pyproject-fmt pyproject.toml",
     "ruff format {args:.}",
@@ -110,7 +111,7 @@ sort = "Cover"
 skip_empty = true
 
 [tool.mypy]
-mypy_path = [ "src", "tests", "demo", "stubs" ]
+mypy_path = [ "src", "tests", "stubs", "demo" ]
 strict = true
 warn_unused_configs = true
 

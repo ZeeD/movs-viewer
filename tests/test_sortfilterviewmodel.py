@@ -3,6 +3,9 @@ from decimal import Decimal
 from typing import Final
 from unittest.case import TestCase
 
+from guilib.chartwidget.model import Column
+from guilib.chartwidget.model import ColumnHeader
+from guilib.chartwidget.model import Info
 from guilib.chartwidget.viewmodel import SortFilterViewModel as SFVMguilib
 from movslib.model import KV
 from movslib.model import ZERO
@@ -11,9 +14,6 @@ from PySide6.QtWidgets import QTableView
 
 from _support.tmpapp import tmp_app
 from _support.tmptxt import tmp_txt
-from movsviewer.chartview import CH
-from movsviewer.chartview import C
-from movsviewer.chartview import I
 from movsviewer.viewmodel import SortFilterViewModel as SFVMmovsviewer
 
 
@@ -50,13 +50,13 @@ class TestSortFilterViewModel(TestCase):
             m_guilib = SFVMguilib()
             m_guilib.update(
                 [
-                    I(
+                    Info(
                         row.date,
                         [
-                            C(CH('addebiti'), row.addebiti),
-                            C(CH('accrediti'), row.accrediti),
-                            C(
-                                CH('descrizione_operazioni'),
+                            Column(ColumnHeader('addebiti'), row.addebiti),
+                            Column(ColumnHeader('accrediti'), row.accrediti),
+                            Column(
+                                ColumnHeader('descrizione_operazioni'),
                                 row.descrizione_operazioni,  # type: ignore[arg-type]
                             ),
                         ],
