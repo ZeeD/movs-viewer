@@ -4,7 +4,11 @@ from typing import TYPE_CHECKING
 from typing import Final
 from typing import cast
 
+from guilib.chartwidget.viewmodel import (
+    SortFilterViewModel as SortFilterViewModel2,
+)
 from guilib.multitabs.widget import MultiTabs
+from guilib.qwtplot.plot import Plot
 from guilib.searchsheet.widget import SearchSheet
 from PySide6.QtCore import QCoreApplication
 from PySide6.QtCore import QItemSelection
@@ -24,9 +28,9 @@ from PySide6.QtWidgets import QPlainTextEdit
 from PySide6.QtWidgets import QToolButton
 from PySide6.QtWidgets import QWidget
 
-from movsviewer.chartview import ChartWidgetWrapper
 from movsviewer.constants import MAINUI_UI_PATH
 from movsviewer.constants import SETTINGSUI_UI_PATH
+from movsviewer.plotutils import load_infos
 from movsviewer.settings import Settings
 from movsviewer.validator import Validator
 from movsviewer.viewmodel import SortFilterViewModel
@@ -88,7 +92,7 @@ def new_settingsui(settings: Settings) -> Settingsui:
 
 class NewMainui:
     sheets_charts: Final[
-        dict[str, tuple[SearchSheet, ChartWidgetWrapper, int]]
+        dict[str, tuple[SearchSheet, SortFilterViewModel2, int]]
     ] = {}
 
     settings: Settings
@@ -127,19 +131,21 @@ class NewMainui:
             return
 
         data_paths = self.settings.data_paths[:]
-        for data_path, (sheet, chart, idx) in self.sheets_charts.items():
+        for data_path, (sheet, model2, idx) in self.sheets_charts.items():
             if data_path in data_paths:
                 data_paths.remove(data_path)
                 sheet.reload()
-                chart.reload()
+                model2.update(load_infos((data_path, 'money')))
             else:
                 self.multi_tabs.remove_double_box(idx)
                 del self.sheets_charts[data_path]
         for data_path in data_paths:
             sheet, model = self.new_search_sheet(data_path)
-            chart = ChartWidgetWrapper(data_path)
-            idx = self.multi_tabs.add_double_box(sheet, chart, model.name)
-            self.sheets_charts[data_path] = (sheet, chart, idx)
+            model2 = SortFilterViewModel2()
+            plot = Plot(model2, None)
+            model2.update(load_infos((data_path, 'money')))
+            idx = self.multi_tabs.add_double_box(sheet, plot, model.name)
+            self.sheets_charts[data_path] = (sheet, model2, idx)
 
     def update_status_bar(
         self, model: SortFilterViewModel, selection_model: QItemSelectionModel

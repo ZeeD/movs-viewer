@@ -1,47 +1,13 @@
-from collections import defaultdict
-from datetime import date
-from itertools import accumulate
-from operator import attrgetter
 from sys import argv
-from typing import TYPE_CHECKING
 
 from guilib.chartslider.chartslider import ChartSlider
-from guilib.chartwidget.model import Column
-from guilib.chartwidget.model import ColumnHeader
-from guilib.chartwidget.model import ColumnProto
-from guilib.chartwidget.model import Info
-from guilib.chartwidget.model import InfoProto
 from guilib.chartwidget.viewmodel import SortFilterViewModel
 from guilib.qwtplot.plot import Plot
-from movslib.movs import read_txt
 from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QWidget
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from decimal import Decimal
-
-    from movslib.model import Row
-    from movslib.model import Rows
-
-
-def load_infos(*fn_names: tuple[str, str]) -> list[InfoProto]:
-    def acc(rows: 'Rows') -> 'Iterable[tuple[date, Decimal]]':
-        def func(a: 'tuple[date, Decimal]', b: 'Row') -> 'tuple[date, Decimal]':
-            return (b.date, a[1] + b.money)
-
-        it = iter(sorted(rows, key=attrgetter('date')))
-        head = next(it)
-        return accumulate(it, func, initial=(head.date, head.money))
-
-    tmp = defaultdict[date, list[ColumnProto]](list)
-    for fn, name in fn_names:
-        _, rows = read_txt(fn, name)
-        ch = ColumnHeader(rows.name)
-        for d, m in acc(rows):
-            tmp[d].append(Column(ch, m))
-    return [Info(d, tmp[d]) for d in sorted(tmp)]
+from movsviewer.plotutils import load_infos
 
 
 def main() -> None:

@@ -13,6 +13,7 @@ from guilib.searchsheet.model import SearchableModel
 from movslib.model import ZERO
 from movslib.model import Row
 from movslib.model import Rows
+from movslib.reader import read
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtCore import QModelIndex
@@ -21,8 +22,6 @@ from PySide6.QtCore import QPersistentModelIndex
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush
 from PySide6.QtGui import QColor
-
-from movsviewer.reader import read
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QStatusBar

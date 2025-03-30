@@ -767,7 +767,7 @@ files = [
 
 [[package]]
 name = "zeed-guilib"
-version = "0.0.5"
+version = "0.0.6"
 requires_python = "<3.14,>=3.12"
 summary = ""
 groups = ["default"]
@@ -776,8 +776,8 @@ dependencies = [
     "pythonqwt>=0.14.4",
 ]
 files = [
-    {file = "zeed_guilib-0.0.5-py3-none-any.whl", hash = "sha256:c42cff7f79f3143e926d308206b04e2d9fb841890f4240fa98238810cb7b7b69"},
-    {file = "zeed_guilib-0.0.5.tar.gz", hash = "sha256:097a9f6ffd7f4ed9b09bad3a62b65ea4c3cf9682448550015d818c7111014a1a"},
+    {file = "zeed_guilib-0.0.6-py3-none-any.whl", hash = "sha256:452a72f8215ca1e21d3bc2a4d0fe8caa833b6d6a88bcc8c3d1d156036a8e9f5e"},
+    {file = "zeed_guilib-0.0.6.tar.gz", hash = "sha256:e569f898886a610271add351cc578fe9bb5b822bfb33b52b43f9dc9bdd097be4"},
 ]
 
 [[package]]
