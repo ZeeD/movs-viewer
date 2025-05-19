@@ -3,15 +3,26 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING
+from typing import NamedTuple
 from typing import TypedDict
+from typing import cast
 from typing import overload
+
+from guilib.chartwidget.viewmodel import SortFilterViewModel
+from guilib.qwtplot.plot import Plot
+from PySide6.QtWidgets import QApplication
+
+from qwt.plot_curve import QwtPlotCurve
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from collections.abc import Sequence
+
+    from guilib.chartwidget.model import InfoProto
 
 
-Base = TypedDict(
-    'Base',
+Scadute = TypedDict(
+    'Scadute',
     {
         'data scadenza': date,
         'importo': Decimal,
@@ -23,51 +34,100 @@ Base = TypedDict(
 )
 
 
-class Deposito(Base):
+class Deposito(Scadute):
     interessi: Decimal
 
 
-class Offerta(Base):
-    interessi: Decimal
-
-
-class Scadute(Base): ...
-
-
 @overload
-def read(path: Path, cls: type[Deposito]|type[Offerta]) -> 'Iterator[Deposito]|Iterator[Offerta]': ...
+def read(path: Path, _cls: type[Deposito], /) -> 'Iterator[Deposito]': ...
 @overload
-def read(path: Path, cls: type[Scadute]) -> 'Iterator[Scadute]': ...
+def read(path: Path, _cls: type[Scadute], /) -> 'Iterator[Scadute]': ...
 
 
 def read(
-    path: Path, cls: type[Deposito] | type[Offerta] | type[Scadute]
-) -> 'Iterator[Deposito] | Iterator[Offerta] | Iterator[Scadute]':
+    path: Path, _cls: type[Deposito] | type[Scadute], /
+) -> 'Iterator[Deposito] | Iterator[Scadute]':
     with path.open(newline='') as csv:
         reader = DictReader(csv)
         for row in reader:
-            # base
-            obj = cls([
-                ('importo',Decimal(row['importo'])),
-                ('tasso',Decimal(row['tasso'])),
-                ('durata',int(row['durata'])),
-                ('data scadenza',date.fromisoformat(row['data scadenza'])),
-                ('data adesione', date.fromisoformat(row['data adesione'])),
-                ('interessi netti', Decimal(row['interessi netti'])),
-            ])
+            # Scadute
+            obj: Scadute = {
+                'importo': Decimal(row['importo']),
+                'tasso': Decimal(row['tasso']),
+                'durata': int(row['durata']),
+                'data scadenza': date.fromisoformat(row['data scadenza']),
+                'data adesione': date.fromisoformat(row['data adesione']),
+                'interessi netti': Decimal(row['interessi netti']),
+            }
             # Deposito/Offerta
             if 'interessi' in row:
-                obj['interessi'] = Decimal(row['interessi'])
+                cast('Deposito', obj)['interessi'] = Decimal(row['interessi'])
             yield obj
 
 
-ROOT = Path(__file__).parent / 'supersmart'
+class ColumnHeader(NamedTuple):
+    name: str
+
+
+class Column(NamedTuple):
+    header: ColumnHeader
+    howmuch: 'Decimal | None'
+
+
+class Info(NamedTuple):
+    when: 'date'
+    columns: 'Sequence[Column]'
+
+    def howmuch(self, column_header: ColumnHeader) -> 'Decimal | None':
+        for column in self.columns:
+            if column.header is column_header:
+                return column.howmuch
+        return None
+
+
+ZERO = Decimal('0')
+
+
+def to_infos(row: Scadute, idx: list[int] = [0]) -> list[Info]:
+    ch = ColumnHeader(f'VALUE_{idx[0]}')
+    idx[0] += 1
+
+    return [
+        Info(row['data adesione'], [Column(ch, ZERO)]),
+        Info(row['data adesione'], [Column(ch, row['importo'])]),
+        Info(
+            row['data scadenza'],
+            [Column(ch, row['importo'] + row['interessi netti'])],
+        ),
+        Info(row['data scadenza'], [Column(ch, ZERO)]),
+    ]
+
+
+def draw(*scadutes: 'Iterator[Scadute]') -> None:
+    app = QApplication()
+
+    model = SortFilterViewModel()
+    plot = Plot(model, None, curve_style=QwtPlotCurve.Lines)
+
+    infos = []
+    for scadute in scadutes:
+        for row in scadute:
+            infos.extend(to_infos(row))
+
+    model.update(cast('Sequence[InfoProto]', infos))
+
+    plot.show()
+    app.exec()
 
 
 def main() -> None:
-    deposito = read(ROOT / 'deposito.csv', Deposito)
-    offerta = read(ROOT / 'offerta.csv', Offerta)
-    scadute = read(ROOT / 'scadute.csv', Scadute)
+    root = Path(__file__).parent / 'supersmart'
+
+    deposito = read(root / 'deposito.csv', Deposito)
+    offerta = read(root / 'offerta.csv', Deposito)
+    scadute = read(root / 'scadute.csv', Scadute)
+
+    draw(deposito, offerta, scadute)
 
 
 if __name__ == '__main__':
