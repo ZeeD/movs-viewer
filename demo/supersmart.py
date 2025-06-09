@@ -88,19 +88,31 @@ class Info(NamedTuple):
 ZERO = Decimal('0')
 
 
-def to_infos(row: Scadute, idx: list[int] = [0]) -> list[Info]:
-    ch = ColumnHeader(f'VALUE_{idx[0]}')
-    idx[0] += 1
+class ToInfos:
+    def __init__(self) -> None:
+        self.idx = 0
 
-    return [
-        Info(row['data adesione'], [Column(ch, ZERO)]),
-        Info(row['data adesione'], [Column(ch, row['importo'])]),
-        Info(
-            row['data scadenza'],
-            [Column(ch, row['importo'] + row['interessi netti'])],
-        ),
-        Info(row['data scadenza'], [Column(ch, ZERO)]),
-    ]
+    def __call__(self, row: Scadute) -> list[Info]:
+        ch = ColumnHeader(f'{row["importo"]} - {row["tasso"]}')
+        self.idx += 1
+
+        return [
+            #            Info(row['data adesione'], [Column(ch, ZERO)]),
+            #            Info(row['data adesione'], [Column(ch, row['importo'])]),
+            #            Info(
+            #                row['data scadenza'],
+            #                [Column(ch, row['importo'] + row['interessi netti'])],
+            #            ),
+            #            Info(row['data scadenza'], [Column(ch, ZERO)]),
+            Info(row['data adesione'], [Column(ch, row['importo'])]),
+            Info(
+                row['data scadenza'],
+                [Column(ch, row['importo'] + row['interessi netti'])],
+            ),
+        ]
+
+
+to_infos = ToInfos()
 
 
 def draw(*scadutes: 'Iterator[Scadute]') -> None:
