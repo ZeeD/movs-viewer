@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from movslib.reader import read
 from movsvalidator.movsvalidator import validate
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QWidget
@@ -16,7 +17,7 @@ class Validator:
     def validate(self) -> bool:
         for fn in self.settings.data_paths:
             messages: list[str] = []
-            if not validate(fn, messages):
+            if not validate(fn, messages, read):
                 button = QMessageBox.warning(
                     self.parent,
                     f'{fn} seems has some problems!',

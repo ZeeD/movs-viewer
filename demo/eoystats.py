@@ -16,6 +16,7 @@ FNS: Final = (
 
 logger = getLogger(__name__)
 
+
 def eoystats(fn: str) -> None:
     _, rows = read(fn)
 
@@ -28,11 +29,13 @@ def eoystats(fn: str) -> None:
         logger.info('%s -> %11.2f', year, money)
     logger.info(' SUM -> %11.2f', sum(years.values()))
 
+
 def main() -> None:
     basicConfig(level=INFO, stream=stdout, format='%(message)s')
     for fn in FNS:
         logger.info('EOY STATS - %s', fn)
         eoystats(fn)
+
 
 if __name__ == '__main__':
     main()

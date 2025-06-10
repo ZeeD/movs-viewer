@@ -12,7 +12,7 @@ from guilib.chartwidget.model import ColumnProto
 from guilib.chartwidget.model import Info
 from guilib.chartwidget.model import InfoProto
 from guilib.qwtplot.plot import Plot
-from movslib.movs import read_txt
+from movslib.reader import read
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QWidget
 
@@ -49,7 +49,7 @@ def _acc(rows: 'Rows') -> 'Iterable[tuple[date, Decimal]]':
 def load_infos(*fn_names: tuple[str, str]) -> list[InfoProto]:
     tmp = defaultdict[date, list[ColumnProto]](list)
     for fn, name in fn_names:
-        _, rows = read_txt(fn, name)
+        _, rows = read(fn, name)
 
         ch = ColumnHeader(rows.name)
         for d, m in _acc(rows):
