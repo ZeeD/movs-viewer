@@ -37,13 +37,13 @@ logger = getLogger(__name__)
 
 
 def get_options(dtemp: str) -> Options:
-    options = Options()
-
-    options.profile = FirefoxProfile()
+    profile = FirefoxProfile()
     # set download folder
-    options.profile.set_preference('browser.download.folderList', 2)
-    options.profile.set_preference('browser.download.dir', dtemp)
+    profile.set_preference('browser.download.folderList', 2)
+    profile.set_preference('browser.download.dir', dtemp)
 
+    options = Options()
+    options.profile = profile
     return options
 
 

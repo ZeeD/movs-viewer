@@ -20,7 +20,7 @@ logger = getLogger(__name__)
 def eoystats(fn: str) -> None:
     _, rows = read(fn)
 
-    years = defaultdict[int, Decimal](lambda: Decimal('0'))
+    years = defaultdict[int, Decimal](lambda: Decimal(0))
     for row in rows:
         years[row.date.year] += row.money
 

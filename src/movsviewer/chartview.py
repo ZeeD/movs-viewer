@@ -231,7 +231,7 @@ class Chart(QChart):
         self.scroll(x_prev - x_curr, y_curr - y_prev)
 
 
-MONEY_HEADER = ColumnHeader('money')
+MONEY_HEADER = ColumnHeader('money', '€')
 
 
 @dataclass

@@ -85,7 +85,7 @@ class Info(NamedTuple):
         return None
 
 
-ZERO = Decimal('0')
+ZERO = Decimal(0)
 
 
 class ToInfos:
@@ -97,13 +97,6 @@ class ToInfos:
         self.idx += 1
 
         return [
-            #            Info(row['data adesione'], [Column(ch, ZERO)]),
-            #            Info(row['data adesione'], [Column(ch, row['importo'])]),
-            #            Info(
-            #                row['data scadenza'],
-            #                [Column(ch, row['importo'] + row['interessi netti'])],
-            #            ),
-            #            Info(row['data scadenza'], [Column(ch, ZERO)]),
             Info(row['data adesione'], [Column(ch, row['importo'])]),
             Info(
                 row['data scadenza'],

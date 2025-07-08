@@ -53,10 +53,12 @@ class TestSortFilterViewModel(TestCase):
                     Info(
                         row.date,
                         [
-                            Column(ColumnHeader('addebiti'), row.addebiti),
-                            Column(ColumnHeader('accrediti'), row.accrediti),
+                            Column(ColumnHeader('addebiti', '€'), row.addebiti),
                             Column(
-                                ColumnHeader('descrizione_operazioni'),
+                                ColumnHeader('accrediti', '€'), row.accrediti
+                            ),
+                            Column(
+                                ColumnHeader('descrizione_operazioni', '€'),
                                 row.descrizione_operazioni,  # type: ignore[arg-type]
                             ),
                         ],

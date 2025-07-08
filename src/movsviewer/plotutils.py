@@ -51,11 +51,11 @@ def load_infos(*fn_names: tuple[str, str]) -> list[InfoProto]:
     for fn, name in fn_names:
         _, rows = read(fn, name)
 
-        ch = ColumnHeader(rows.name)
+        ch = ColumnHeader(rows.name, '€')
         for d, m in _acc(rows):
             tmp[d].append(Column(ch, m))
 
-        ch_year = ColumnHeader(f'{rows.name} (by year)')
+        ch_year = ColumnHeader(f'{rows.name} (by year)', '€')
         for d, m in _acc_reset_by_year(rows):
             tmp[d].append(Column(ch_year, m))
 
