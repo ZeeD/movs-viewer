@@ -26,6 +26,9 @@ if TYPE_CHECKING:
 
 
 def _acc_reset_by_year(rows: 'Rows') -> 'Iterable[tuple[date, Decimal]]':
+    if not rows:
+        return []
+
     def func(a: tuple[date, 'Decimal'], b: 'Row') -> tuple[date, 'Decimal']:
         if b.date.year != a[0].year:
             return b.date, b.money
