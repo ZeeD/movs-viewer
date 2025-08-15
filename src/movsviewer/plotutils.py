@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import date
 from datetime import timedelta
+from decimal import Decimal
 from itertools import accumulate
 from operator import attrgetter
 from typing import TYPE_CHECKING
@@ -18,7 +19,6 @@ from PySide6.QtWidgets import QWidget
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
-    from decimal import Decimal
 
     from guilib.chartwidget.viewmodel import SortFilterViewModel
     from movslib.model import Row
@@ -49,6 +49,30 @@ def _acc(rows: 'Rows') -> 'Iterable[tuple[date, Decimal]]':
     return accumulate(it, func, initial=(head.date, head.money))
 
 
+def _acc_multi_years(
+    rows: 'Rows',
+) -> 'Iterable[tuple[int, Iterable[tuple[date, Decimal]]]]':
+    """Yield (year, acc in that year)."""
+    if not rows:
+        return
+
+    previous_year: int | None = None
+    previous_year_acc: list[tuple[date, Decimal]] = []
+
+    for row in sorted(rows, key=attrgetter('date')):
+        if row.date.year != previous_year:
+            if previous_year is not None:
+                yield previous_year, previous_year_acc
+            previous_year = row.date.year
+            previous_year_acc = [(date(row.date.year, 1, 1), Decimal(0))]
+        previous_year_acc.append(
+            (row.date, previous_year_acc[-1][1] + row.money)
+        )
+
+    if previous_year is not None:
+        yield previous_year, previous_year_acc
+
+
 def load_infos(*fn_names: tuple[str, str]) -> list[InfoProto]:
     tmp = defaultdict[date, list[ColumnProto]](list)
     for fn, name in fn_names:
@@ -61,6 +85,11 @@ def load_infos(*fn_names: tuple[str, str]) -> list[InfoProto]:
         ch_year = ColumnHeader(f'{rows.name} (by year)', '€')
         for d, m in _acc_reset_by_year(rows):
             tmp[d].append(Column(ch_year, m))
+
+        for y, it in _acc_multi_years(rows):
+            ch_y = ColumnHeader(f'{rows.name} ({y})', '€')
+            for d, m in it:
+                tmp[d].append(Column(ch_y, m))
 
     sorted_days = sorted(tmp)
 
