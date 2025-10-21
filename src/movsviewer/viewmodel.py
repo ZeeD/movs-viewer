@@ -95,7 +95,10 @@ class ViewModel(QAbstractTableModel):
 
         if role == Qt.ItemDataRole.DisplayRole:
             if field_name == 'tags':
-                return ', '.join(tag.value for tag in self._data[row].tags)
+                tags = self._data[row].tags
+                if not tags:
+                    return '(/)'
+                return ', '.join(tag.value for tag in tags)
             return str(getattr(self._data[row], field_name))
 
         if role == Qt.ItemDataRole.BackgroundRole:
@@ -111,9 +114,7 @@ class ViewModel(QAbstractTableModel):
             return QBrush(QColor.fromHsl(hue, saturation, lightness))
 
         if role == Qt.ItemDataRole.UserRole:
-            return cast(
-                'T_FIELDS', getattr(self._data[row], field_name)
-            )
+            return cast('T_FIELDS', getattr(self._data[row], field_name))
 
         return None
 
