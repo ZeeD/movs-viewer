@@ -13,7 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "pyside6>=6.8.2",
+    "pyside6-essentials>=6.10",
     "pythonqwt>=0.12.5",
     "selenium>=4.22",
     "zeed-guilib>=0.0.4",

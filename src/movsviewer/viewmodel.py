@@ -10,9 +10,11 @@ from typing import cast
 from typing import override
 
 from guilib.searchsheet.model import SearchableModel
+from movslib.autotag.autotag import autotag
+from movslib.autotag.model import TagRow
+from movslib.autotag.model import TagRows
+from movslib.autotag.model import Tags
 from movslib.model import ZERO
-from movslib.model import Row
-from movslib.model import Rows
 from movslib.reader import read
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import QItemSelectionModel
@@ -27,12 +29,12 @@ if TYPE_CHECKING:
     from PySide6.QtWidgets import QStatusBar
 
 
-FIELD_NAMES = [field.name for field in fields(Row)]
+FIELD_NAMES = [field.name for field in fields(TagRow)]
 
-T_FIELDS = date | Decimal | None | str
+T_FIELDS = date | Decimal | None | str | set[Tags]
 
 
-def _abs(row: Row) -> Decimal:
+def _abs(row: TagRow) -> Decimal:
     if row.addebiti is not None:
         return -row.addebiti
     if row.accrediti is not None:
@@ -47,11 +49,11 @@ _INDEX = QModelIndex()
 
 
 class ViewModel(QAbstractTableModel):
-    def __init__(self, data: Rows, parent: QObject | None = None) -> None:
+    def __init__(self, data: TagRows, parent: QObject | None = None) -> None:
         super().__init__(parent)
         self._set_data(data)
 
-    def _set_data(self, data: Rows) -> None:
+    def _set_data(self, data: TagRows) -> None:
         self._data = data
         abs_data = sorted([_abs(row) for row in data])
         self._min = abs_data[0] if abs_data else ZERO
@@ -89,8 +91,12 @@ class ViewModel(QAbstractTableModel):
         column = index.column()
         row = index.row()
 
+        field_name = FIELD_NAMES[column]
+
         if role == Qt.ItemDataRole.DisplayRole:
-            return str(getattr(self._data[row], FIELD_NAMES[column]))
+            if field_name == 'tags':
+                return ', '.join(tag.value for tag in self._data[row].tags)
+            return str(getattr(self._data[row], field_name))
 
         if role == Qt.ItemDataRole.BackgroundRole:
             max_, min_, val = self._max, self._min, _abs(self._data[row])
@@ -106,7 +112,7 @@ class ViewModel(QAbstractTableModel):
 
         if role == Qt.ItemDataRole.UserRole:
             return cast(
-                'T_FIELDS', getattr(self._data[row], FIELD_NAMES[column])
+                'T_FIELDS', getattr(self._data[row], field_name)
             )
 
         return None
@@ -115,7 +121,9 @@ class ViewModel(QAbstractTableModel):
     def sort(
         self, index: int, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder
     ) -> None:
-        def key(row: Row) -> date | Decimal | str:  # T_FIELDS - None
+        def key(
+            row: TagRow,
+        ) -> date | Decimal | str | set[Tags]:  # T_FIELDS-None
             e: T_FIELDS = getattr(row, FIELD_NAMES[index])
             if e is None:
                 return ZERO
@@ -129,7 +137,7 @@ class ViewModel(QAbstractTableModel):
         finally:
             self.layoutChanged.emit()
 
-    def load(self, data: Rows) -> None:
+    def load(self, data: TagRows) -> None:
         self.beginResetModel()
         try:
             self._set_data(data)
@@ -143,7 +151,7 @@ class ViewModel(QAbstractTableModel):
 
 class SortFilterViewModel(SearchableModel):
     def __init__(self, data_path: str) -> None:
-        super().__init__(ViewModel(Rows('')))
+        super().__init__(ViewModel(TagRows('')))
         self.data_path = data_path
         self.reload()
 
@@ -174,7 +182,8 @@ class SortFilterViewModel(SearchableModel):
 
     def reload(self) -> Self:
         _, data = read(self.data_path, Path(self.data_path).stem)
-        self.sourceModel().load(data)
+        tagged_data = autotag(data)
+        self.sourceModel().load(tagged_data)
         return self
 
     @property

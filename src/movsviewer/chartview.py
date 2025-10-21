@@ -11,7 +11,6 @@ from itertools import groupby
 from typing import TYPE_CHECKING
 from typing import NamedTuple
 from typing import Self
-from typing import cast
 from typing import override
 
 from guilib.chartwidget.chartwidget import ChartWidget
@@ -226,8 +225,8 @@ class Chart(QChart):
     def mouseMoveEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         super().mouseMoveEvent(event)
 
-        x_curr, y_curr = cast('tuple[float, float]', event.pos().toTuple())
-        x_prev, y_prev = cast('tuple[float, float]', event.lastPos().toTuple())
+        x_curr, y_curr = event.pos().toTuple()
+        x_prev, y_prev = event.lastPos().toTuple()
         self.scroll(x_prev - x_curr, y_curr - y_prev)
 
 
