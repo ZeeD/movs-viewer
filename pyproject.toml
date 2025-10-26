@@ -38,7 +38,7 @@ distribution = true
 plugins = [ "pdm-bump" ]
 
 [tool.pdm.build]
-excludes = [ "tests" ]
+excludes = [ "tests", "stubs", "demo" ]
 
 [tool.pdm.scripts]
 _.env = { PYTHONPATH = "src:tests:stubs:demo" }
@@ -48,7 +48,7 @@ lint = { composite = [
     "ruff check {args:.}",
     "mypy {args:.}",
 ], keep_going = true }
-tests = { composite = [
+test = { composite = [
     "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests {args}",
     "coverage report",
     "coverage erase",

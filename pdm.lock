@@ -425,25 +425,6 @@ files = [
 ]
 
 [[package]]
-name = "pyside6"
-version = "6.10.0"
-requires_python = "<3.14,>=3.9"
-summary = "Python bindings for the Qt cross-platform application and UI framework"
-groups = ["default"]
-dependencies = [
-    "PySide6-Addons==6.10.0",
-    "PySide6-Essentials==6.10.0",
-    "shiboken6==6.10.0",
-]
-files = [
-    {file = "pyside6-6.10.0-cp39-abi3-macosx_13_0_universal2.whl", hash = "sha256:c2cbc5dc2a164e3c7c51b3435e24203e90e5edd518c865466afccbd2e5872bb0"},
-    {file = "pyside6-6.10.0-cp39-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:ae8c3c8339cd7c3c9faa7cc5c52670dcc8662ccf4b63a6fed61c6345b90c4c01"},
-    {file = "pyside6-6.10.0-cp39-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:9f402f883e640048fab246d36e298a5e16df9b18ba2e8c519877e472d3602820"},
-    {file = "pyside6-6.10.0-cp39-abi3-win_amd64.whl", hash = "sha256:70a8bcc73ea8d6baab70bba311eac77b9a1d31f658d0b418e15eb6ea36c97e6f"},
-    {file = "pyside6-6.10.0-cp39-abi3-win_arm64.whl", hash = "sha256:4b709bdeeb89d386059343a5a706fc185cee37b517bda44c7d6b64d5fdaf3339"},
-]
-
-[[package]]
 name = "pyside6-addons"
 version = "6.10.0"
 requires_python = "<3.14,>=3.9"
@@ -505,7 +486,7 @@ files = [
 
 [[package]]
 name = "pythonqwt"
-version = "0.14.6"
+version = "0.15.0"
 requires_python = "<4,>=3.9"
 summary = "Qt plotting widgets for Python"
 groups = ["default"]
@@ -514,8 +495,8 @@ dependencies = [
     "QtPy>=1.9",
 ]
 files = [
-    {file = "pythonqwt-0.14.6-py3-none-any.whl", hash = "sha256:abd4b9d88614c38adb03f3fa53845b6cfce7441870edd6268ee900ca4e591578"},
-    {file = "pythonqwt-0.14.6.tar.gz", hash = "sha256:52a42b1536ca47a47a1580c60d4906c9e4c4a4e6b952e74e5347eba24e477005"},
+    {file = "pythonqwt-0.15.0-py3-none-any.whl", hash = "sha256:52a5468c65ad7da7a946a4b7f2bce49b71b1d2f75d1cab710ea8313df1e2c407"},
+    {file = "pythonqwt-0.15.0.tar.gz", hash = "sha256:de0bc399eb0b69ea281493829bccaddd4d2066bb6ab5a8cec8426d4d4198ed74"},
 ]
 
 [[package]]
@@ -544,35 +525,35 @@ files = [
 
 [[package]]
 name = "ruff"
-version = "0.14.1"
+version = "0.14.2"
 requires_python = ">=3.7"
 summary = "An extremely fast Python linter and code formatter, written in Rust."
 groups = ["dev"]
 files = [
-    {file = "ruff-0.14.1-py3-none-linux_armv6l.whl", hash = "sha256:083bfc1f30f4a391ae09c6f4f99d83074416b471775b59288956f5bc18e82f8b"},
-    {file = "ruff-0.14.1-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:f6fa757cd717f791009f7669fefb09121cc5f7d9bd0ef211371fad68c2b8b224"},
-    {file = "ruff-0.14.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:d6191903d39ac156921398e9c86b7354d15e3c93772e7dbf26c9fcae59ceccd5"},
-    {file = "ruff-0.14.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ed04f0e04f7a4587244e5c9d7df50e6b5bf2705d75059f409a6421c593a35896"},
-    {file = "ruff-0.14.1-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:5c9e6cf6cd4acae0febbce29497accd3632fe2025c0c583c8b87e8dbdeae5f61"},
-    {file = "ruff-0.14.1-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:a6fa2458527794ecdfbe45f654e42c61f2503a230545a91af839653a0a93dbc6"},
-    {file = "ruff-0.14.1-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:39f1c392244e338b21d42ab29b8a6392a722c5090032eb49bb4d6defcdb34345"},
-    {file = "ruff-0.14.1-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:7382fa12a26cce1f95070ce450946bec357727aaa428983036362579eadcc5cf"},
-    {file = "ruff-0.14.1-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:dd0bf2be3ae8521e1093a487c4aa3b455882f139787770698530d28ed3fbb37c"},
-    {file = "ruff-0.14.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cabcaa9ccf8089fb4fdb78d17cc0e28241520f50f4c2e88cb6261ed083d85151"},
-    {file = "ruff-0.14.1-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:747d583400f6125ec11a4c14d1c8474bf75d8b419ad22a111a537ec1a952d192"},
-    {file = "ruff-0.14.1-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:5a6e74c0efd78515a1d13acbfe6c90f0f5bd822aa56b4a6d43a9ffb2ae6e56cd"},
-    {file = "ruff-0.14.1-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:0ea6a864d2fb41a4b6d5b456ed164302a0d96f4daac630aeba829abfb059d020"},
-    {file = "ruff-0.14.1-py3-none-musllinux_1_2_i686.whl", hash = "sha256:0826b8764f94229604fa255918d1cc45e583e38c21c203248b0bfc9a0e930be5"},
-    {file = "ruff-0.14.1-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:cbc52160465913a1a3f424c81c62ac8096b6a491468e7d872cb9444a860bc33d"},
-    {file = "ruff-0.14.1-py3-none-win32.whl", hash = "sha256:e037ea374aaaff4103240ae79168c0945ae3d5ae8db190603de3b4012bd1def6"},
-    {file = "ruff-0.14.1-py3-none-win_amd64.whl", hash = "sha256:59d599cdff9c7f925a017f6f2c256c908b094e55967f93f2821b1439928746a1"},
-    {file = "ruff-0.14.1-py3-none-win_arm64.whl", hash = "sha256:e3b443c4c9f16ae850906b8d0a707b2a4c16f8d2f0a7fe65c475c5886665ce44"},
-    {file = "ruff-0.14.1.tar.gz", hash = "sha256:1dd86253060c4772867c61791588627320abcb6ed1577a90ef432ee319729b69"},
+    {file = "ruff-0.14.2-py3-none-linux_armv6l.whl", hash = "sha256:7cbe4e593505bdec5884c2d0a4d791a90301bc23e49a6b1eb642dd85ef9c64f1"},
+    {file = "ruff-0.14.2-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:8d54b561729cee92f8d89c316ad7a3f9705533f5903b042399b6ae0ddfc62e11"},
+    {file = "ruff-0.14.2-py3-none-macosx_11_0_arm64.whl", hash = "sha256:5c8753dfa44ebb2cde10ce5b4d2ef55a41fb9d9b16732a2c5df64620dbda44a3"},
+    {file = "ruff-0.14.2-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3d0bbeffb8d9f4fccf7b5198d566d0bad99a9cb622f1fc3467af96cb8773c9e3"},
+    {file = "ruff-0.14.2-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:7047f0c5a713a401e43a88d36843d9c83a19c584e63d664474675620aaa634a8"},
+    {file = "ruff-0.14.2-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:3bf8d2f9aa1602599217d82e8e0af7fd33e5878c4d98f37906b7c93f46f9a839"},
+    {file = "ruff-0.14.2-py3-none-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:1c505b389e19c57a317cf4b42db824e2fca96ffb3d86766c1c9f8b96d32048a7"},
+    {file = "ruff-0.14.2-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:a307fc45ebd887b3f26b36d9326bb70bf69b01561950cdcc6c0bdf7bb8e0f7cc"},
+    {file = "ruff-0.14.2-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:61ae91a32c853172f832c2f40bd05fd69f491db7289fb85a9b941ebdd549781a"},
+    {file = "ruff-0.14.2-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bc1967e40286f63ee23c615e8e7e98098dedc7301568bd88991f6e544d8ae096"},
+    {file = "ruff-0.14.2-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:2877f02119cdebf52a632d743a2e302dea422bfae152ebe2f193d3285a3a65df"},
+    {file = "ruff-0.14.2-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:e681c5bc777de5af898decdcb6ba3321d0d466f4cb43c3e7cc2c3b4e7b843a05"},
+    {file = "ruff-0.14.2-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:e21be42d72e224736f0c992cdb9959a2fa53c7e943b97ef5d081e13170e3ffc5"},
+    {file = "ruff-0.14.2-py3-none-musllinux_1_2_i686.whl", hash = "sha256:b8264016f6f209fac16262882dbebf3f8be1629777cf0f37e7aff071b3e9b92e"},
+    {file = "ruff-0.14.2-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:5ca36b4cb4db3067a3b24444463ceea5565ea78b95fe9a07ca7cb7fd16948770"},
+    {file = "ruff-0.14.2-py3-none-win32.whl", hash = "sha256:41775927d287685e08f48d8eb3f765625ab0b7042cc9377e20e64f4eb0056ee9"},
+    {file = "ruff-0.14.2-py3-none-win_amd64.whl", hash = "sha256:0df3424aa5c3c08b34ed8ce099df1021e3adaca6e90229273496b839e5a7e1af"},
+    {file = "ruff-0.14.2-py3-none-win_arm64.whl", hash = "sha256:ea9d635e83ba21569fbacda7e78afbfeb94911c9434aff06192d9bc23fd5495a"},
+    {file = "ruff-0.14.2.tar.gz", hash = "sha256:98da787668f239313d9c902ca7c523fe11b8ec3f39345553a51b25abc4629c96"},
 ]
 
 [[package]]
 name = "selenium"
-version = "4.37.0"
+version = "4.38.0"
 requires_python = ">=3.10"
 summary = "Official Python bindings for Selenium WebDriver"
 groups = ["default"]
@@ -585,8 +566,8 @@ dependencies = [
     "websocket-client<2.0,>=1.8.0",
 ]
 files = [
-    {file = "selenium-4.37.0-py3-none-any.whl", hash = "sha256:5cfee4f7c430f7150fcc0490cf2936d101a72b76bad74644e2159cec0013d4de"},
-    {file = "selenium-4.37.0.tar.gz", hash = "sha256:a5f312fe659fc373a194484c6667b920278493ac98bca1b38e239c1b8bb3a05c"},
+    {file = "selenium-4.38.0-py3-none-any.whl", hash = "sha256:ed47563f188130a6fd486b327ca7ba48c5b11fb900e07d6457befdde320e35fd"},
+    {file = "selenium-4.38.0.tar.gz", hash = "sha256:c117af6727859d50f622d6d0785b945c5db3e28a45ec12ad85cee2e7cc84fc4c"},
 ]
 
 [[package]]
@@ -794,17 +775,18 @@ files = [
 
 [[package]]
 name = "zeed-guilib"
-version = "0.0.8"
+version = "0.0.9"
 requires_python = "<3.14,>=3.12"
 summary = ""
 groups = ["default"]
 dependencies = [
-    "pyside6>=6.8.2",
+    "pyside6-addons>=6.10",
+    "pyside6-essentials>=6.10",
     "pythonqwt>=0.14.4",
 ]
 files = [
-    {file = "zeed_guilib-0.0.8-py3-none-any.whl", hash = "sha256:06d491691485629c9608a898111bda325a63593e28d0eed4a516f447616f9986"},
-    {file = "zeed_guilib-0.0.8.tar.gz", hash = "sha256:763ff3dc5acbeb3ad162604ea9a509512ed113d81c494a9fcebf54609c8374d3"},
+    {file = "zeed_guilib-0.0.9-py3-none-any.whl", hash = "sha256:119958a4e3842e866b13e1532930354b91d8f3578feb9eebc7ad6576e5612208"},
+    {file = "zeed_guilib-0.0.9.tar.gz", hash = "sha256:b6bf04011f778a6fbbe58e7cf233474418683831498071610ef25568a1e3dded"},
 ]
 
 [[package]]
@@ -837,7 +819,7 @@ files = [
 
 [[package]]
 name = "zeed-movslib"
-version = "0.0.9"
+version = "0.0.11"
 requires_python = "<3.14,>=3.12"
 summary = ""
 groups = ["default"]
@@ -848,6 +830,6 @@ dependencies = [
     "tabula-py[jpype]>=2.9.3",
 ]
 files = [
-    {file = "zeed_movslib-0.0.9-py3-none-any.whl", hash = "sha256:36e364197a3b84184395b19253d761072438a900c08b628276256b2570ea5387"},
-    {file = "zeed_movslib-0.0.9.tar.gz", hash = "sha256:675374ae5db59b9773851636dc82b6d76a2c789582d418a87390de7cf91ec735"},
+    {file = "zeed_movslib-0.0.11-py3-none-any.whl", hash = "sha256:02632b43dd41baeb7fe9c957ed64cbbc0c986544cc233fa7e6dce9a8864f95e9"},
+    {file = "zeed_movslib-0.0.11.tar.gz", hash = "sha256:8f42e352b79aa0b08df70995808a48d08f25863c70c2d88c3dac74b68dd4d753"},
 ]
