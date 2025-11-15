@@ -3,7 +3,6 @@ from datetime import date
 from decimal import Decimal
 from operator import iadd
 from operator import isub
-from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Self
 from typing import cast
@@ -15,7 +14,6 @@ from movslib.autotag.model import TagRow
 from movslib.autotag.model import TagRows
 from movslib.autotag.model import Tags
 from movslib.model import ZERO
-from movslib.reader import read
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtCore import QModelIndex
@@ -24,6 +22,8 @@ from PySide6.QtCore import QPersistentModelIndex
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush
 from PySide6.QtGui import QColor
+
+from movsviewer.merger import read_and_merge
 
 if TYPE_CHECKING:
     from PySide6.QtWidgets import QStatusBar
@@ -151,9 +151,11 @@ class ViewModel(QAbstractTableModel):
 
 
 class SortFilterViewModel(SearchableModel):
-    def __init__(self, data_path: str) -> None:
+    def __init__(self, data_path: str | list[str]) -> None:
         super().__init__(ViewModel(TagRows('')))
-        self.data_path = data_path
+        self.data_paths = (
+            data_path if isinstance(data_path, list) else [data_path]
+        )
         self.reload()
 
     @override
@@ -182,7 +184,7 @@ class SortFilterViewModel(SearchableModel):
         statusbar.showMessage(f'⅀ = {bigsum}')
 
     def reload(self) -> Self:
-        _, data = read(self.data_path, Path(self.data_path).stem)
+        data = read_and_merge(self.data_paths)
         tagged_data = autotag(data)
         self.sourceModel().load(tagged_data)
         return self

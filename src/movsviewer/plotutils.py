@@ -17,6 +17,8 @@ from movslib.reader import read
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QWidget
 
+from movsviewer.merger import read_and_merge
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
@@ -73,10 +75,15 @@ def _acc_multi_years(
         yield previous_year, previous_year_acc
 
 
-def load_infos(*fn_names: tuple[str, str]) -> list[InfoProto]:
+def load_infos(*fn_names: tuple[str, str]|list[str]) -> list[InfoProto]:
     tmp = defaultdict[date, list[ColumnProto]](list)
-    for fn, name in fn_names:
-        _, rows = read(fn, name)
+    for fn_name in fn_names:
+        if isinstance(fn_name, list):
+            data_paths = fn_name
+            rows = read_and_merge(data_paths)
+        else:
+            fn, name = fn_name
+            _, rows = read(fn, name)
 
         ch = ColumnHeader(rows.name, '€')
         for d, m in _acc(rows):

@@ -115,7 +115,7 @@ class NewMainui:
         return self.mainui
 
     def new_search_sheet(
-        self, data_path: str
+        self, data_path: str|list[str]
     ) -> tuple[SearchSheet, SortFilterViewModel]:
         model = SortFilterViewModel(data_path)
         sheet = SearchSheet(None)
@@ -146,6 +146,13 @@ class NewMainui:
             model2.update(load_infos((data_path, 'money')))
             idx = self.multi_tabs.add_double_box(sheet, plot, model.name)
             self.sheets_charts[data_path] = (sheet, model2, idx)
+        # add merged one
+        sheet, model = self.new_search_sheet(data_paths)
+        model2 = SortFilterViewModel2()
+        plot = PlotAndSliderWidget(model2, None)
+        model2.update(load_infos(data_paths))
+        idx = self.multi_tabs.add_double_box(sheet, plot, model.name)
+        self.sheets_charts['&'.join(data_paths)] = (sheet, model2, idx)
 
     def update_status_bar(
         self, model: SortFilterViewModel, selection_model: QItemSelectionModel
