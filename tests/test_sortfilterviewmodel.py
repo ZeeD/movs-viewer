@@ -33,7 +33,7 @@ class TestSortFilterViewModel(TestCase):
             data_contabile=date(2024, m, 1),
             data_valuta=date(2024, m, 1),
             addebiti=None,
-            accrediti=Decimal(10 * m),
+            accrediti=Decimal(100 - (10 * m)),
             descrizione_operazioni='',
         )
         for m in range(1, 10)
