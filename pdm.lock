@@ -819,7 +819,7 @@ files = [
 
 [[package]]
 name = "zeed-movslib"
-version = "0.0.11"
+version = "0.0.13"
 requires_python = "<3.14,>=3.12"
 summary = ""
 groups = ["default"]
@@ -830,6 +830,6 @@ dependencies = [
     "tabula-py[jpype]>=2.9.3",
 ]
 files = [
-    {file = "zeed_movslib-0.0.11-py3-none-any.whl", hash = "sha256:02632b43dd41baeb7fe9c957ed64cbbc0c986544cc233fa7e6dce9a8864f95e9"},
-    {file = "zeed_movslib-0.0.11.tar.gz", hash = "sha256:8f42e352b79aa0b08df70995808a48d08f25863c70c2d88c3dac74b68dd4d753"},
+    {file = "zeed_movslib-0.0.13-py3-none-any.whl", hash = "sha256:9fe214cc4c62e91c7b117cbab6186cd65f02c39445c8a0c0b0b0b4273d1e0e7d"},
+    {file = "zeed_movslib-0.0.13.tar.gz", hash = "sha256:17ca3ee8ef12b3fec743f49fbf02d1f960db0d000fb2c25947d0bf5d653292d1"},
 ]
