@@ -29,16 +29,14 @@ def _autotag_row(row: 'Row') -> TagRow:
     if accrediti is not None:
         ret.tags.add(Tags.ENTRATE)
 
-    for pattern, tags in {'BONIFICO SEPA': [Tags.BONIFICO]}.items():
+    for pattern, tags in [('BONIFICO SEPA', [Tags.BONIFICO])]:
         if pattern in descrizione_operazioni and accrediti is not None:
             ret.tags.update(tags)
 
-    for pattern, tags in {
-        **{
-            p: [Tags.COMMISSIONI]
-            for p in ['COMMISSIONI', 'CANONE', 'IMPOSTA DI BOLLO']
-        }
-    }.items():
+    for pattern, tags in [
+        (p, [Tags.COMMISSIONI])
+        for p in ['COMMISSIONI', 'CANONE', 'IMPOSTA DI BOLLO']
+    ]:
         if descrizione_operazioni.startswith(pattern):
             ret.tags.update(tags)
 
@@ -90,6 +88,31 @@ def _autotag_row(row: 'Row') -> TagRow:
         **{p: [Tags.DELIVERY] for p in ['DELIVEROO']},
     }.items():
         if pattern in descrizione_operazioni:
+            ret.tags.update(tags)
+
+    # and
+    for patterns, tags in [
+        *[
+            (ps, [Tags.PRANZO_VIMERCATE])
+            for ps in [
+                ["MCDONALD'S VIMERCATE", 'VIMERCATE'],
+                ['PELLEGRINI SPA C/O ALC', 'VIMERCATE'],
+                ["UAGLIO'-V.TORRIBIANCH", 'VIMERCATE'],
+                ['CIOCCOLATI ITALIANI', 'VIMERCATE'],
+                ['CLAVERA VIMERCATE', 'VIMERCATE'],
+                ['PAN B SRL', 'VIMERCATE'],
+                ['GRUPPO NEGOZI SRL', 'VIMERCATE'],
+                ['HAMBU VIMERCATE', 'VIMERCATE'],
+                ["PAGAMENTO POS MAMMA' ROSA", 'VIMERCATE'],
+                ['PAGAMENTO POS OLD WILD WEST', 'VIMERCATE'],
+            ]
+        ],
+        *[
+            (ps, [Tags.BENZINA])
+            for ps in [['PAGAMENTO POS 45592 CASTELNUOVO DEL']]
+        ],
+    ]:
+        if all(pattern in descrizione_operazioni for pattern in patterns):
             ret.tags.update(tags)
 
     return ret
