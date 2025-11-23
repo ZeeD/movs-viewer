@@ -23,6 +23,7 @@ urls.Homepage = "https://github.com/ZeeD/movs-viewer"
 urls.Repository = "https://github.com/ZeeD/movs-viewer.git"
 scripts.movs-merger = "movsmerger.movsmerger:main"
 scripts.movs-validator = "movsvalidator.movsvalidator:main"
+scripts.movs-inflazione = "movsinflazione:main"
 gui-scripts.movs-viewer = "movsviewer.mainui:main"
 
 [dependency-groups]
@@ -56,6 +57,7 @@ test = { composite = [
 movs-merger = "movs-merger"
 movs-validator = "movs-validator"
 movs-viewer = "movs-viewer"
+movs-inflazione = "movs-inflazione"
 start = "movs-viewer" # "main" one
 bump_and_publish = { composite = [
     "pdm bump patch --commit --tag",
