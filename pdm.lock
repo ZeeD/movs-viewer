@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:caddef78e3f9267f0fe8675909ecedf81ff52d15bbf1d958d7ab16ca2c941eaf"
+content_hash = "sha256:315c53c50430d552c8062da2bab4f36f8100d5b9c424f95fb05071dcc8689efc"
 
 [[metadata.targets]]
 requires_python = ">=3.12,<3.14"
@@ -787,20 +787,6 @@ dependencies = [
 files = [
     {file = "zeed_guilib-0.0.10-py3-none-any.whl", hash = "sha256:4e54a615793cc446c4a13c8b6e5e95d0bffffd8d092f3ab143119cdd3c96dcb4"},
     {file = "zeed_guilib-0.0.10.tar.gz", hash = "sha256:9d5b5bdbce0e656c8a1df97315a0bf5f8ccf0a768614c5eee7b96585ef3a2fa5"},
-]
-
-[[package]]
-name = "zeed-movs-merger"
-version = "0.0.3"
-requires_python = "<3.14,>=3.12"
-summary = ""
-groups = ["default"]
-dependencies = [
-    "zeed-movslib>=0.0.3",
-]
-files = [
-    {file = "zeed_movs_merger-0.0.3-py3-none-any.whl", hash = "sha256:076862ca3251cd9d00835390ee5c5478441dd2cbed96fb8099c57df52dad708e"},
-    {file = "zeed_movs_merger-0.0.3.tar.gz", hash = "sha256:9e5794e5c51e45342a7e5c32e90dedc38fe61f0a9826db304420d19838f64ca4"},
 ]
 
 [[package]]
