@@ -17,13 +17,13 @@ dependencies = [
     "pythonqwt>=0.12.5",
     "selenium>=4.22",
     "zeed-guilib>=0.0.10",
-    "zeed-movs-validator>=0.0.1",
     "zeed-movslib>=0.0.3",
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-viewer"
 urls.Repository = "https://github.com/ZeeD/movs-viewer.git"
-gui-scripts.movs-viewer = "movsviewer.mainui:main"
 scripts.movs-merger = "movsmerger.movsmerger:main"
+scripts.movs-validator = "movsvalidator.movsvalidator:main"
+gui-scripts.movs-viewer = "movsviewer.mainui:main"
 
 [dependency-groups]
 dev = [
@@ -53,7 +53,10 @@ test = { composite = [
     "coverage report",
     "coverage erase",
 ] }
-start = "movs-viewer"
+movs-merger = "movs-merger"
+movs-validator = "movs-validator"
+movs-viewer = "movs-viewer"
+start = "movs-viewer" # "main" one
 bump_and_publish = { composite = [
     "pdm bump patch --commit --tag",
     "pdm publish",

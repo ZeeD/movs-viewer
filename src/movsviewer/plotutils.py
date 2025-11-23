@@ -75,7 +75,7 @@ def _acc_multi_years(
         yield previous_year, previous_year_acc
 
 
-def load_infos(*fn_names: tuple[str, str]|list[str]) -> list[InfoProto]:
+def load_infos(*fn_names: tuple[str, str] | list[str]) -> list[InfoProto]:
     tmp = defaultdict[date, list[ColumnProto]](list)
     for fn_name in fn_names:
         if isinstance(fn_name, list):

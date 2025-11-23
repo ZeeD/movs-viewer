@@ -3,12 +3,12 @@ from logging import basicConfig
 from logging import getLogger
 from sys import argv
 
-from movsmerger.movsmerger import merge_files
 from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QInputDialog
 from PySide6.QtWidgets import QLineEdit
 from PySide6.QtWidgets import QWidget
 
+from movsmerger.movsmerger import merge_files
 from movsviewer.automation import get_movimenti
 from movsviewer.settings import Settings
 

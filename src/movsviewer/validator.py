@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 
-from movsvalidator.movsvalidator import validate
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QWidget
+
+from movsvalidator.movsvalidator import validate
 
 if TYPE_CHECKING:
     from movsviewer.settings import Settings

@@ -115,7 +115,7 @@ class NewMainui:
         return self.mainui
 
     def new_search_sheet(
-        self, data_path: str|list[str]
+        self, data_path: str | list[str]
     ) -> tuple[SearchSheet, SortFilterViewModel]:
         model = SortFilterViewModel(data_path)
         sheet = SearchSheet(None)
