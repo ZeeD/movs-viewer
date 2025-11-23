@@ -13,11 +13,14 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
-    "pyside6-essentials>=6.10",
+     "jdk4py>=21.0.4.1",
+    "openpyxl>=3.1.5",
+    "pypdf>=4.2",
+    "tabula-py[jpype]>=2.9.3",
+   "pyside6-essentials>=6.10",
     "pythonqwt>=0.12.5",
     "selenium>=4.22",
     "zeed-guilib>=0.0.10",
-    "zeed-movslib>=0.0.3",
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-viewer"
 urls.Repository = "https://github.com/ZeeD/movs-viewer.git"
@@ -32,6 +35,8 @@ dev = [
     "mypy>=1.11.2",
     "pyproject-fmt>=2.5",
     "ruff>=0.6.9",
+    "pandas-stubs>=2.2.2.240603",
+    "types-openpyxl>=3.1.5.20240918",
 ]
 
 [tool.pdm]
