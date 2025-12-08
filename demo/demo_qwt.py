@@ -1,6 +1,6 @@
 from sys import argv
 
-from guilib.chartslider.chartslider import ChartSlider
+from guilib.chartslider.xchartslider import XChartSlider
 from guilib.chartwidget.viewmodel import SortFilterViewModel
 from guilib.qwtplot.plot import Plot
 from PySide6.QtWidgets import QApplication
@@ -27,7 +27,7 @@ def main() -> None:
     model = SortFilterViewModel()
     widget = QWidget()
     plot = Plot(model, None)
-    chart_slider = ChartSlider(model, widget, dates_column=0)
+    chart_slider = XChartSlider(model, widget, dates_column=0)
     layout = QVBoxLayout(widget)
     layout.addWidget(plot)
     layout.addWidget(chart_slider)

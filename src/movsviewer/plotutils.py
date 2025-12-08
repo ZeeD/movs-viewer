@@ -6,23 +6,24 @@ from itertools import accumulate
 from operator import attrgetter
 from typing import TYPE_CHECKING
 
-from guilib.chartslider.chartslider import ChartSlider
+from guilib.chartslider.xchartslider import XChartSlider
 from guilib.chartwidget.model import Column
 from guilib.chartwidget.model import ColumnHeader
 from guilib.chartwidget.model import ColumnProto
 from guilib.chartwidget.model import Info
 from guilib.chartwidget.model import InfoProto
 from guilib.qwtplot.plot import Plot
-from movslib.reader import read
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QWidget
 
+from movslib.reader import read
 from movsviewer.merger import read_and_merge
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from guilib.chartwidget.viewmodel import SortFilterViewModel
+
     from movslib.model import Row
     from movslib.model import Rows
 
@@ -118,7 +119,7 @@ class PlotAndSliderWidget(QWidget):
         super().__init__(parent)
 
         plot = Plot(model, self)
-        chart_slider = ChartSlider(model, self, dates_column=0)
+        chart_slider = XChartSlider(model, self, dates_column=0)
 
         layout = QVBoxLayout(self)
         layout.addWidget(plot)

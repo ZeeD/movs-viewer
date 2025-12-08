@@ -7,13 +7,13 @@ from guilib.chartwidget.model import Column
 from guilib.chartwidget.model import ColumnHeader
 from guilib.chartwidget.model import Info
 from guilib.chartwidget.viewmodel import SortFilterViewModel as SFVMguilib
-from movslib.model import KV
-from movslib.model import ZERO
-from movslib.model import Row
 from PySide6.QtWidgets import QTableView
 
 from _support.tmpapp import tmp_app
 from _support.tmptxt import tmp_txt
+from movslib.model import KV
+from movslib.model import ZERO
+from movslib.model import Row
 from movsviewer.viewmodel import SortFilterViewModel as SFVMmovsviewer
 
 

@@ -3,7 +3,6 @@ from datetime import timedelta
 from unittest import TestCase
 
 from movslib.model import Row
-
 from movsmerger.movsmerger import merge_rows
 
 

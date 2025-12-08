@@ -5,7 +5,6 @@ from unittest.case import TestCase
 
 from movslib.model import Row
 from movslib.model import Rows
-
 from movsviewer.plotutils import _acc_reset_by_year
 
 D_20200101: Final = date(2020, 1, 1)

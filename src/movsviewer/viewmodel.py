@@ -9,11 +9,6 @@ from typing import cast
 from typing import override
 
 from guilib.searchsheet.model import SearchableModel
-from movslib.autotag.autotag import autotag
-from movslib.autotag.model import TagRow
-from movslib.autotag.model import TagRows
-from movslib.autotag.model import Tags
-from movslib.model import ZERO
 from PySide6.QtCore import QAbstractTableModel
 from PySide6.QtCore import QItemSelectionModel
 from PySide6.QtCore import QModelIndex
@@ -23,6 +18,11 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush
 from PySide6.QtGui import QColor
 
+from movslib.autotag.autotag import autotag
+from movslib.autotag.model import TagRow
+from movslib.autotag.model import TagRows
+from movslib.autotag.model import Tags
+from movslib.model import ZERO
 from movsviewer.merger import read_and_merge
 
 if TYPE_CHECKING:

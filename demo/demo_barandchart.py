@@ -8,10 +8,6 @@ from sys import argv
 from typing import NoReturn
 from typing import override
 
-from movslib.model import ZERO
-from movslib.model import Row
-from movslib.model import Rows
-from movslib.movs import read_txt
 from PySide6.QtCharts import QBarCategoryAxis
 from PySide6.QtCharts import QBarSeries
 from PySide6.QtCharts import QBarSet
@@ -31,6 +27,10 @@ from PySide6.QtWidgets import QGraphicsSceneMouseEvent
 from PySide6.QtWidgets import QGraphicsSceneWheelEvent
 from PySide6.QtWidgets import QMainWindow
 
+from movslib.model import ZERO
+from movslib.model import Row
+from movslib.model import Rows
+from movslib.movs import read_txt
 from movsviewer.settings import Settings
 
 

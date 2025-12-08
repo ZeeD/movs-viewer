@@ -3,12 +3,11 @@ from decimal import Decimal
 from typing import Final
 from unittest.case import TestCase
 
+from _support.tmpapp import tmp_app
+from _support.tmptxt import tmp_txt
 from movslib.model import KV
 from movslib.model import ZERO
 from movslib.model import Row
-
-from _support.tmpapp import tmp_app
-from _support.tmptxt import tmp_txt
 from movsviewer.mainui import NewMainui
 from movsviewer.mainui import Settingsui
 from movsviewer.settings import Settings
