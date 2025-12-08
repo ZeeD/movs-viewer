@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:54671f20a74225395a960b3b08c57bcfef71fa996c66af25a3147c3a5f939953"
+content_hash = "sha256:a526ef506aa27373e48c55aed831648978a778c3f94d3963b4eeee47b0fc1453"
 
 [[metadata.targets]]
 requires_python = ">=3.12,<3.14"
@@ -845,7 +845,7 @@ files = [
 
 [[package]]
 name = "zeed-guilib"
-version = "0.0.11"
+version = "0.0.12"
 requires_python = "<3.14,>=3.12"
 summary = ""
 groups = ["default"]
@@ -855,6 +855,6 @@ dependencies = [
     "pythonqwt>=0.14.4",
 ]
 files = [
-    {file = "zeed_guilib-0.0.11-py3-none-any.whl", hash = "sha256:8be96270b080edb01a3314f9be843954af1f857583998aee9e7c8d6d87b4e4eb"},
-    {file = "zeed_guilib-0.0.11.tar.gz", hash = "sha256:bd5402cda9273322e4cd0662f0d8b3233494353fe8d92815b74dda5c8dcdb3b2"},
+    {file = "zeed_guilib-0.0.12-py3-none-any.whl", hash = "sha256:562c2f6cccd0d009ed93f86a1588cabc0401f5acd98c426355a67c0f6507b07d"},
+    {file = "zeed_guilib-0.0.12.tar.gz", hash = "sha256:925b05dba753d708f189e31b7ab666fbdb960429f023ea4bfeb0e2d291068b73"},
 ]
