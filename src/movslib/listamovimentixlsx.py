@@ -79,7 +79,7 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
         valuta_raw,
         addebiti_raw,
         accrediti_raw,
-        descrizione,
+        descrizione_raw,
     ) in sheet.iter_rows(
         MIN_ROW, MAX_ROW, min_col=1, max_col=5, values_only=True
     ):
@@ -91,15 +91,15 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
             raise TypeError(addebiti_raw)
         if not isinstance(accrediti_raw, float | None):
             raise TypeError(accrediti_raw)
-        if not isinstance(descrizione, str):
-            raise TypeError(descrizione)
+        if not isinstance(descrizione_raw, str):
+            raise TypeError(descrizione_raw)
 
         yield Row(
             data_contabile=contabile_raw.date(),
             data_valuta=valuta_raw.date(),
             addebiti=deci(addebiti_raw),
             accrediti=deci(accrediti_raw),
-            descrizione_operazioni=descrizione,
+            descrizione_operazioni=descrizione_raw.strip(),
         )
 
 
