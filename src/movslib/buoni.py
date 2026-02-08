@@ -9,7 +9,6 @@ from typing import overload
 from openpyxl import load_workbook
 
 from movslib.model import KV
-from movslib.model import ZERO
 from movslib.model import Row
 from movslib.model import Rows
 
@@ -67,15 +66,19 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
         valore_rimborso_netto = Decimal(
             valore_rimborso_netto_raw[1:].replace('.', '').replace(',', '.')
         )
-        data_sottoscrizione = datetime.strptime(
-            data_sottoscrizione_raw[:10], '%d/%m/%Y'
-        ).replace(tzinfo=UTC).date()
+        data_sottoscrizione = (
+            datetime.strptime(data_sottoscrizione_raw[:10], '%d/%m/%Y')
+            .replace(tzinfo=UTC)
+            .date()
+        )
         valore_nominale = Decimal(
             valore_nominale_raw[1:].replace('.', '').replace(',', '.')
         )
-        scadenza = datetime.strptime(scadenza_raw, '%d.%m.%Y').replace(
-            tzinfo=UTC
-        ).date()
+        scadenza = (
+            datetime.strptime(scadenza_raw, '%d.%m.%Y')
+            .replace(tzinfo=UTC)
+            .date()
+        )
 
         yield Row(
             data_contabile=data_sottoscrizione,
@@ -95,7 +98,7 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
 
 def read_csv(fn_sheet: 'str | Worksheet') -> 'Iterable[Row]':
     sheet = _load_sheet(fn_sheet) if isinstance(fn_sheet, str) else fn_sheet
-    return sorted(_read_csv(sheet), key=attrgetter('date'))
+    return sorted(_read_csv(sheet), key=attrgetter('date'), reverse=True)
 
 
 @overload
@@ -110,6 +113,7 @@ def read_buoni(
     fn: str, name: str | None = None
 ) -> 'tuple[KV, list[Row] | Rows]':
     sheet = _load_sheet(fn)
+    csv = read_csv(sheet)
     kv = KV(
         da=None,
         a=None,
@@ -117,9 +121,8 @@ def read_buoni(
         conto_bancoposta='',
         intestato_a='',
         saldo_al=None,
-        saldo_contabile=ZERO,
-        saldo_disponibile=ZERO,
+        saldo_contabile=sum(row.money for row in csv),
+        saldo_disponibile=sum(row.money for row in csv),
     )
-    csv = read_csv(sheet)
 
     return kv, (list(csv) if name is None else Rows(name, csv))
