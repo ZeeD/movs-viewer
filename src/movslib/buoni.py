@@ -36,54 +36,60 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
         _,
         _,
         _,
+        valore_rimborso_netto_raw,
         _,
         _,
         _,
-        netto_a_scadenza_raw,
         data_sottoscrizione_raw,
         valore_nominale_raw,
         scadenza_raw,
+        serie,
+        regolato_su,
         *_,
     ) in sheet.iter_rows(
         MIN_ROW, MAX_ROW, min_col=1, max_col=19, values_only=True
     ):
         if not isinstance(tipologia, str):
             raise TypeError(type(tipologia))
-        if not isinstance(netto_a_scadenza_raw, str):
-            raise TypeError(type(netto_a_scadenza_raw))
+        if not isinstance(valore_rimborso_netto_raw, str):
+            raise TypeError(type(valore_rimborso_netto_raw))
         if not isinstance(data_sottoscrizione_raw, str):
             raise TypeError(type(data_sottoscrizione_raw))
         if not isinstance(valore_nominale_raw, str):
             raise TypeError(type(valore_nominale_raw))
         if not isinstance(scadenza_raw, str):
             raise TypeError(type(scadenza_raw))
+        if not isinstance(serie, str):
+            raise TypeError(type(serie))
+        if not isinstance(regolato_su, str):
+            raise TypeError(type(regolato_su))
 
-        netto_a_scadenza = Decimal(
-            netto_a_scadenza_raw[1:].replace('.', '').replace(',', '.')
+        valore_rimborso_netto = Decimal(
+            valore_rimborso_netto_raw[1:].replace('.', '').replace(',', '.')
         )
         data_sottoscrizione = datetime.strptime(
             data_sottoscrizione_raw[:10], '%d/%m/%Y'
-        ).replace(tzinfo=UTC)
+        ).replace(tzinfo=UTC).date()
         valore_nominale = Decimal(
             valore_nominale_raw[1:].replace('.', '').replace(',', '.')
         )
         scadenza = datetime.strptime(scadenza_raw, '%d.%m.%Y').replace(
             tzinfo=UTC
-        )
+        ).date()
 
         yield Row(
-            data_contabile=data_sottoscrizione.date(),
-            data_valuta=data_sottoscrizione.date(),
+            data_contabile=data_sottoscrizione,
+            data_valuta=data_sottoscrizione,
             addebiti=valore_nominale,
             accrediti=None,
-            descrizione_operazioni=tipologia,
+            descrizione_operazioni=f'sottoscrizione {tipologia},{serie},{regolato_su}',
         )
         yield Row(
-            data_contabile=scadenza.date(),
-            data_valuta=scadenza.date(),
+            data_contabile=scadenza,
+            data_valuta=scadenza,
             addebiti=None,
-            accrediti=netto_a_scadenza,
-            descrizione_operazioni=tipologia,
+            accrediti=valore_rimborso_netto,
+            descrizione_operazioni=f'rimborso {tipologia},{serie},{regolato_su}',
         )
 
 
