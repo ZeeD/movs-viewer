@@ -9,6 +9,7 @@ from typing import overload
 from openpyxl import load_workbook
 
 from movslib.model import KV
+from movslib.model import ZERO
 from movslib.model import Row
 from movslib.model import Rows
 
@@ -85,14 +86,18 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
             data_valuta=data_sottoscrizione,
             addebiti=valore_nominale,
             accrediti=None,
-            descrizione_operazioni=f'sottoscrizione {tipologia},{serie},{regolato_su}',
+            descrizione_operazioni=(
+                f'sottoscrizione {tipologia},{serie},{regolato_su}'
+            ),
         )
         yield Row(
             data_contabile=scadenza,
             data_valuta=scadenza,
             addebiti=None,
             accrediti=valore_rimborso_netto,
-            descrizione_operazioni=f'rimborso {tipologia},{serie},{regolato_su}',
+            descrizione_operazioni=(
+                f'rimborso {tipologia},{serie},{regolato_su}'
+            ),
         )
 
 
@@ -121,8 +126,8 @@ def read_buoni(
         conto_bancoposta='',
         intestato_a='',
         saldo_al=None,
-        saldo_contabile=sum(row.money for row in csv),
-        saldo_disponibile=sum(row.money for row in csv),
+        saldo_contabile=sum((row.money for row in csv), start=ZERO),
+        saldo_disponibile=sum((row.money for row in csv), start=ZERO),
     )
 
     return kv, (list(csv) if name is None else Rows(name, csv))
