@@ -8,13 +8,14 @@ from shutil import copy
 from sys import argv
 from typing import TYPE_CHECKING
 
+from movslib.model import KV
+from movslib.model import ZERO
 from movslib.movs import write_txt
 from movslib.reader import read
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from movslib.model import KV
     from movslib.model import Row
 
 logger = getLogger(__name__)
@@ -43,6 +44,22 @@ def _merge_rows_helper(acc: 'list[Row]', new: 'list[Row]') -> 'Iterator[Row]':
             yield from acc[i:i2]
 
 
+def merge_kw(acc: 'KV', new: 'KV', csv: 'list[Row]') -> 'KV':
+    if acc.tipo == 'buoni postali':
+        # sintetico
+        return KV(
+            da=acc.da,
+            a=new.a,
+            tipo=new.tipo,
+            conto_bancoposta=new.conto_bancoposta,
+            intestato_a=new.conto_bancoposta,
+            saldo_al=new.saldo_al,
+            saldo_contabile=sum((row.money for row in csv), start=ZERO),
+            saldo_disponibile=sum((row.money for row in csv), start=ZERO),
+        )
+    return new
+
+
 def merge_rows(acc: 'list[Row]', new: 'list[Row]') -> 'list[Row]':
     return list(_merge_rows_helper(acc, new))
 
@@ -50,8 +67,9 @@ def merge_rows(acc: 'list[Row]', new: 'list[Row]') -> 'list[Row]':
 def merge_files(acc_fn: str, *mov_fns: str) -> 'tuple[KV, list[Row]]':
     kv, csv = read(acc_fn)
     for mov_fn in mov_fns:
-        kv, mov_csv = read(mov_fn)
+        mov_kv, mov_csv = read(mov_fn)
         csv = merge_rows(csv, mov_csv)
+        kv = merge_kw(kv, mov_kv, csv)
     return kv, csv
 
 
