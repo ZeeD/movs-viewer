@@ -5,6 +5,7 @@ from operator import attrgetter
 from typing import TYPE_CHECKING
 from typing import Final
 from typing import overload
+from warnings import filterwarnings
 
 from openpyxl import load_workbook
 
@@ -25,6 +26,8 @@ MAX_ROW: Final = 999
 
 
 def _load_sheet(fn: str) -> 'Worksheet':
+    # ignore openpyxl warning about libretto .xlsx quality
+    filterwarnings('ignore', module='openpyxl.styles.stylesheet')
     wb = load_workbook(fn, read_only=True, data_only=True, keep_links=False)
     return wb[SHEET_NAME]
 
