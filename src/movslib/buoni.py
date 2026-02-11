@@ -24,6 +24,9 @@ SHEET_NAME: Final = 'RPOL_PatrimonioBuoni'
 MIN_ROW: Final = 2
 MAX_ROW: Final = 999
 
+# https://www.agenziaentrate.gov.it/portale/schede/pagamenti/imposta-sulle-transazioni-finanziarie/infogen-imposta-transazioni-finanziarie
+IMPOSTA_SULLE_TRANSAZIONI_FINANZIARIE: Final = Decimal(1) - Decimal('0.12')
+
 
 def _load_sheet(fn: str) -> 'Worksheet':
     # ignore openpyxl warning about libretto .xlsx quality
@@ -39,10 +42,10 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
         _,
         _,
         _,
-        valore_rimborso_netto_raw,
         _,
         _,
         _,
+        valore_netto_a_scadenza_raw,
         data_sottoscrizione_raw,
         valore_nominale_raw,
         scadenza_raw,
@@ -54,8 +57,8 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
     ):
         if not isinstance(tipologia, str):
             raise TypeError(type(tipologia))
-        if not isinstance(valore_rimborso_netto_raw, str):
-            raise TypeError(type(valore_rimborso_netto_raw))
+        if not isinstance(valore_netto_a_scadenza_raw, str):
+            raise TypeError(type(valore_netto_a_scadenza_raw))
         if not isinstance(data_sottoscrizione_raw, str):
             raise TypeError(type(data_sottoscrizione_raw))
         if not isinstance(valore_nominale_raw, str):
@@ -67,8 +70,8 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
         if not isinstance(regolato_su, str):
             raise TypeError(type(regolato_su))
 
-        valore_rimborso_netto = Decimal(
-            valore_rimborso_netto_raw[1:].replace('.', '').replace(',', '.')
+        valore_netto_a_scadenza = Decimal(
+            valore_netto_a_scadenza_raw[1:].replace('.', '').replace(',', '.')
         )
         data_sottoscrizione = (
             datetime.strptime(data_sottoscrizione_raw[:10], '%d/%m/%Y')
@@ -84,6 +87,10 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
             .date()
         )
 
+        accrediti_a_scadenza = (
+            valore_netto_a_scadenza * IMPOSTA_SULLE_TRANSAZIONI_FINANZIARIE
+        )
+
         yield Row(
             data_contabile=data_sottoscrizione,
             data_valuta=data_sottoscrizione,
@@ -97,7 +104,7 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
             data_contabile=scadenza,
             data_valuta=scadenza,
             addebiti=None,
-            accrediti=valore_rimborso_netto,
+            accrediti=accrediti_a_scadenza,
             descrizione_operazioni=(
                 f'rimborso {tipologia},{serie},{regolato_su}'
             ),
