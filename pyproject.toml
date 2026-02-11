@@ -43,30 +43,26 @@ dev = [
 [tool.pdm]
 distribution = true
 plugins = [ "pdm-bump" ]
-
-[tool.pdm.build]
-excludes = [ "tests", "stubs", "demo" ]
-
-[tool.pdm.scripts]
-_.env = { PYTHONPATH = "src:tests:stubs:demo" }
-lint = { composite = [
+build.excludes = [ "tests", "stubs", "demo" ]
+scripts._.env = { PYTHONPATH = "src:tests:stubs:demo" }
+scripts.lint = { composite = [
     "pyproject-fmt pyproject.toml",
     "ruff format {args:.}",
     "ruff check {args:.}",
     "mypy {args:.}",
 ], keep_going = true }
-test = { composite = [
+scripts.test = { composite = [
     "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests {args}",
     "coverage report",
     "coverage erase",
 ] }
-movs-merger = "movs-merger"
-movs-validator = "movs-validator"
-movs-viewer = "movs-viewer"
-movs-inflazione = "movs-inflazione"
-movs-settings = "movs-settings"
-start = "movs-viewer" # "main" one
-bump_and_publish = { composite = [
+scripts.movs-merger = "movs-merger"
+scripts.movs-validator = "movs-validator"
+scripts.movs-viewer = "movs-viewer"
+scripts.movs-inflazione = "movs-inflazione"
+scripts.movs-settings = "movs-settings"
+scripts.start = "movs-viewer"  # "main" one
+scripts.bump_and_publish = { composite = [
     "pdm bump patch --commit --tag",
     "pdm publish",
     "git push",
@@ -114,20 +110,17 @@ lint.isort.force-single-line = true
 column_width = 80
 indent = 4
 
-[tool.coverage.run]
-branch = true
-source = [ "src", "tests" ]
-
-[tool.coverage.report]
-show_missing = true
-sort = "Cover"
-skip_empty = true
+[tool.coverage]
+run.branch = true
+run.source = [ "src", "tests" ]
+report.show_missing = true
+report.skip_empty = true
+report.sort = "Cover"
 
 [tool.mypy]
 mypy_path = [ "src", "tests", "stubs", "demo" ]
 strict = true
 warn_unused_configs = true
-
-[[tool.mypy.overrides]]
-module = [ "movsviewer.automation" ]
-disable_error_code = "no-untyped-call"
+overrides = [
+    { module = [ "movsviewer.automation" ], disable_error_code = "no-untyped-call" },
+]
