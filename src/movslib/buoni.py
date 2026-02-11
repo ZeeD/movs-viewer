@@ -25,7 +25,7 @@ MIN_ROW: Final = 2
 MAX_ROW: Final = 999
 
 # https://www.agenziaentrate.gov.it/portale/schede/pagamenti/imposta-sulle-transazioni-finanziarie/infogen-imposta-transazioni-finanziarie
-IMPOSTA_SULLE_TRANSAZIONI_FINANZIARIE: Final = Decimal(1) - Decimal('0.12')
+IMPOSTA_SULLE_TRANSAZIONI_FINANZIARIE: Final = Decimal('0.012')
 
 
 def _load_sheet(fn: str) -> 'Worksheet':
@@ -87,8 +87,8 @@ def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
             .date()
         )
 
-        accrediti_a_scadenza = (
-            valore_netto_a_scadenza * IMPOSTA_SULLE_TRANSAZIONI_FINANZIARIE
+        accrediti_a_scadenza = valore_netto_a_scadenza - (
+            valore_nominale * IMPOSTA_SULLE_TRANSAZIONI_FINANZIARIE
         )
 
         yield Row(
