@@ -77,7 +77,11 @@ def _acc_multi_years(
         yield previous_year, previous_year_acc
 
 
-def load_infos(*fn_names: tuple[str, str] | list[str]) -> list[InfoProto]:
+def load_infos(
+    *fn_names: tuple[str, str] | list[str],
+    by_year: bool = False,
+    multi_years: bool = False,
+) -> list[InfoProto]:
     tmp = defaultdict[date, list[ColumnProto]](list)
     for fn_name in fn_names:
         if isinstance(fn_name, list):
@@ -91,14 +95,16 @@ def load_infos(*fn_names: tuple[str, str] | list[str]) -> list[InfoProto]:
         for d, m in _acc(rows):
             tmp[d].append(Column(ch, m))
 
-        ch_year = ColumnHeader(f'{rows.name} (by year)', '€')
-        for d, m in _acc_reset_by_year(rows):
-            tmp[d].append(Column(ch_year, m))
+        if by_year:
+            ch_year = ColumnHeader(f'{rows.name} (by year)', '€')
+            for d, m in _acc_reset_by_year(rows):
+                tmp[d].append(Column(ch_year, m))
 
-        for y, it in _acc_multi_years(rows):
-            ch_y = ColumnHeader(f'{rows.name} ({y})', '€')
-            for d, m in it:
-                tmp[d].append(Column(ch_y, m))
+        if multi_years:
+            for y, it in _acc_multi_years(rows):
+                ch_y = ColumnHeader(f'{rows.name} ({y})', '€')
+                for d, m in it:
+                    tmp[d].append(Column(ch_y, m))
 
     sorted_days = sorted(tmp)
 

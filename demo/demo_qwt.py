@@ -26,7 +26,12 @@ def main() -> None:
 
     widget.show()
 
-    model.update(load_infos(*fn_names))
+    by_year = '--by-year' in app.arguments()
+    multi_years = '--multi-years' in app.arguments()
+
+    model.update(
+        load_infos(*fn_names, by_year=by_year, multi_years=multi_years)
+    )
 
     app.exec()
 
