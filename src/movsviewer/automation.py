@@ -4,12 +4,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 
-from selenium.webdriver import Firefox
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.expected_conditions import all_of
 from selenium.webdriver.support.expected_conditions import (
@@ -30,8 +30,6 @@ from movsviewer.constants import GECKODRIVER_PATH
 if TYPE_CHECKING:
     from collections.abc import Callable
     from collections.abc import Iterator
-
-    from selenium.webdriver.remote.webdriver import WebDriver
 
 logger = getLogger(__name__)
 
@@ -86,7 +84,7 @@ def get_movimenti(
 ) -> 'Iterator[Path]':
     with (
         TemporaryDirectory() as dtemp,
-        Firefox(
+        WebDriver(
             service=Service(executable_path=str(GECKODRIVER_PATH)),
             options=get_options(dtemp),
         ) as wd
