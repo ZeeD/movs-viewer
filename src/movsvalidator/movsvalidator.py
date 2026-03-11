@@ -18,28 +18,21 @@ logger = getLogger(__name__)
 
 
 def validate_saldo(kv: 'KV', csv: 'Rows', messages: list[str]) -> bool:
-    messages.append(f'bpol.saldo_al:                      {kv.saldo_al}')
-    if kv.saldo_al:
-        ultimo_update = (datetime.now(tz=UTC).date() - kv.saldo_al).days
-        messages.append(
-            f'ultimo update:                      {ultimo_update} giorni fa'
-        )
-    messages.append(
-        f'bpol.saldo_contabile:               {float(kv.saldo_contabile):_}'
-    )
-    messages.append(
-        f'bpol.saldo_disponibile:             {float(kv.saldo_disponibile):_}'
-    )
-
     s = sum(item.money for item in csv)
-    messages.append(f'Σ (item.accredito - item.addebito): {float(s):_}')
-    ret = kv.saldo_contabile == s == kv.saldo_disponibile
-    if not ret:
-        delta = max(
-            [abs(kv.saldo_contabile - s), abs(s - kv.saldo_disponibile)]
-        )
-        messages.append(f'Δ:                                  {float(delta):_}')
-    return ret
+    d = abs(kv.saldo_contabile - s)
+
+    today = datetime.now(tz=UTC).date()
+    saldo_al = kv.saldo_al if kv.saldo_al is not None else today
+    messages.append(
+        f'{csv.name} @ {saldo_al} ({(today - saldo_al).days} giorni fa)'
+    )
+    messages.append(
+        f'saldo_contabile: {float(kv.saldo_contabile):_} - '
+        f'saldo_disponibile: {float(kv.saldo_disponibile):_}'
+    )
+    messages.append(f'Σ:               {float(s):_}')
+    messages.append(f'Δ:               {float(d):_}')
+    return kv.saldo_contabile == s
 
 
 def validate_dates(csv: 'Rows', messages: list[str]) -> bool:
@@ -52,7 +45,6 @@ def validate_dates(csv: 'Rows', messages: list[str]) -> bool:
 
 
 def validate(fn: str, messages: list[str]) -> bool:
-    messages.append(fn)
     kv, csv = read(fn, Path(fn).stem)
     return all(
         [validate_saldo(kv, csv, messages), validate_dates(csv, messages)]
