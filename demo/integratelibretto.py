@@ -28,10 +28,10 @@ def main() -> None:
             data_valuta=datetime.fromisoformat(el['data_valuta']).date(),
             addebiti=None
             if el['addebiti'] is None
-            else Decimal(el['addebiti']),
+            else Decimal(str(el['addebiti'])),
             accrediti=None
             if el['accrediti'] is None
-            else Decimal(el['accrediti']),
+            else Decimal(str(el['accrediti'])),
             descrizione_operazioni=el['descrizione operazioni'],
         )
         csv.append(row)
