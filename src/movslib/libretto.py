@@ -60,7 +60,7 @@ def _read_kv(sheet: 'Worksheet') -> KV:
     return KV(
         da=periodo_da,
         a=periodo_a,
-        tipo='',
+        tipo='libretto postale',
         conto_bancoposta=libretto_n,
         intestato_a='',
         saldo_al=periodo_a,

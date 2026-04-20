@@ -57,6 +57,18 @@ def merge_kw(acc: 'KV', new: 'KV', csv: 'list[Row]') -> 'KV':
             saldo_contabile=sum((row.money for row in csv), start=ZERO),
             saldo_disponibile=sum((row.money for row in csv), start=ZERO),
         )
+    if acc.tipo == 'libretto postale':
+        # sintetico
+        return KV(
+            da=new.da,
+            a=new.a,
+            tipo=new.tipo,
+            conto_bancoposta=new.conto_bancoposta,
+            intestato_a=new.conto_bancoposta,
+            saldo_al=new.saldo_al,
+            saldo_contabile=sum((row.money for row in csv), start=ZERO),
+            saldo_disponibile=sum((row.money for row in csv), start=ZERO),
+        )
     return new
 
 
