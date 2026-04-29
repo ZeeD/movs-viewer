@@ -21,7 +21,7 @@ dependencies = [
     "pythonqwt>=0.12.5",
     "selenium>=4.22",
     "tabula-py[jpype]>=2.9.3",
-    "zeed-guilib>=0.0.14",
+    "zeed-guilib>=0.0.16",
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-viewer"
 urls.Repository = "https://github.com/ZeeD/movs-viewer.git"
@@ -111,13 +111,6 @@ lint.isort.force-single-line = true
 column_width = 80
 indent = 4
 
-[tool.coverage]
-run.branch = true
-run.source = [ "src", "tests" ]
-report.show_missing = true
-report.skip_empty = true
-report.sort = "Cover"
-
 [tool.mypy]
 mypy_path = [ "src", "tests", "stubs", "demo" ]
 strict = true
@@ -125,3 +118,10 @@ warn_unused_configs = true
 overrides = [
     { module = [ "movsviewer.automation" ], disable_error_code = "no-untyped-call" },
 ]
+
+[tool.coverage]
+run.branch = true
+run.source = [ "src", "tests" ]
+report.show_missing = true
+report.skip_empty = true
+report.sort = "Cover"

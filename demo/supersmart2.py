@@ -98,8 +98,6 @@ def parse_search_e(search_e: SearchE) -> list[Row]:
     return ret
 
 
-
-
 def main() -> None:
     kv, csv = merge_files(MOVIMENTI_1, MOVIMENTI_2)
 
@@ -107,7 +105,6 @@ def main() -> None:
     messages_1: Final[list[str]] = []
     validate(OUTPUT_1, messages_1)
     print('\n'.join(messages_1))
-
 
     with SEARCH.open() as fp:
         search: list[SearchE] = load(fp)
@@ -119,7 +116,12 @@ def main() -> None:
         for previsione in prevs:
             saldo_contabile += previsione.accrediti or Decimal(0)
 
-    csv = [ d[2] for d in sorted(((row.date, -row.money, row) for row in csv), reverse=True)]
+    csv = [
+        d[2]
+        for d in sorted(
+            ((row.date, -row.money, row) for row in csv), reverse=True
+        )
+    ]
 
     write_txt(
         OUTPUT_2,
