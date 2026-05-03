@@ -3,14 +3,20 @@ from decimal import Decimal
 from json import load
 from operator import attrgetter
 from pathlib import Path
+from typing import TYPE_CHECKING
+from typing import cast
 
 from movslib.model import Row
 from movslib.movs import write_txt
 from movslib.reader import read
 
+if TYPE_CHECKING:
+    from typing import Any
+
+
 ACC_PATH = '/home/zed/eclipse-workspace/movs-data/RPOL_accumulator_libretto.txt'
 JSON_PATH = '/home/zed/Desktop/librettoattive.json'
-# JSON_PATH = '/home/zed/Desktop/librettoscadute.json'
+# JSON_PATH = '/home/zed/Desktop/librettoscadute.json' # noqa: ERA001
 
 
 def main() -> None:
@@ -20,9 +26,7 @@ def main() -> None:
 
     csv.reverse()
 
-    assert isinstance(j, list)
-    for el in j:
-        assert isinstance(el, dict)
+    for el in cast('list[dict[str, Any]]', j):
         row = Row(
             data_contabile=datetime.fromisoformat(el['data_contabile']).date(),
             data_valuta=datetime.fromisoformat(el['data_valuta']).date(),

@@ -104,7 +104,7 @@ def main() -> None:
     write_txt(OUTPUT_1, kv, csv)
     messages_1: Final[list[str]] = []
     validate(OUTPUT_1, messages_1)
-    print('\n'.join(messages_1))
+    print('\n'.join(messages_1))  # noqa: T201
 
     with SEARCH.open() as fp:
         search: list[SearchE] = load(fp)
@@ -139,7 +139,7 @@ def main() -> None:
     )
     messages_2: Final[list[str]] = []
     validate(OUTPUT_2, messages_2)
-    print('\n'.join(messages_2))
+    print('\n'.join(messages_2))  # noqa: T201
 
 
 if __name__ == '__main__':
