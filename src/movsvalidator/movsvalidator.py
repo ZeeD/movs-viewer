@@ -51,6 +51,16 @@ def validate(fn: str, messages: list[str]) -> bool:
     )
 
 
+def validate_fn(fn: str, *, prefix: str = '') -> bool:
+    messages: list[str] = []
+    ok = validate(fn, messages)
+    for message in messages:
+        logger.info('%s%s', prefix, message)
+    if not ok:
+        logger.error('%s%s seems has some problems!', prefix, fn)
+    return ok
+
+
 def main() -> None:
     basicConfig(level=INFO, format='%(message)s')
 
@@ -59,10 +69,6 @@ def main() -> None:
         raise SystemExit
 
     for fn in argv[1:]:
-        messages: list[str] = []
-        ok = validate(fn, messages)
-        for message in messages:
-            logger.info('%s', message)
+        ok = validate_fn(fn)
         if not ok:
-            logger.error('%s seems has some problems!', fn)
             raise SystemExit

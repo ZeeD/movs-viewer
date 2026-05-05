@@ -12,6 +12,7 @@ from movslib.model import KV
 from movslib.model import ZERO
 from movslib.movs import write_txt
 from movslib.reader import read
+from movsvalidator.movsvalidator import validate_fn
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -93,6 +94,8 @@ def copy_to_txt(bin_fn: str) -> str:
 
 
 def _main_txt(accumulator: str, movimentis: list[str]) -> None:
+    validate_fn(accumulator, prefix='\tbefore: ')
+
     pqtdiff3_suggestion = ['pqtdiff3']
 
     backup_accumulator = f'{accumulator}~'
@@ -116,6 +119,8 @@ def _main_txt(accumulator: str, movimentis: list[str]) -> None:
             pqtdiff3_suggestion.append(text_movimenti)
         else:
             pqtdiff3_suggestion.append(movimenti)
+
+    validate_fn(accumulator, prefix='\tafter: ')
 
     logger.info('%s', join(pqtdiff3_suggestion))
 
