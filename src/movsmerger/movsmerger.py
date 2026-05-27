@@ -1,3 +1,5 @@
+from collections import defaultdict
+from datetime import date
 from difflib import SequenceMatcher
 from logging import INFO
 from logging import basicConfig
@@ -47,6 +49,31 @@ def _merge_rows_helper(acc: 'list[Row]', new: 'list[Row]') -> 'Iterator[Row]':
 
 def merge_kw(acc: 'KV', new: 'KV', csv: 'list[Row]') -> 'KV':
     if acc.tipo == 'buoni postali':
+        today = date.today()
+
+        saldo_contabile = ZERO
+        saldo_disponibile = ZERO
+
+        # { descr: [rows] }
+        grouped: dict[str, list[Row]] = defaultdict(list)
+        for row in csv:
+            key: str
+            if row.descrizione_operazioni.startswith(
+                'rimborso'
+            ) or row.descrizione_operazioni.startswith('sottoscrizione'):
+                key = row.descrizione_operazioni
+            else:
+                key = row.descrizione_operazioni
+            grouped[key].append(row)
+
+        for descr in sorted(grouped):
+            pass
+
+        # delme
+        for row in csv:
+            saldo_contabile += row.money
+            saldo_disponibile += row.money
+
         # sintetico
         return KV(
             da=acc.da,
@@ -55,8 +82,8 @@ def merge_kw(acc: 'KV', new: 'KV', csv: 'list[Row]') -> 'KV':
             conto_bancoposta=new.conto_bancoposta,
             intestato_a=new.conto_bancoposta,
             saldo_al=new.saldo_al,
-            saldo_contabile=sum((row.money for row in csv), start=ZERO),
-            saldo_disponibile=sum((row.money for row in csv), start=ZERO),
+            saldo_contabile=saldo_contabile,
+            saldo_disponibile=saldo_disponibile,
         )
     if acc.tipo == 'libretto postale':
         # sintetico

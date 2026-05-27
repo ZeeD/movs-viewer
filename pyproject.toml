@@ -37,6 +37,7 @@ dev = [
     "mypy>=1.11.2",
     "pandas-stubs>=2.2.2.240603",
     "pyproject-fmt>=2.5",
+    "pyproject-fmt>=2.5",
     "ruff>=0.6.9",
     "types-openpyxl>=3.1.5.20240918",
 ]
