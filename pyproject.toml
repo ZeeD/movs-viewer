@@ -45,30 +45,30 @@ dev = [
 [tool.pdm]
 distribution = true
 plugins = [ "pdm-bump" ]
-build.excludes = [ "tests", "stubs", "demo" ]
+build.excludes = [ "demo", "stubs", "tests" ]
 scripts._.env = { PYTHONPATH = "src:tests:stubs:demo" }
+scripts.bump_and_publish = { composite = [
+    "pdm bump patch --commit --tag",
+    "pdm publish",
+    "git push",
+    "git push --tags",
+] }
 scripts.lint = { composite = [
     "pyproject-fmt pyproject.toml",
     "ruff format {args:.}",
     "ruff check {args:.}",
     "mypy {args:.}",
 ], keep_going = true }
+scripts.movs-inflazione = "movs-inflazione"
+scripts.movs-merger = "movs-merger"
+scripts.movs-settings = "movs-settings"
+scripts.movs-validator = "movs-validator"
+scripts.movs-viewer = "movs-viewer"
+scripts.start = "movs-viewer"  # "main" one
 scripts.test = { composite = [
     "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests {args}",
     "coverage report",
     "coverage erase",
-] }
-scripts.movs-merger = "movs-merger"
-scripts.movs-validator = "movs-validator"
-scripts.movs-viewer = "movs-viewer"
-scripts.movs-inflazione = "movs-inflazione"
-scripts.movs-settings = "movs-settings"
-scripts.start = "movs-viewer"  # "main" one
-scripts.bump_and_publish = { composite = [
-    "pdm bump patch --commit --tag",
-    "pdm publish",
-    "git push",
-    "git push --tags",
 ] }
 
 [tool.ruff]
