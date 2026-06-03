@@ -1,4 +1,5 @@
 from datetime import timedelta
+from logging import getLogger
 from sys import argv
 
 from guilib.chartwidget.model import Column
@@ -12,6 +13,8 @@ from movslib.model import ZERO
 from movslib.model import Row
 from movslib.reader import read
 from qwt.plot_curve import QwtPlotCurve
+
+logger = getLogger(__name__)
 
 
 def convert(rows: list[Row]) -> list[Info]:
@@ -30,17 +33,16 @@ def convert(rows: list[Row]) -> list[Info]:
             hs[k] = v
         elif 'rimborso' in row.descrizione_operazioni:
             do = row.descrizione_operazioni[9:]
-            for k in hs:
+            for k, v in hs.items():
                 if not k.endswith(do):
                     continue
-                v = hs[k]
                 if v['r'] != row.date:
                     continue
                 v['m2'] = row.money
                 break
             else:
-                print(f'!!!! NOT FOUND !!! [{do=}]')
-                print(f'{hs=}')
+                logger.info('!!!! NOT FOUND !!! [do=%s]', do)
+                logger.info('hs=%s', hs)
 
     converted = []
     for row in rows:

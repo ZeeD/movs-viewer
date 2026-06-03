@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import date
+from datetime import datetime
 from difflib import SequenceMatcher
 from logging import INFO
 from logging import basicConfig
@@ -9,6 +9,7 @@ from shlex import join
 from shutil import copy
 from sys import argv
 from typing import TYPE_CHECKING
+from zoneinfo import ZoneInfo
 
 from movslib.model import KV
 from movslib.model import ZERO
@@ -49,12 +50,12 @@ def _merge_rows_helper(acc: 'list[Row]', new: 'list[Row]') -> 'Iterator[Row]':
 
 def merge_kw(acc: 'KV', new: 'KV', csv: 'list[Row]') -> 'KV':
     if acc.tipo == 'buoni postali':
-        today = date.today()
+        today = datetime.now(tz=ZoneInfo('Europe/Rome')).date()
 
         saldo_contabile = ZERO
         saldo_disponibile = ZERO
 
-        # { descr: [rows] }
+        # note: ```{ descr: [rows] }```
         grouped: dict[str, list[Row]] = defaultdict(list)
         for row in csv:
             key: str
@@ -67,7 +68,7 @@ def merge_kw(acc: 'KV', new: 'KV', csv: 'list[Row]') -> 'KV':
             grouped[key].append(row)
 
         for descr in sorted(grouped):
-            pass
+            logger.info('descr: %s, today: %s', descr, today)
 
         # delme
         for row in csv:

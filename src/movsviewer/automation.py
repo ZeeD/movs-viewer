@@ -1,9 +1,8 @@
-from collections.abc import Callable
-from collections.abc import Iterator
 from contextlib import contextmanager
 from logging import getLogger
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
 
 from selenium.webdriver import Firefox
 from selenium.webdriver import FirefoxOptions
@@ -24,6 +23,11 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.support.expected_conditions import url_contains
 from selenium.webdriver.support.wait import WebDriverWait
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from collections.abc import Iterator
+
+
 logger = getLogger(__name__)
 
 
@@ -40,9 +44,7 @@ def get_options(dtemp: str) -> FirefoxOptions:
 
 def _w(
     wait: WebDriverWait[Firefox],
-    condition: Callable[
-        [tuple[str, str]], Callable[[Firefox], bool | WebElement]
-    ],
+    condition: 'Callable[[tuple[str,str]],Callable[[Firefox],bool|WebElement]]',
     css_selector: str,
 ) -> WebElement:
     ret = wait.until(condition((By.CSS_SELECTOR, css_selector)))
@@ -74,7 +76,7 @@ def pl(wait: WebDriverWait[Firefox], wd: Firefox) -> None:
 
 
 @contextmanager
-def get_movimenti(num_conto: str) -> Iterator[Path]:
+def get_movimenti(num_conto: str) -> 'Iterator[Path]':
     with (
         TemporaryDirectory() as dtemp,
         Firefox(options=get_options(dtemp)) as wd,
@@ -88,7 +90,10 @@ def get_movimenti(num_conto: str) -> Iterator[Path]:
         wd.find_element(By.CSS_SELECTOR, '#truste-consent-required2').click()
         wait.until(url_contains('https://bancoposta.poste.it'))
 
-        # usare xpath document.querySelectorAll('.link-lever') + "Conto BancoPosta 001030700957"
+        # usare xpath document.querySelectorAll('.link-lever')
+        # e testo: "Conto BancoPosta 001030700957"
+        text = f'Conto BancoPosta  {num_conto}'
+        logger.info('text: %s', text)
 
         pdtemp = Path(dtemp)
 

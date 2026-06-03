@@ -26,6 +26,8 @@ from movslib.model import ZERO
 from movsviewer.merger import read_and_merge
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from PySide6.QtWidgets import QStatusBar
 
 
@@ -175,7 +177,10 @@ class SortFilterViewModel(SearchableModel):
         accrediti_index = FIELD_NAMES.index('accrediti')
 
         bigsum = 0
-        for column, iop in ((addebiti_index, isub), (accrediti_index, iadd)):
+        for column, iop in cast(
+            'list[tuple[int, Callable[[int,int], int]]]',
+            [(addebiti_index, isub), (accrediti_index, iadd)],
+        ):
             for index in selection_model.selectedRows(column):
                 data = index.data(Qt.ItemDataRole.UserRole)
                 if data is not None:
