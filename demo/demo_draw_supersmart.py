@@ -24,11 +24,11 @@ def convert(rows: list[Row]) -> list[Info]:
             days = int(do.split(',')[1].split(' ')[0])
             v = {
                 's': row.date,
-                'r': row.date+timedelta(days=days),
-                'm': row.money
+                'r': row.date + timedelta(days=days),
+                'm': row.money,
             }
             hs[k] = v
-        elif  'rimborso' in row.descrizione_operazioni:
+        elif 'rimborso' in row.descrizione_operazioni:
             do = row.descrizione_operazioni[9:]
             for k in hs:
                 if not k.endswith(do):
@@ -53,6 +53,7 @@ def convert(rows: list[Row]) -> list[Info]:
             ch = ColumnHeader(row.descrizione_operazioni[9:], '€')
             converted.append(Info(row.date, [Column(ch, row.money)]))
     return converted
+
 
 def read_and_convert(fns: list[str]) -> list[Info]:
     ret = []

@@ -4,8 +4,6 @@ from logging import getLogger
 from sys import argv
 
 from PySide6.QtWidgets import QApplication
-from PySide6.QtWidgets import QInputDialog
-from PySide6.QtWidgets import QLineEdit
 from PySide6.QtWidgets import QWidget
 
 from movsmerger.movsmerger import merge_files
@@ -13,20 +11,6 @@ from movsviewer.automation import get_movimenti
 from movsviewer.settings import Settings
 
 logger = getLogger(__name__)
-
-
-class AskOtp:
-    def __init__(self, parent: QWidget) -> None:
-        self.parent = parent
-
-    def __call__(self) -> str:
-        self.parent.setFocus()
-        response, ok = QInputDialog.getText(
-            self.parent, 'OTP', 'homeBanking', QLineEdit.EchoMode.Normal
-        )
-        if not ok:
-            raise ValueError
-        return response
 
 
 def main() -> None:
@@ -37,11 +21,10 @@ def main() -> None:
 
     settings = Settings(argv[1:])
     numconto = '000091703983'
-    with get_movimenti(
-        settings.username, settings.password, numconto, AskOtp(q)
-    ) as movimenti:
+    with get_movimenti(numconto) as movimenti:
         logger.info(movimenti)
         merge_files(settings.data_paths[0], str(movimenti))
+
     raise SystemExit(app.exec())
 
 
