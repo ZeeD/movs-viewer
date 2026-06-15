@@ -57,7 +57,7 @@ def read_kv(fn: str) -> KV:
             pages=1,
             area=[[0, 400, 100, 600], [140, 120, 170, 210], [170, 0, 200, 600]],
             silent=True,
-            java_options=['--enable-native-access=ALL-UNNAMED']
+            java_options=['--enable-native-access=ALL-UNNAMED'],
         )
     if not isinstance(tables, list):
         raise TypeError(tables)
