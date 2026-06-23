@@ -66,7 +66,7 @@ def dt(raw: str) -> date:
 
 
 def d(raw: str) -> Decimal:
-    return Decimal(raw.split(' ', 1)[0].replace('.', '').replace(',', '.'))
+    return Decimal(raw.split(None, 1)[0].replace('.', '').replace(',', '.'))
 
 
 def extend(csv: list[Row], *rows: Row) -> 'Iterator[Decimal]':
