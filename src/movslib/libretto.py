@@ -75,13 +75,13 @@ def read_kv(fn_sheet: 'str | Worksheet') -> KV:
 
 
 def _read_csv(sheet: 'Worksheet') -> 'Iterable[Row]':
-    for contabile_raw, valuta_raw, descrizione, importo_raw in sheet.iter_rows(
+    for valuta_raw, contabile_raw, descrizione, importo_raw in sheet.iter_rows(
         MIN_ROW, MAX_ROW, min_col=1, max_col=4, values_only=True
     ):
-        if not isinstance(contabile_raw, str):
-            raise TypeError(contabile_raw)
         if not isinstance(valuta_raw, str):
             raise TypeError(valuta_raw)
+        if not isinstance(contabile_raw, str):
+            raise TypeError(contabile_raw)
         if not isinstance(descrizione, str):
             raise TypeError(descrizione)
         if not isinstance(importo_raw, str):
