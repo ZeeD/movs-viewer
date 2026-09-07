@@ -1008,9 +1008,9 @@ files = [
 
 [[package]]
 name = "zeed-guilib"
-version = "0.0.16"
+version = "0.0.17"
 requires_python = "<3.15,>=3.12"
-summary = ""
+summary = "shared lib for gui stuff for zeed-*-viewer"
 groups = ["default"]
 dependencies = [
     "pyside6-addons>=6.10",
@@ -1018,6 +1018,6 @@ dependencies = [
     "pythonqwt>=0.14.4",
 ]
 files = [
-    {file = "zeed_guilib-0.0.16-py3-none-any.whl", hash = "sha256:652311c9d9a36e8b327e69f170d04a686ace12c576653b346b8510dc47f19f16"},
-    {file = "zeed_guilib-0.0.16.tar.gz", hash = "sha256:5e9a574c9bc281bee5a757d0101aef3ffd3e71d56239e4d571b480f9417192cc"},
+    {file = "zeed_guilib-0.0.17-py3-none-any.whl", hash = "sha256:4fcb1e4694b78fc3a96e6529101088e53396d5f632b7717fd2ee9be15bedf3e3"},
+    {file = "zeed_guilib-0.0.17.tar.gz", hash = "sha256:5da074ba919e2b8fa174e1d27227fb20dda3973e4c0200a3b402de963344d49f"},
 ]
