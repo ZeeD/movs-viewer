@@ -67,6 +67,7 @@ def merge_kw(acc: 'KV', new: 'KV', csv: 'list[Row]') -> 'KV':
                 key = row.descrizione_operazioni
             grouped[key].append(row)
 
+        # TODO: remove info
         for descr in sorted(grouped):
             logger.info('descr: %s, today: %s', descr, today)
 

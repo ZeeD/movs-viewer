@@ -7,6 +7,7 @@ from typing import overload
 from movslib.buoni import read_buoni
 from movslib.estrattoconto import read_estrattoconto
 from movslib.libretto import read_libretto
+from movslib.librettotxt import read_libretto_txt
 from movslib.listamovimentixlsx import read_lista_movimenti_xlsx
 from movslib.movs import read_txt
 from movslib.postepay import read_postepay
@@ -35,6 +36,7 @@ RULES: Final[dict[str, Reader]] = {
     'ListaMovimenti.pdf': read_postepay,
     'RPOL_Movimenti_Libretto.xlsx': read_libretto,
     'RPOL_PatrimonioBuoni.xlsx': read_buoni,
+    'RPOL_accumulator_libretto.txt': read_libretto_txt,
     '.txt': read_txt,
     '.pdf': read_estrattoconto,
     '.scan': read_scansioni,
