@@ -29,6 +29,7 @@ scripts.movs-inflazione = "movsinflazione:main"
 scripts.movs-merger = "movsmerger.movsmerger:main"
 scripts.movs-settings = "movssettings:main"
 scripts.movs-validator = "movsvalidator.movsvalidator:main"
+scripts.supersmart-merger = "movsmerger.supersmartmerger:main"
 gui-scripts.movs-viewer = "movsviewer.mainui:main"
 
 [dependency-groups]
@@ -70,6 +71,7 @@ scripts.test = { composite = [
     "coverage report",
     "coverage erase",
 ] }
+scripts.supersmart-merger = "supersmart-merger"
 
 [tool.ruff]
 line-length = 80
