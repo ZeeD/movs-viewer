@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 def read_kv_libretto_txt(kv_raw: KV, rows: 'Iterable[Row]') -> KV:
-    """Filtra righe attive, ritorna valore originale"""
+    """Filtra righe attive, ritorna valore originale."""
     # TODO: actually do it
     return kv_raw
 

@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 from difflib import SequenceMatcher
 from logging import INFO
+from logging import Logger
 from logging import basicConfig
 from logging import getLogger
 from pathlib import Path
@@ -13,14 +14,15 @@ from zoneinfo import ZoneInfo
 
 from movslib.model import KV
 from movslib.model import ZERO
+from movslib.model import Row
 from movslib.movs import write_txt
 from movslib.reader import read
 from movsvalidator.movsvalidator import validate_fn
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from collections.abc import Iterator
 
-    from movslib.model import Row
 
 logger = getLogger(__name__)
 
@@ -122,36 +124,47 @@ def copy_to_txt(bin_fn: str) -> str:
     return txt_fn
 
 
-def _main_txt(accumulator: str, movimentis: list[str]) -> None:
+def tui(
+    accumulator: str,
+    cb1: 'Callable[[], tuple[KV, list[Row]]]',
+    cb2: 'Callable[[list[str]], None]',
+    logger: Logger,
+) -> None:
     validate_fn(accumulator, prefix='\tbefore: ')
-
     pqtdiff3_suggestion = ['pqtdiff3']
-
     backup_accumulator = f'{accumulator}~'
     copy(accumulator, backup_accumulator)
     logger.info('backupd at %s', backup_accumulator)
-
     pqtdiff3_suggestion.append(backup_accumulator)
 
-    kv, csv = merge_files(accumulator, *movimentis)
+    kv, csv = cb1()
+
     write_txt(accumulator, kv, csv)
     logger.info('overridden %s', accumulator)
-
     pqtdiff3_suggestion.append(accumulator)
 
-    for movimenti in movimentis:
-        logger.info('and merged %s', movimenti)
-        if not movimenti.endswith('.txt'):
-            text_movimenti = copy_to_txt(movimenti)
-            logger.info(' copied as %s', text_movimenti)
-
-            pqtdiff3_suggestion.append(text_movimenti)
-        else:
-            pqtdiff3_suggestion.append(movimenti)
+    cb2(pqtdiff3_suggestion)
 
     validate_fn(accumulator, prefix='\tafter: ')
-
     logger.info('%s', join(pqtdiff3_suggestion))
+
+
+def _main_txt(accumulator: str, movimentis: list[str]) -> None:
+    def cb1() -> tuple[KV, list[Row]]:
+        return merge_files(accumulator, *movimentis)
+
+    def cb2(pqtdiff3_suggestion: list[str]) -> None:
+        for movimenti in movimentis:
+            logger.info('and merged %s', movimenti)
+            if not movimenti.endswith('.txt'):
+                text_movimenti = copy_to_txt(movimenti)
+                logger.info(' copied as %s', text_movimenti)
+
+                pqtdiff3_suggestion.append(text_movimenti)
+            else:
+                pqtdiff3_suggestion.append(movimenti)
+
+    tui(accumulator, cb1, cb2, logger)
 
 
 def _main_binary(binary_accumulator: str, movimentis: list[str]) -> None:

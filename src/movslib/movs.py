@@ -62,7 +62,7 @@ def read_kv(kv_file: 'Iterable[str]') -> KV:
 
 
 def fmt_value(
-    e: None | date | Decimal | str, conv_decimal_inv: 'Callable[[Decimal], str]'
+    e: date | Decimal | str | None, conv_decimal_inv: 'Callable[[Decimal], str]'
 ) -> str:
     if e is None:
         return ''

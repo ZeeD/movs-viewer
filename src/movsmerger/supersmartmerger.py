@@ -11,28 +11,20 @@ from logging import basicConfig
 from logging import getLogger
 from operator import add
 from pathlib import Path
-from shlex import quote
 from sys import argv
 from typing import TYPE_CHECKING
-from typing import Final
 from typing import TypedDict
 from zoneinfo import ZoneInfo
 
 from movslib.model import KV
 from movslib.model import Row
-from movslib.movs import write_txt
 from movslib.reader import read
+from movsmerger.movsmerger import tui
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
 logger = getLogger(__name__)
-
-ACC_FN: Final = (
-    '/home/zed/eclipse-workspace/movs-data/RPOL_accumulator_libretto.txt'
-)
-ATTIVE_FN: Final = '/home/zed/Desktop/attive.json'
-SCADUTE_FN: Final = '/home/zed/Desktop/scadute.json'
 
 
 class Attive(TypedDict):
@@ -109,9 +101,7 @@ def contains(
     return C(-1, b=False)
 
 
-def merge_libretto_supersmart(
-    acc_fn: str, attive_fn: str, scadute_fn: str
-) -> None:
+def merge_supersmart(acc_fn: str, attive_fn: str, scadute_fn: str) -> None:
     # load data
     kv, csv = read(acc_fn)
     with Path(attive_fn).open() as fp:
@@ -225,11 +215,8 @@ def merge_libretto_supersmart(
         if False:  # TODO: check if previsione has been removed
             pass
 
-    # allow retries
-    dst_fn = f'{acc_fn}~'
-    write_txt(
-        dst_fn,
-        KV(
+    def cb1() -> tuple[KV, list[Row]]:
+        return KV(
             da=kv.da,
             a=kv.a,
             tipo=kv.tipo,
@@ -238,24 +225,26 @@ def merge_libretto_supersmart(
             saldo_al=kv.saldo_al,
             saldo_contabile=saldo,
             saldo_disponibile=saldo,
-        ),
-        csv,
-    )
-    logger.info('kdiff3 %s %s', quote(acc_fn), quote(dst_fn))
+        ), csv
+
+    def cb2(pqtdiff3_suggestion: list[str]) -> None:
+        pass
+
+    tui(acc_fn, cb1, cb2, logger)
 
 
 def main() -> None:
     basicConfig(format='%(message)s', level=INFO)
 
-    if not argv[1:]:
-        logger.warning(
+    if not argv[1:] or '-h' in argv[1:] or '--help' in argv[1:]:
+        logger.error(
             'Usage: %s ACCUMULATOR.txt ATTIVE.json SCADUTE.json', argv[0]
         )
-        acc_fn, attive_fn, scadute_fn = ACC_FN, ATTIVE_FN, SCADUTE_FN
-    else:
-        acc_fn, attive_fn, scadute_fn = argv[1:]
+        raise SystemExit
 
-    merge_libretto_supersmart(acc_fn, attive_fn, scadute_fn)
+    acc_fn, attive_fn, scadute_fn = argv[1:]
+
+    merge_supersmart(acc_fn, attive_fn, scadute_fn)
 
 
 if __name__ == '__main__':
