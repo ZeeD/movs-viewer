@@ -17,12 +17,12 @@ dependencies = [
     "jdk4py>=21.0.4.1",
     "openpyxl>=3.1.5",
     "pypdf>=4.2",
-    "pyside6-essentials==6.12.0",
+    "pyside6-addons==6.12",
+    "pyside6-essentials==6.12",
     "pythonqwt>=0.12.5",
     "selenium>=4.22",
     "tabula-py[jpype]>=2.9.3",
     "zeed-guilib>=0.0.16",
-    "pyside6-addons==6.12.0",
 ]
 urls.Homepage = "https://github.com/ZeeD/movs-viewer"
 urls.Repository = "https://github.com/ZeeD/movs-viewer.git"
@@ -67,12 +67,12 @@ scripts.movs-settings = "movs-settings"
 scripts.movs-validator = "movs-validator"
 scripts.movs-viewer = "movs-viewer"
 scripts.start = "movs-viewer"  # "main" one
+scripts.supersmart-merger = "supersmart-merger"
 scripts.test = { composite = [
     "coverage run -m unittest discover --verbose --locals --failfast --catch --start-directory tests {args}",
     "coverage report",
     "coverage erase",
 ] }
-scripts.supersmart-merger = "supersmart-merger"
 
 [tool.ruff]
 line-length = 80
